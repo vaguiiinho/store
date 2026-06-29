@@ -7,6 +7,7 @@ import { ORDER_REPOSITORY } from "../orders/orders.tokens";
 import { PrismaOrderRepository } from "../orders/infrastructure/prisma/prisma-order.repository";
 import { HandlePaymentWebhookUseCase } from "./application/handle-payment-webhook.use-case";
 import { GetPaymentByGatewayReferenceUseCase } from "./application/get-payment-by-gateway-reference.use-case";
+import { MercadoPagoPaymentGateway } from "./infrastructure/mercado-pago.payment.gateway";
 
 @Module({
   imports: [PrismaModule],
@@ -16,7 +17,13 @@ import { GetPaymentByGatewayReferenceUseCase } from "./application/get-payment-b
     GetPaymentByGatewayReferenceUseCase,
     {
       provide: PAYMENT_GATEWAY,
-      useClass: MockPaymentGateway
+      useFactory: () => {
+        if ((process.env.PAYMENT_PROVIDER ?? "mock") === "mercado_pago") {
+          return new MercadoPagoPaymentGateway();
+        }
+
+        return new MockPaymentGateway();
+      }
     },
     {
       provide: ORDER_REPOSITORY,

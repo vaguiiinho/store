@@ -21,6 +21,9 @@ Documentar os requisitos de ambiente para desenvolver e operar a loja virtual.
 - `AUTH_SECRET`
 - `PAYMENT_PROVIDER_KEY`
 - `PAYMENT_PROVIDER_SECRET`
+- `PAYMENT_PROVIDER`
+- `PAYMENT_PROVIDER_BASE_URL`
+- `PAYMENT_PROVIDER_WEBHOOK_SECRET`
 - `GMAIL_USER`
 - `GMAIL_APP_PASSWORD`
 - `RESEND_API_KEY` (futuro)
