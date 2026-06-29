@@ -119,6 +119,12 @@ npm install
 3. Inicie os apps:
 
 ```bash
+npm run dev
+```
+
+Se preferir subir cada app separadamente:
+
+```bash
 npm run dev:web
 npm run dev:api
 ```
