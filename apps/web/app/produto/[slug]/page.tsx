@@ -1,15 +1,16 @@
 import Link from "next/link";
+import { AddToCartButton } from "../../../components/add-to-cart-button";
 import { PublicPage } from "../../../components/public-page";
-import { featuredProducts } from "../../../lib/storefront-content";
+import { getFeaturedProduct } from "../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../lib/format";
 
 type ProdutoPageProps = {
   params: { slug: string };
 };
 
-export default function ProdutoPage({ params }: ProdutoPageProps) {
+export default async function ProdutoPage({ params }: ProdutoPageProps) {
   const { slug } = params;
-  const product = featuredProducts.find((item) => item.slug === slug);
+  const product = await getFeaturedProduct(slug);
 
   return (
     <PublicPage
@@ -19,7 +20,7 @@ export default function ProdutoPage({ params }: ProdutoPageProps) {
         product?.description ??
         "O detalhe do produto já prepara a página para exibir imagens, preço, variações e acesso ao carrinho."
       }
-      primaryAction={{ href: "/carrinho", label: "Adicionar ao carrinho" }}
+      primaryAction={product ? undefined : { href: "/carrinho", label: "Ir ao carrinho" }}
       secondaryAction={{ href: "/catalogo", label: "Voltar ao catálogo" }}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
@@ -44,9 +45,37 @@ export default function ProdutoPage({ params }: ProdutoPageProps) {
               {formatCurrencyBRL(product?.priceCents ?? 0)}
             </div>
             <p className="mt-3 text-sm text-muted">
-              {product ? "Produto disponível para compor o primeiro fluxo do checkout." : `Slug atual: ${slug}.`}
+              {product
+                ? "Produto disponível para compor o primeiro fluxo do checkout."
+                : `Slug atual: ${slug}.`}
             </p>
           </section>
+
+          {product ? (
+            <section className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Ação rápida</p>
+              <p className="mt-3 text-sm text-muted">
+                Use o botão abaixo para adicionar este item ao carrinho local e continuar a simulação de compra.
+              </p>
+              <div className="mt-5">
+                <AddToCartButton product={product} />
+              </div>
+            </section>
+          ) : null}
+
+          {product ? (
+            <section className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Resumo do catálogo</p>
+              <ul className="mt-4 space-y-3 text-sm text-[#32251c]">
+                {product.details.slice(0, 4).map((detail) => (
+                  <li key={detail} className="flex gap-3">
+                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#8b5a2b]" />
+                    <span>{detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           <section className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Próximos campos</p>

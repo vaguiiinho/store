@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { PublicPage } from "../components/public-page";
-import { featuredProducts, storePillars, storefrontStats } from "../lib/storefront-content";
+import { storePillars, storefrontStats } from "../lib/storefront-content";
+import { getFeaturedProducts } from "../lib/storefront-api";
 import { formatCurrencyBRL } from "../lib/format";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featuredProducts = await getFeaturedProducts();
+
   return (
     <PublicPage
       eyebrow="Base da V1"

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { PublicPage } from "../../components/public-page";
-import { featuredProducts } from "../../lib/storefront-content";
+import { getFeaturedProducts } from "../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../lib/format";
 
-export default function CheckoutPage() {
+export default async function CheckoutPage() {
+  const featuredProducts = await getFeaturedProducts();
   const shippingOptions = [
     { region: "Capital", value: 1500 },
     { region: "Interior", value: 2300 }

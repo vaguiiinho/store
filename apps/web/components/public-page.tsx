@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CartProvider } from "./cart-provider";
 import { routeLinks } from "../lib/storefront-content";
 
 type PublicPageProps = {
@@ -50,44 +51,46 @@ export function PublicPage({
         </div>
       </header>
 
-      <main className="page-shell pb-14 pt-8 sm:pb-20 sm:pt-12">
-        <section className="surface overflow-hidden rounded-[36px]">
-          <div className="grid-dots border-b border-[color:var(--border)] px-6 py-10 sm:px-10 sm:py-14">
-            <div className="max-w-3xl space-y-6">
-              <div className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">{eyebrow}</p>
-                <h1 className="max-w-2xl text-4xl font-semibold tracking-[-0.05em] text-[#191310] sm:text-5xl">
-                  {title}
-                </h1>
-                <p className="max-w-2xl text-base text-muted sm:text-lg">{description}</p>
-              </div>
-
-              {(primaryAction || secondaryAction) && (
-                <div className="flex flex-wrap gap-3">
-                  {primaryAction ? (
-                    <Link
-                      href={primaryAction.href}
-                      className="rounded-full bg-[#1d1712] px-5 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d]"
-                    >
-                      {primaryAction.label}
-                    </Link>
-                  ) : null}
-                  {secondaryAction ? (
-                    <Link
-                      href={secondaryAction.href}
-                      className="rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/70 px-5 py-3 text-sm font-semibold text-[#392a1e] transition hover:bg-white"
-                    >
-                      {secondaryAction.label}
-                    </Link>
-                  ) : null}
+      <CartProvider>
+        <main className="page-shell pb-14 pt-8 sm:pb-20 sm:pt-12">
+          <section className="surface overflow-hidden rounded-[36px]">
+            <div className="grid-dots border-b border-[color:var(--border)] px-6 py-10 sm:px-10 sm:py-14">
+              <div className="max-w-3xl space-y-6">
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">{eyebrow}</p>
+                  <h1 className="max-w-2xl text-4xl font-semibold tracking-[-0.05em] text-[#191310] sm:text-5xl">
+                    {title}
+                  </h1>
+                  <p className="max-w-2xl text-base text-muted sm:text-lg">{description}</p>
                 </div>
-              )}
-            </div>
-          </div>
 
-          <div className="px-6 py-8 sm:px-10 sm:py-10">{children}</div>
-        </section>
-      </main>
+                {(primaryAction || secondaryAction) && (
+                  <div className="flex flex-wrap gap-3">
+                    {primaryAction ? (
+                      <Link
+                        href={primaryAction.href}
+                        className="rounded-full bg-[#1d1712] px-5 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d]"
+                      >
+                        {primaryAction.label}
+                      </Link>
+                    ) : null}
+                    {secondaryAction ? (
+                      <Link
+                        href={secondaryAction.href}
+                        className="rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/70 px-5 py-3 text-sm font-semibold text-[#392a1e] transition hover:bg-white"
+                      >
+                        {secondaryAction.label}
+                      </Link>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 py-8 sm:px-10 sm:py-10">{children}</div>
+          </section>
+        </main>
+      </CartProvider>
     </div>
   );
 }
