@@ -11,6 +11,10 @@ export type FeaturedProduct = {
   badge: string;
   note: string;
   details: string[];
+  categories: Array<{
+    slug: string;
+    name: string;
+  }>;
 };
 
 export const routeLinks: RouteLink[] = [
@@ -28,7 +32,10 @@ export const featuredProducts: FeaturedProduct[] = [
     priceCents: 27900,
     badge: "Mais pedida",
     note: "Ideal para a primeira compra da loja.",
-    details: ["Reservatório de 1,2L", "Modo economia", "Limpeza simples"]
+    details: ["Reservatório de 1,2L", "Modo economia", "Limpeza simples"],
+    categories: [
+      { slug: "cafe", name: "Café" }
+    ]
   },
   {
     slug: "moedor-premium",
@@ -37,7 +44,11 @@ export const featuredProducts: FeaturedProduct[] = [
     priceCents: 18900,
     badge: "Novo",
     note: "Boa combinação para upsell no carrinho.",
-    details: ["15 níveis de moagem", "Lâminas em cerâmica", "Base antiderrapante"]
+    details: ["15 níveis de moagem", "Lâminas em cerâmica", "Base antiderrapante"],
+    categories: [
+      { slug: "cafe", name: "Café" },
+      { slug: "acessorios", name: "Acessórios" }
+    ]
   },
   {
     slug: "kit-manha-serena",
@@ -46,7 +57,10 @@ export const featuredProducts: FeaturedProduct[] = [
     priceCents: 12400,
     badge: "Combo",
     note: "Ótimo para testar variações e frete fixo por região.",
-    details: ["Seleção curada", "Embalagem presenteável", "Envio prioritário"]
+    details: ["Seleção curada", "Embalagem presenteável", "Envio prioritário"],
+    categories: [
+      { slug: "kits", name: "Kits" }
+    ]
   }
 ];
 

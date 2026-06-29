@@ -78,6 +78,10 @@ function toFeaturedProduct(product: ApiProduct): FeaturedProduct {
     priceCents: product.priceCents,
     badge,
     note,
+    categories: product.categories.map((category) => ({
+      slug: category.slug,
+      name: category.name
+    })),
     details: details.length > 0 ? details : ["Conteúdo inicial do catálogo"]
   };
 }
