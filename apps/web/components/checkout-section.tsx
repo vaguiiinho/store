@@ -1,9 +1,13 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useMemo, useState, type FormEvent } from "react";
 import { useCart } from "./cart-provider";
 import { formatCurrencyBRL } from "../lib/format";
+
+type ShippingRegionId = "capital" | "interior" | "litoral";
+type PaymentMethodId = "pix" | "card";
+type PaymentApiValue = "PIX" | "CARD";
 
 type ShippingRegion = {
   id: ShippingRegionId;
@@ -12,11 +16,9 @@ type ShippingRegion = {
   note: string;
 };
 
-type PaymentMethodId = "pix" | "card";
-type ShippingRegionId = "capital" | "interior" | "litoral";
-
 type PaymentMethod = {
   id: PaymentMethodId;
+  apiValue: PaymentApiValue;
   label: string;
   description: string;
 };
@@ -45,34 +47,106 @@ const shippingRegions: ShippingRegion[] = [
 const paymentMethods: PaymentMethod[] = [
   {
     id: "pix",
+    apiValue: "PIX",
     label: "Pix",
     description: "Fluxo pronto para instruções e confirmação via webhook."
   },
   {
     id: "card",
+    apiValue: "CARD",
     label: "Cartão",
     description: "Fluxo preparado para aprovação, pendência e recusa."
   }
-] as const;
+];
+
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
 
 export function CheckoutSection() {
-  const { items, itemCount, subtotalCents, hydrated } = useCart();
+  const { items, itemCount, subtotalCents, hydrated, clearCart } = useCart();
   const [selectedRegionId, setSelectedRegionId] = useState<ShippingRegionId>("capital");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodId>("pix");
-  const [orderNote, setOrderNote] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedRegion = useMemo(
     () => shippingRegions.find((region) => region.id === selectedRegionId) ?? shippingRegions[0],
     [selectedRegionId]
   );
+  const selectedPayment = paymentMethods.find((method) => method.id === selectedPaymentMethod) ?? paymentMethods[0];
 
   const totalCents = subtotalCents + selectedRegion.shippingCents;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setOrderNote(
-      `Checkout preparado para ${selectedPaymentMethod === "pix" ? "Pix" : "cartão"} com frete ${selectedRegion.label}.`
-    );
+
+    const formData = new FormData(event.currentTarget);
+
+    const payload = {
+      customer: {
+        name: String(formData.get("name") ?? "").trim(),
+        email: String(formData.get("email") ?? "").trim() || null,
+        phone: String(formData.get("phone") ?? "").trim(),
+        document: String(formData.get("document") ?? "").trim() || null
+      },
+      shippingAddress: {
+        cep: String(formData.get("cep") ?? "").trim(),
+        street: String(formData.get("street") ?? "").trim(),
+        number: String(formData.get("number") ?? "").trim(),
+        complement: String(formData.get("complement") ?? "").trim() || null,
+        district: String(formData.get("district") ?? "").trim(),
+        city: String(formData.get("city") ?? "").trim(),
+        state: String(formData.get("state") ?? "").trim(),
+        reference: String(formData.get("reference") ?? "").trim() || null
+      },
+      shippingRegion: selectedRegionId,
+      paymentMethod: selectedPayment.apiValue,
+      items: items.map((item) => ({
+        productSlug: item.slug,
+        quantity: item.quantity
+      }))
+    };
+
+    try {
+      setIsSubmitting(true);
+      setFeedback(null);
+
+      const response = await fetch(`${apiBaseUrl}/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const body = (await response.json()) as {
+        number?: string;
+        totalCents?: number;
+        message?: string | string[];
+      };
+
+      if (!response.ok) {
+        const message = Array.isArray(body.message)
+          ? body.message.join(", ")
+          : body.message ?? "Nao foi possivel criar o pedido.";
+
+        throw new Error(message);
+      }
+
+      clearCart();
+      event.currentTarget.reset();
+
+      setFeedback({
+        kind: "success",
+        message: `Pedido ${body.number} criado com sucesso. Total: ${formatCurrencyBRL(body.totalCents ?? totalCents)}.`
+      });
+    } catch (error) {
+      setFeedback({
+        kind: "error",
+        message: error instanceof Error ? error.message : "Falha ao criar o pedido."
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (!hydrated) {
@@ -84,6 +158,21 @@ export function CheckoutSection() {
   }
 
   if (items.length === 0) {
+    if (feedback?.kind === "success") {
+      return (
+        <div className="rounded-[28px] border border-[color:rgba(124,79,36,0.24)] bg-white/75 p-6 text-[#3a281c]">
+          <p className="text-sm font-semibold">Pedido criado com sucesso.</p>
+          <p className="mt-2 text-sm">{feedback.message}</p>
+          <Link
+            href="/catalogo"
+            className="mt-5 inline-flex rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2]"
+          >
+            Voltar ao catálogo
+          </Link>
+        </div>
+      );
+    }
+
     return (
       <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-6">
         <p className="text-sm font-semibold text-[#1d1712]">Seu carrinho está vazio.</p>
@@ -116,6 +205,7 @@ export function CheckoutSection() {
                 type="text"
                 name="name"
                 placeholder="Seu nome"
+                required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
             </label>
@@ -126,6 +216,7 @@ export function CheckoutSection() {
                 type="email"
                 name="email"
                 placeholder="voce@exemplo.com"
+                required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
             </label>
@@ -136,16 +227,40 @@ export function CheckoutSection() {
                 type="tel"
                 name="phone"
                 placeholder="(11) 99999-9999"
+                required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
             </label>
 
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">Documento</span>
+              <input
+                type="text"
+                name="document"
+                placeholder="CPF opcional"
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+          </div>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="space-y-2">
               <span className="text-sm font-semibold text-[#1d1712]">CEP</span>
               <input
                 type="text"
                 name="cep"
                 placeholder="00000-000"
+                required
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">Complemento</span>
+              <input
+                type="text"
+                name="complement"
+                placeholder="Apto, bloco..."
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
             </label>
@@ -158,6 +273,7 @@ export function CheckoutSection() {
                 type="text"
                 name="street"
                 placeholder="Rua, avenida..."
+                required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
             </label>
@@ -168,17 +284,56 @@ export function CheckoutSection() {
                 type="text"
                 name="number"
                 placeholder="123"
+                required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-[#1d1712]">Complemento</span>
+              <span className="text-sm font-semibold text-[#1d1712]">Referência</span>
               <input
                 type="text"
-                name="complement"
-                placeholder="Apto, bloco..."
+                name="reference"
+                placeholder="Perto de..."
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+          </div>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">Distrito</span>
+              <input
+                type="text"
+                name="district"
+                placeholder="Bairro"
+                required
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">Cidade</span>
+              <input
+                type="text"
+                name="city"
+                placeholder="Cidade"
+                required
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+          </div>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-[0.35fr_1fr]">
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">UF</span>
+              <input
+                type="text"
+                name="state"
+                placeholder="SP"
+                required
+                maxLength={2}
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm uppercase text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
             </label>
           </div>
@@ -235,9 +390,15 @@ export function CheckoutSection() {
           </div>
         </section>
 
-        {orderNote ? (
-          <div className="rounded-[28px] border border-[color:rgba(124,79,36,0.24)] bg-white/75 p-5 text-sm text-[#3a281c]">
-            {orderNote}
+        {feedback ? (
+          <div
+            className={`rounded-[28px] border p-5 text-sm ${
+              feedback.kind === "success"
+                ? "border-[color:rgba(124,79,36,0.24)] bg-white/75 text-[#3a281c]"
+                : "border-[color:rgba(153,27,27,0.24)] bg-[color:rgba(254,242,242,0.8)] text-[#7f1d1d]"
+            }`}
+          >
+            {feedback.message}
           </div>
         ) : null}
       </div>
@@ -252,7 +413,9 @@ export function CheckoutSection() {
                   <h3 className="text-sm font-semibold text-[#1e1713]">{item.name}</h3>
                   <p className="mt-1 text-sm text-muted">{item.quantity} unidade(s)</p>
                 </div>
-                <span className="text-sm font-semibold text-[#1e1713]">{formatCurrencyBRL(item.priceCents * item.quantity)}</span>
+                <span className="text-sm font-semibold text-[#1e1713]">
+                  {formatCurrencyBRL(item.priceCents * item.quantity)}
+                </span>
               </div>
             </div>
           ))}
@@ -279,9 +442,10 @@ export function CheckoutSection() {
 
         <button
           type="submit"
-          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d]"
+          disabled={isSubmitting}
+          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          Continuar com {selectedPaymentMethod === "pix" ? "Pix" : "cartão"}
+          {isSubmitting ? "Enviando pedido..." : `Continuar com ${selectedPayment.label}`}
         </button>
 
         <p className="mt-4 text-xs text-muted">

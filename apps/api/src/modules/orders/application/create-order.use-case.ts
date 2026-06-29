@@ -1,50 +1,155 @@
+import { randomUUID } from "node:crypto";
+import { Inject, Injectable } from "@nestjs/common";
+import { DomainError } from "../../shared/domain/errors/domain-error";
+import { PRODUCT_REPOSITORY } from "../../catalog/catalog.tokens";
+import { ProductRepository } from "../../catalog/domain/repositories/product.repository";
+import { CUSTOMER_REPOSITORY, ORDER_REPOSITORY } from "../orders.tokens";
+import { CustomerRepository } from "../domain/repositories/customer.repository";
+import { OrderRepository } from "../domain/repositories/order.repository";
 import { Address } from "../domain/entities/address.entity";
 import { Customer } from "../domain/entities/customer.entity";
 import { Order, OrderStatus } from "../domain/entities/order.entity";
 import { OrderItem } from "../domain/entities/order-item.entity";
+import { Payment, PaymentMethod } from "../domain/entities/payment.entity";
+
+export type ShippingRegion = "capital" | "interior" | "litoral";
 
 export type CreateOrderItemInput = {
-  id: string;
-  productId: string;
-  productName: string;
+  productSlug: string;
   quantity: number;
-  unitPriceCents: number;
   variantId?: string | null;
 };
 
 export type CreateOrderInput = {
-  id: string;
-  number: string;
-  customerId?: string | null;
-  customer?: Customer | null;
-  shippingAddress: Address;
+  customer: {
+    name: string;
+    email?: string | null;
+    phone: string;
+    document?: string | null;
+  };
+  shippingAddress: {
+    cep: string;
+    street: string;
+    number: string;
+    complement?: string | null;
+    district: string;
+    city: string;
+    state: string;
+    reference?: string | null;
+  };
+  shippingRegion: ShippingRegion;
+  paymentMethod: PaymentMethod;
   items: CreateOrderItemInput[];
-  shippingCents: number;
 };
 
+const shippingTable: Record<ShippingRegion, number> = {
+  capital: 1500,
+  interior: 2300,
+  litoral: 2900
+};
+
+function generateOrderNumber() {
+  const stamp = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
+  const suffix = randomUUID().slice(0, 6).toUpperCase();
+
+  return `ORD-${stamp}-${suffix}`;
+}
+
+@Injectable()
 export class CreateOrderUseCase {
-  execute(input: CreateOrderInput) {
+  constructor(
+    @Inject(PRODUCT_REPOSITORY)
+    private readonly productRepository: ProductRepository,
+    @Inject(CUSTOMER_REPOSITORY)
+    private readonly customerRepository: CustomerRepository,
+    @Inject(ORDER_REPOSITORY)
+    private readonly orderRepository: OrderRepository
+  ) {}
+
+  async execute(input: CreateOrderInput) {
+    if (input.items.length === 0) {
+      throw new DomainError("Adicione ao menos um item ao pedido.");
+    }
+
+    const customerRecord = input.customer.email
+      ? await this.customerRepository.findByEmail(input.customer.email)
+      : null;
+
+    const customer =
+      customerRecord ??
+      Customer.create({
+        id: randomUUID(),
+        name: input.customer.name,
+        phone: input.customer.phone,
+        email: input.customer.email ?? null,
+        document: input.customer.document ?? null
+      });
+
+    customer.name = input.customer.name;
+    customer.phone = input.customer.phone;
+    customer.email = input.customer.email ?? null;
+    customer.document = input.customer.document ?? null;
+
+    await this.customerRepository.save(customer);
+
     const order = Order.create({
-      id: input.id,
-      number: input.number,
-      customerId: input.customerId ?? null,
-      customer: input.customer ?? null,
-      shippingAddress: input.shippingAddress,
-      shippingCents: input.shippingCents,
-      status: OrderStatus.CREATED,
-      items: input.items.map((item) =>
+      id: randomUUID(),
+      number: generateOrderNumber(),
+      customerId: customer.id,
+      customer,
+      shippingAddress: Address.create({
+        id: randomUUID(),
+        customerId: customer.id,
+        cep: input.shippingAddress.cep,
+        street: input.shippingAddress.street,
+        number: input.shippingAddress.number,
+        complement: input.shippingAddress.complement ?? null,
+        district: input.shippingAddress.district,
+        city: input.shippingAddress.city,
+        state: input.shippingAddress.state,
+        reference: input.shippingAddress.reference ?? null
+      }),
+      shippingCents: shippingTable[input.shippingRegion],
+      status: OrderStatus.CREATED
+    });
+
+    for (const item of input.items) {
+      const product = await this.productRepository.findBySlug(item.productSlug);
+
+      if (!product || !product.active) {
+        throw new DomainError(`Produto indisponivel: ${item.productSlug}`);
+      }
+
+      const matchedVariant =
+        item.variantId ? product.variants.find((variant) => variant.id === item.variantId) : null;
+
+      if (item.variantId && (!matchedVariant || !matchedVariant.active)) {
+        throw new DomainError(`Variacao indisponivel para ${product.slug}`);
+      }
+
+      order.addItem(
         OrderItem.create({
-          id: item.id,
-          productId: item.productId,
-          productName: item.productName,
+          id: randomUUID(),
+          productId: product.id,
+          productName: product.name,
           quantity: item.quantity,
-          unitPriceCents: item.unitPriceCents,
-          variantId: item.variantId ?? null
+          unitPriceCents: product.priceCents,
+          variantId: matchedVariant?.id ?? null
         })
-      )
+      );
+    }
+
+    order.payment = Payment.create({
+      id: randomUUID(),
+      orderId: order.id,
+      method: input.paymentMethod,
+      amountCents: order.totalCents
     });
 
     order.markAwaitingPayment();
+
+    await this.orderRepository.save(order);
+
     return order;
   }
 }
