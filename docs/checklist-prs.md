@@ -38,10 +38,10 @@ Este documento transforma o plano da loja virtual em uma sequencia de PRs pequen
 ## PR 5 - Checkout e Pedido
 
 - [x] Formulario de checkout implementado.
-- [ ] Validacao de nome, contato e endereco.
+- [x] Validacao de nome, contato e endereco.
 - [x] Frete fixo por regiao exibido.
-- [x] Pix e cartao via Mercado Pago disponiveis.
-- [ ] Pedido criado com numero e status.
+- [ ] Pix e cartao via Mercado Pago disponiveis.
+- [x] Pedido criado com numero e status.
 - [ ] Pagina de sucesso pronta.
 
 ## PR 6 - Pagamento e Confirmacao
