@@ -89,3 +89,10 @@ Responda em pt-BR, de forma objetiva.
 - [.agents/templates/task-brief.md](.agents/templates/task-brief.md)
 - [.agents/templates/review-request.md](.agents/templates/review-request.md)
 - [.codex/README.md](.codex/README.md)
+
+## Documentos do projeto
+
+- [plan.md](plan.md)
+- [docs/README.md](docs/README.md)
+- [docs/prd-loja-virtual.md](docs/prd-loja-virtual.md)
+- [docs/implementacao-tasks.md](docs/implementacao-tasks.md)
