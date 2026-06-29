@@ -3,6 +3,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { PRODUCT_REPOSITORY } from "../../catalog/catalog.tokens";
 import { ProductRepository } from "../../catalog/domain/repositories/product.repository";
+import { PAYMENT_GATEWAY } from "../../payments/payments.tokens";
+import { PaymentGateway } from "../../payments/domain/payment-gateway";
 import { CUSTOMER_REPOSITORY, ORDER_REPOSITORY } from "../orders.tokens";
 import { CustomerRepository } from "../domain/repositories/customer.repository";
 import { OrderRepository } from "../domain/repositories/order.repository";
@@ -60,6 +62,8 @@ export class CreateOrderUseCase {
   constructor(
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: ProductRepository,
+    @Inject(PAYMENT_GATEWAY)
+    private readonly paymentGateway: PaymentGateway,
     @Inject(CUSTOMER_REPOSITORY)
     private readonly customerRepository: CustomerRepository,
     @Inject(ORDER_REPOSITORY)
@@ -139,11 +143,57 @@ export class CreateOrderUseCase {
       );
     }
 
+    const paymentSession = await this.paymentGateway.createPayment({
+      orderId: order.id,
+      orderNumber: order.number,
+      amountCents: order.totalCents,
+      paymentMethod: input.paymentMethod,
+      customer: {
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        document: customer.document
+      },
+      shippingAddress: {
+        cep: order.shippingAddress.cep,
+        street: order.shippingAddress.street,
+        number: order.shippingAddress.number,
+        complement: order.shippingAddress.complement,
+        district: order.shippingAddress.district,
+        city: order.shippingAddress.city,
+        state: order.shippingAddress.state,
+        reference: order.shippingAddress.reference
+      },
+      items: order.items.map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        unitPriceCents: item.unitPriceCents,
+        variantId: item.variantId
+      })),
+      returnUrl: process.env.APP_URL ?? null,
+      webhookUrl: process.env.APP_URL ? `${process.env.APP_URL}/api/payments/webhook` : null,
+      metadata: {
+        orderId: order.id,
+        orderNumber: order.number,
+        paymentMethod: input.paymentMethod
+      }
+    });
+
     order.payment = Payment.create({
       id: randomUUID(),
       orderId: order.id,
       method: input.paymentMethod,
-      amountCents: order.totalCents
+      amountCents: order.totalCents,
+      status: paymentSession.status,
+      externalReference: paymentSession.externalReference,
+      gatewayReference: paymentSession.gatewayReference,
+      provider: paymentSession.provider,
+      checkoutUrl: paymentSession.checkoutUrl,
+      qrCodeText: paymentSession.qrCodeText,
+      qrCodeBase64: paymentSession.qrCodeBase64,
+      instructions: paymentSession.instructions,
+      expiresAt: paymentSession.expiresAt
     });
 
     order.markAwaitingPayment();

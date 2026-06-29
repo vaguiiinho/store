@@ -47,7 +47,13 @@ function serializeOrder(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>
           status: order.payment.status,
           amountCents: order.payment.amountCents,
           externalReference: order.payment.externalReference,
-          gatewayReference: order.payment.gatewayReference
+          gatewayReference: order.payment.gatewayReference,
+          provider: order.payment.provider,
+          checkoutUrl: order.payment.checkoutUrl,
+          qrCodeText: order.payment.qrCodeText,
+          qrCodeBase64: order.payment.qrCodeBase64,
+          instructions: order.payment.instructions,
+          expiresAt: order.payment.expiresAt
         }
       : null
   };

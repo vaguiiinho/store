@@ -66,6 +66,14 @@ export function CheckoutSection() {
   const [selectedRegionId, setSelectedRegionId] = useState<ShippingRegionId>("capital");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodId>("pix");
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(null);
+  const [paymentResult, setPaymentResult] = useState<{
+    provider?: string | null;
+    checkoutUrl?: string | null;
+    qrCodeText?: string | null;
+    qrCodeBase64?: string | null;
+    instructions?: string[];
+    expiresAt?: string | null;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedRegion = useMemo(
@@ -121,6 +129,14 @@ export function CheckoutSection() {
       const body = (await response.json()) as {
         number?: string;
         totalCents?: number;
+        payment?: {
+          provider?: string | null;
+          checkoutUrl?: string | null;
+          qrCodeText?: string | null;
+          qrCodeBase64?: string | null;
+          instructions?: string[];
+          expiresAt?: string | null;
+        } | null;
         message?: string | string[];
       };
 
@@ -134,10 +150,14 @@ export function CheckoutSection() {
 
       clearCart();
       event.currentTarget.reset();
+      setPaymentResult(body.payment ?? null);
 
       setFeedback({
         kind: "success",
-        message: `Pedido ${body.number} criado com sucesso. Total: ${formatCurrencyBRL(body.totalCents ?? totalCents)}.`
+        message:
+          `Pedido ${body.number} criado com sucesso. Total: ${formatCurrencyBRL(body.totalCents ?? totalCents)}.` +
+          (body.payment?.qrCodeText ? ` PIX gerado com instrucoes de pagamento.` : "") +
+          (body.payment?.checkoutUrl ? ` Pagamento por cartao disponivel em link dedicado.` : "")
       });
     } catch (error) {
       setFeedback({
@@ -163,6 +183,37 @@ export function CheckoutSection() {
         <div className="rounded-[28px] border border-[color:rgba(124,79,36,0.24)] bg-white/75 p-6 text-[#3a281c]">
           <p className="text-sm font-semibold">Pedido criado com sucesso.</p>
           <p className="mt-2 text-sm">{feedback.message}</p>
+          {paymentResult ? (
+            <div className="mt-4 rounded-3xl border border-[color:var(--border)] bg-white/85 p-4 text-sm">
+              <p className="font-semibold text-[#1d1712]">Pagamento mockado</p>
+              <p className="mt-2 text-muted">Provedor: {paymentResult.provider ?? "mock"}</p>
+              {paymentResult.instructions?.length ? (
+                <ul className="mt-3 space-y-2 text-[#33251b]">
+                  {paymentResult.instructions.map((instruction) => (
+                    <li key={instruction} className="flex gap-3">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#8b5a2b]" />
+                      <span>{instruction}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {paymentResult.qrCodeText ? (
+                <div className="mt-4 rounded-2xl border border-dashed border-[color:rgba(124,79,36,0.24)] bg-[color:rgba(255,250,242,0.8)] p-4 font-mono text-xs break-all text-[#33251b]">
+                  {paymentResult.qrCodeText}
+                </div>
+              ) : null}
+              {paymentResult.checkoutUrl ? (
+                <a
+                  href={paymentResult.checkoutUrl}
+                  className="mt-4 inline-flex rounded-full bg-[#1d1712] px-4 py-2 text-sm font-semibold text-[#fffaf2]"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Abrir checkout do cartao
+                </a>
+              ) : null}
+            </div>
+          ) : null}
           <Link
             href="/catalogo"
             className="mt-5 inline-flex rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2]"
