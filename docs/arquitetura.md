@@ -26,7 +26,7 @@ A loja virtual segue uma separacao simples entre experiencia do cliente, operaca
 | Frontend administrativo | Produtos, pedidos e operacao interna |
 | API de dominio | Produtos, estoque, pedidos, checkout e admin |
 | Banco de dados | Persistencia de produtos, pedidos, clientes e pagamentos |
-| Integracao de pagamento | Pix e cartao via gateway externo |
+| Integracao de pagamento | Pix e cartao via Mercado Pago |
 | Integracao de notificacao | Confirmacoes e atualizacoes de status |
 
 ## Separacao de Dominios
@@ -71,3 +71,11 @@ Responsavel por operacao de produtos, estoque e pedidos.
 - Estoque precisa ser consistente para evitar overbooking.
 - UI e checkout precisam ser leves para reduzir abandono.
 
+## Abstrações de Integracao
+
+### E-mail
+
+- O dominio nao deve depender diretamente de Gmail, Resend ou qualquer provedor.
+- A integracao deve passar por um `EmailGateway`.
+- O MVP pode usar Gmail free.
+- O provedor futuro recomendado e Resend.

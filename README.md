@@ -95,4 +95,30 @@ Responda em pt-BR, de forma objetiva.
 - [plan.md](plan.md)
 - [docs/README.md](docs/README.md)
 - [docs/prd-loja-virtual.md](docs/prd-loja-virtual.md)
+- [docs/ambiente.md](docs/ambiente.md)
 - [docs/implementacao-tasks.md](docs/implementacao-tasks.md)
+- [docs/checklist-prs.md](docs/checklist-prs.md)
+- [docs/pre-requisitos-implementacao.md](docs/pre-requisitos-implementacao.md)
+- [docs/plano-implementacao-v1.md](docs/plano-implementacao-v1.md)
+- [docs/backlog-tecnico-v1.md](docs/backlog-tecnico-v1.md)
+
+## Inicio rapido
+
+1. Suba o PostgreSQL:
+
+```bash
+docker compose up -d
+```
+
+2. Instale dependencias:
+
+```bash
+npm install
+```
+
+3. Inicie os apps:
+
+```bash
+npm run dev:web
+npm run dev:api
+```

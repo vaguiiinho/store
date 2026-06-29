@@ -14,7 +14,7 @@
 - Carrinho.
 - Checkout.
 - Pedido.
-- Pagamento por Pix e cartao.
+- Pagamento por Pix e cartao via Mercado Pago.
 
 ## Fase 3 - Operacao
 
@@ -37,4 +37,3 @@
 - Observabilidade avancada.
 - Automacao operacional.
 - Melhorias de conversao.
-

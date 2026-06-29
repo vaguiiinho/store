@@ -2,7 +2,7 @@
 
 ## Resumo
 
-Criar uma loja virtual de produtos fisicos com MVP simples, pagamento por Pix e cartao, frete fixo/manual e painel administrativo para produtos e pedidos.
+Criar uma loja virtual de produtos fisicos com MVP simples, pagamento por Pix e cartao via Mercado Pago, frete fixo por regiao, e-mail transacional via Gmail free e painel administrativo para produtos e pedidos.
 
 A base arquitetural segue o padrao deste repositorio:
 
@@ -17,9 +17,10 @@ A base arquitetural segue o padrao deste repositorio:
 - Pagina de produto com fotos, descricao, preco, variacoes e disponibilidade.
 - Carrinho de compras com adicionar, remover, alterar quantidade e calcular subtotal.
 - Checkout com identificacao do cliente, endereco, frete e forma de pagamento.
-- Pagamento por Pix e cartao.
+- Pagamento por Pix e cartao via Mercado Pago.
 - Criacao de pedido com numero, status e resumo da compra.
 - Confirmacao de pedido e pagina de sucesso.
+- E-mail transacional para confirmacao e atualizacoes de status.
 - Notificacao de confirmacao de compra e atualizacao de status.
 - Area administrativa para:
   - criar, editar, ativar e desativar produtos;
@@ -27,7 +28,7 @@ A base arquitetural segue o padrao deste repositorio:
   - acompanhar pedidos e alterar status;
   - visualizar informacoes basicas de clientes e compras.
 - Historico de pedidos para o cliente, se houver conta no MVP.
-- Politica de frete manual ou fixo por regiao.
+- Politica de frete fixo por regiao.
 - Controle basico de estoque para evitar venda acima do disponivel.
 - Cupons, avaliacoes e calculo automatico de frete ficam fora da v1, salvo necessidade explicita.
 
@@ -36,13 +37,13 @@ A base arquitetural segue o padrao deste repositorio:
 1. Definir o escopo fechado da v1
    - Confirmar que a loja sera de produtos fisicos.
    - Manter MVP simples.
-   - Usar Pix e cartao.
-   - Aplicar frete fixo/manual.
+   - Usar Pix e cartao via Mercado Pago.
+   - Aplicar frete fixo por regiao.
    - Ter painel admin para produtos e pedidos.
 
 2. Fechar o dominio do negocio
    - Modelar entidades principais: Produto, Categoria, Variante, Estoque, Carrinho, Pedido, Item de Pedido, Cliente, Endereco, Pagamento e Status de Pedido.
-   - Definir regras de negocio para estoque, preco, status e checkout.
+   - Definir regras de negocio para estoque com reserva e expiracao, preco, status e checkout.
    - Definir quais dados serao obrigatorios no cadastro do pedido.
 
 3. Planejar a arquitetura
@@ -59,9 +60,9 @@ A base arquitetural segue o padrao deste repositorio:
    - Fluxo administrativo de cadastro de produto e atualizacao de pedido.
 
 5. Especificar integracoes
-   - Pagamento via gateway compativel com Pix e cartao.
-   - Frete manual/fixo na v1.
-   - Notificacoes por e-mail na confirmacao e mudanca de status, se fizer parte do escopo inicial.
+   - Pagamento via Mercado Pago.
+   - Frete fixo por regiao na v1.
+   - Notificacoes por e-mail via Gmail free na confirmacao e mudanca de status.
 
 6. Implementar por fatias
    - Base de layout e navegacao.
@@ -87,7 +88,7 @@ A base arquitetural segue o padrao deste repositorio:
 - bloquear compra quando estoque insuficiente;
 - finalizar pedido com Pix;
 - finalizar pedido com cartao;
-- aplicar frete manual;
+- aplicar frete fixo por regiao;
 - alterar status do pedido no admin;
 - listar pedidos no admin.
 
@@ -95,8 +96,8 @@ A base arquitetural segue o padrao deste repositorio:
 
 - Loja de produtos fisicos.
 - MVP simples, nao marketplace.
-- Pagamento com Pix e cartao.
-- Frete manual/fixo na primeira versao.
+- Pagamento com Pix e cartao via Mercado Pago.
+- Frete fixo por regiao na primeira versao.
 - Painel admin para produtos e pedidos.
 - Conta de cliente opcional no MVP, com checkout simples.
 

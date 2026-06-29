@@ -1,5 +1,7 @@
 # ADR 0003 - Frete Manual na V1
 
+> Superseded by [ADR 0007 - Frete Fixo por Regiao](0007-frete-fixo-por-regiao.md).
+
 ## Contexto
 
 O frete pode ampliar muito a complexidade do MVP.
@@ -24,4 +26,3 @@ Usar frete manual ou fixo por regiao na v1.
 - Menor complexidade no inicio.
 - Operacao precisa de processo claro para manter consistencia.
 - Futuramente pode evoluir para frete automatizado.
-

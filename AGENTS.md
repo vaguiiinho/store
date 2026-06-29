@@ -8,6 +8,28 @@ Este arquivo e a entrada principal para agentes neste repositorio.
 2. Leia `.agents/operating-principles.md` antes de mudar arquivos.
 3. Leia `.agents/project-architecture.md` quando a tarefa envolver Next.js, NestJS, Prisma ou PostgreSQL.
 4. Use `.agents/templates/` para briefings e revisoes.
+5. Consulte `docs/README.md` e `docs/pre-requisitos-implementacao.md` antes de iniciar implementacao.
+
+## Contexto do projeto
+
+Decisoes ja fechadas para a v1:
+
+- loja de produtos fisicos;
+- MVP simples;
+- frontend em Next.js App Router;
+- backend em NestJS;
+- banco PostgreSQL;
+- ORM Prisma;
+- pagamento via Mercado Pago;
+- frete fixo por regiao;
+- checkout como visitante;
+- admin com email, senha, cookie httpOnly e papel `admin`;
+- imagens no Cloudinary;
+- comandos oficiais com `npm`;
+- PostgreSQL em container Docker;
+- e-mail transacional via Gmail free no MVP;
+- provedor futuro recomendado para e-mail: Resend;
+- estoque com reserva na criacao do pedido e expiracao.
 
 ## Regra geral
 
@@ -36,3 +58,13 @@ Ao concluir uma tarefa, informe:
 - onde foi alterado;
 - como foi verificado;
 - limites ou proximos passos relevantes.
+
+## Leitura adicional
+
+- [README.md](README.md)
+- [docs/README.md](docs/README.md)
+- [docs/ambiente.md](docs/ambiente.md)
+- [docs/prd-loja-virtual.md](docs/prd-loja-virtual.md)
+- [docs/implementacao-tasks.md](docs/implementacao-tasks.md)
+- [docs/checklist-prs.md](docs/checklist-prs.md)
+- [docs/pre-requisitos-implementacao.md](docs/pre-requisitos-implementacao.md)

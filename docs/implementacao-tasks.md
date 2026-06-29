@@ -32,8 +32,8 @@ Transformar o PRD da loja virtual em entregas executaveis, com fatias pequenas e
 
 - Criar formulario de checkout.
 - Validar nome, contato e endereco.
-- Exibir frete manual/fixo.
-- Permitir escolha de Pix e cartao.
+- Exibir frete fixo por regiao.
+- Permitir escolha de Pix e cartao via Mercado Pago.
 - Registrar pedido ao concluir a compra.
 
 ## Fase 5 - Pagamento e Pedido
@@ -82,7 +82,7 @@ Transformar o PRD da loja virtual em entregas executaveis, com fatias pequenas e
 - Criar entidade Pedido.
 - Criar item de pedido.
 - Criar status de pedido.
-- Integrar pagamento por Pix e cartao.
+- Integrar pagamento por Pix e cartao via Mercado Pago.
 
 ### Admin
 

@@ -2,7 +2,7 @@
 
 ## Visao do Produto
 
-Construir uma loja virtual de produtos fisicos com experiencia simples de compra, pagamento por Pix e cartao, frete manual/fixo e painel administrativo para operacao da loja.
+Construir uma loja virtual de produtos fisicos com experiencia simples de compra, pagamento por Pix e cartao via Mercado Pago, frete fixo por regiao e painel administrativo para operacao da loja.
 
 ## Objetivo
 
@@ -39,12 +39,12 @@ Hoje a operacao de venda precisa de um canal digital simples e confiavel para:
 - Pagina de produto.
 - Carrinho.
 - Checkout.
-- Pagamento por Pix e cartao.
+- Pagamento por Pix e cartao via Mercado Pago.
 - Criacao de pedido.
 - Pagina de confirmacao.
 - Painel admin para produtos e pedidos.
 - Controle basico de estoque.
-- Frete manual/fixo.
+- Frete fixo por regiao.
 
 ### Nao inclui
 
@@ -65,7 +65,7 @@ Hoje a operacao de venda precisa de um canal digital simples e confiavel para:
 | RF-03 | Exibir pagina detalhada do produto | Alta |
 | RF-04 | Permitir adicionar, remover e alterar quantidade no carrinho | Alta |
 | RF-05 | Permitir checkout com nome, contato, endereco e frete | Alta |
-| RF-06 | Permitir pagamento por Pix e cartao | Alta |
+| RF-06 | Permitir pagamento por Pix e cartao via Mercado Pago | Alta |
 | RF-07 | Criar pedido com numero, status e resumo | Alta |
 | RF-08 | Exibir pagina de sucesso apos compra | Alta |
 | RF-09 | Permitir admin criar, editar, ativar e desativar produtos | Alta |
@@ -146,7 +146,7 @@ Hoje a operacao de venda precisa de um canal digital simples e confiavel para:
 
 - Integracao de pagamento pode atrasar a entrega.
 - Regra de estoque mal definida pode gerar venda indevida.
-- Frete manual pode gerar inconsistencias se nao houver processo claro.
+- Frete fixo por regiao pode gerar inconsistencias se nao houver processo claro.
 - Escopo excessivo pode comprometer a entrega do MVP.
 
 ## Decisoes de Arquitetura
@@ -161,12 +161,11 @@ Hoje a operacao de venda precisa de um canal digital simples e confiavel para:
 - Cliente consegue navegar, escolher produto e finalizar compra.
 - Admin consegue gerenciar produtos e acompanhar pedidos.
 - Estoque nao permite vender acima do disponivel.
-- Pagamento por Pix e cartao esta suportado.
+- Pagamento por Pix e cartao via Mercado Pago esta suportado.
 - Pedido fica registrado com status rastreavel.
 
 ## Perguntas em Aberto
 
 - Conta de cliente sera obrigatoria ou opcional na v1?
-- Qual gateway de pagamento sera usado?
-- O frete manual sera por regioes fixas ou um valor unico?
+- Qual politica exata de reserva de estoque sera aplicada?
 - Haverá notificacao por e-mail ja no MVP?
