@@ -51,6 +51,12 @@ type PrismaOrderRecord = {
     amountCents: number;
     externalReference: string | null;
     gatewayReference: string | null;
+    provider: string | null;
+    checkoutUrl: string | null;
+    qrCodeText: string | null;
+    qrCodeBase64: string | null;
+    instructions: string[];
+    expiresAt: Date | null;
   } | null;
 };
 
@@ -101,7 +107,13 @@ function mapOrder(record: PrismaOrderRecord) {
           status: record.payment.status,
           amountCents: record.payment.amountCents,
           externalReference: record.payment.externalReference,
-          gatewayReference: record.payment.gatewayReference
+          gatewayReference: record.payment.gatewayReference,
+          provider: record.payment.provider,
+          checkoutUrl: record.payment.checkoutUrl,
+          qrCodeText: record.payment.qrCodeText,
+          qrCodeBase64: record.payment.qrCodeBase64,
+          instructions: record.payment.instructions,
+          expiresAt: record.payment.expiresAt
         })
       : null
   });
@@ -128,6 +140,24 @@ export class PrismaOrderRepository implements OrderRepository {
   async findByNumber(number: string) {
     const order = await this.prisma.order.findUnique({
       where: { number },
+      include: {
+        customer: true,
+        shippingAddress: true,
+        items: true,
+        payment: true
+      }
+    });
+
+    return order ? mapOrder(order as PrismaOrderRecord) : null;
+  }
+
+  async findByPaymentGatewayReference(gatewayReference: string) {
+    const order = await this.prisma.order.findFirst({
+      where: {
+        payment: {
+          gatewayReference
+        }
+      },
       include: {
         customer: true,
         shippingAddress: true,
@@ -192,7 +222,13 @@ export class PrismaOrderRepository implements OrderRepository {
                 status: order.payment.status,
                 amountCents: order.payment.amountCents,
                 externalReference: order.payment.externalReference,
-                gatewayReference: order.payment.gatewayReference
+                gatewayReference: order.payment.gatewayReference,
+                provider: order.payment.provider,
+                checkoutUrl: order.payment.checkoutUrl,
+                qrCodeText: order.payment.qrCodeText,
+                qrCodeBase64: order.payment.qrCodeBase64,
+                instructions: order.payment.instructions,
+                expiresAt: order.payment.expiresAt
               }
             }
           : undefined,
@@ -205,7 +241,40 @@ export class PrismaOrderRepository implements OrderRepository {
         subtotalCents: order.subtotalCents,
         shippingCents: order.shippingCents,
         totalCents: order.totalCents,
-        status: order.status
+        status: order.status,
+        payment: order.payment
+          ? {
+              upsert: {
+                create: {
+                  id: order.payment.id,
+                  method: order.payment.method,
+                  status: order.payment.status,
+                  amountCents: order.payment.amountCents,
+                  externalReference: order.payment.externalReference,
+                  gatewayReference: order.payment.gatewayReference,
+                  provider: order.payment.provider,
+                  checkoutUrl: order.payment.checkoutUrl,
+                  qrCodeText: order.payment.qrCodeText,
+                  qrCodeBase64: order.payment.qrCodeBase64,
+                  instructions: order.payment.instructions,
+                  expiresAt: order.payment.expiresAt
+                },
+                update: {
+                  method: order.payment.method,
+                  status: order.payment.status,
+                  amountCents: order.payment.amountCents,
+                  externalReference: order.payment.externalReference,
+                  gatewayReference: order.payment.gatewayReference,
+                  provider: order.payment.provider,
+                  checkoutUrl: order.payment.checkoutUrl,
+                  qrCodeText: order.payment.qrCodeText,
+                  qrCodeBase64: order.payment.qrCodeBase64,
+                  instructions: order.payment.instructions,
+                  expiresAt: order.payment.expiresAt
+                }
+              }
+            }
+          : undefined
       }
     });
   }

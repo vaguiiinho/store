@@ -1,0 +1,7 @@
+ALTER TABLE "Payment"
+ADD COLUMN "provider" TEXT,
+ADD COLUMN "checkoutUrl" TEXT,
+ADD COLUMN "qrCodeText" TEXT,
+ADD COLUMN "qrCodeBase64" TEXT,
+ADD COLUMN "instructions" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+ADD COLUMN "expiresAt" TIMESTAMP(3);

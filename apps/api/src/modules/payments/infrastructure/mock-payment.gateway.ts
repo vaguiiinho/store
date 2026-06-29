@@ -10,6 +10,28 @@ import {
 } from "../domain/payment-gateway";
 import { PaymentMethod, PaymentStatus } from "../../orders/domain/entities/payment.entity";
 
+function mapWebhookStatus(status: unknown) {
+  if (typeof status !== "string") {
+    return PaymentStatus.PENDING;
+  }
+
+  const normalized = status.toLowerCase();
+
+  if (normalized === "approved" || normalized === "paid" || normalized === "authorized") {
+    return PaymentStatus.PAID;
+  }
+
+  if (normalized === "declined" || normalized === "rejected" || normalized === "refused") {
+    return PaymentStatus.DECLINED;
+  }
+
+  if (normalized === "canceled" || normalized === "cancelled" || normalized === "voided") {
+    return PaymentStatus.CANCELLED;
+  }
+
+  return PaymentStatus.PENDING;
+}
+
 function buildInstructions(input: CreatePaymentGatewayInput) {
   if (input.paymentMethod === PaymentMethod.PIX) {
     return [
@@ -98,7 +120,7 @@ export class MockPaymentGateway extends PaymentGateway {
     return {
       gatewayReference,
       externalReference,
-      status: PaymentStatus.PENDING,
+      status: mapWebhookStatus(body.status),
       raw: {
         provider: "mock",
         body,

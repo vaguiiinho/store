@@ -185,6 +185,12 @@ model Payment {
   amountCents       Int
   externalReference String?
   gatewayReference  String?
+  provider          String?
+  checkoutUrl       String?
+  qrCodeText        String?
+  qrCodeBase64       String?
+  instructions      String[]      @default([])
+  expiresAt         DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 }

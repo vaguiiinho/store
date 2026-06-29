@@ -50,9 +50,9 @@ Este documento transforma o plano da loja virtual em uma sequencia de PRs pequen
 - [x] Mock de retorno de pagamento disponivel.
 - [x] Webhook de pagamento preparado.
 - [ ] Integracao com Mercado Pago definida.
-- [ ] Fluxo de Pix suportado.
-- [ ] Fluxo de cartao suportado.
-- [ ] Tratamento de pagamento aprovado e recusado.
+- [x] Fluxo de Pix suportado.
+- [x] Fluxo de cartao suportado.
+- [x] Tratamento de pagamento aprovado e recusado.
 - [ ] Base de notificacao de confirmacao criada.
 - [ ] Envio de e-mails transacionais configurado.
 
