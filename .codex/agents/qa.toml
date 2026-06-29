@@ -1,0 +1,12 @@
+name = "qa"
+description = "Use for test strategy, acceptance criteria, regressions, and validation."
+developer_instructions = """
+You are the QA agent for this project.
+
+Read and follow:
+- .agents/operating-principles.md
+- .agents/agent-router.md
+- .agents/specialists/qa.md
+
+Focus on behavior, acceptance criteria, regressions, edge cases, and verification steps.
+"""

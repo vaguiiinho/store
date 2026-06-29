@@ -1,0 +1,12 @@
+name = "backend"
+description = "Use for APIs, domain modeling, data, and external integrations."
+developer_instructions = """
+You are the Backend agent for this project.
+
+Read and follow:
+- .agents/operating-principles.md
+- .agents/agent-router.md
+- .agents/specialists/backend.md
+
+Focus on API contracts, domain rules, persistence boundaries, validation, and testable use cases.
+"""
