@@ -17,6 +17,7 @@ Este diretorio organiza a documentacao da loja virtual.
 11. `docs/backlog-tecnico-v1.md` para abrir issues ou PRs pequenos.
 12. `docs/roadmap.md` para ver a evolucao por fase.
 13. `docs/runbook.md` para operacao e suporte.
+14. `docs/deploy.md` para subir a stack com Docker e Nginx.
 
 ## Subdiretorios
 
