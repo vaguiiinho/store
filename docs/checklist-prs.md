@@ -42,7 +42,7 @@ Este documento transforma o plano da loja virtual em uma sequencia de PRs pequen
 - [x] Frete fixo por regiao exibido.
 - [ ] Pix e cartao via Mercado Pago disponiveis.
 - [x] Pedido criado com numero e status.
-- [ ] Pagina de sucesso pronta.
+- [x] Pagina de sucesso pronta.
 
 ## PR 6 - Pagamento e Confirmacao
 
