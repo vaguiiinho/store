@@ -46,6 +46,9 @@ Este documento transforma o plano da loja virtual em uma sequencia de PRs pequen
 
 ## PR 6 - Pagamento e Confirmacao
 
+- [x] Contrato de gateway de pagamento definido.
+- [x] Mock de retorno de pagamento disponivel.
+- [x] Webhook de pagamento preparado.
 - [ ] Integracao com Mercado Pago definida.
 - [ ] Fluxo de Pix suportado.
 - [ ] Fluxo de cartao suportado.
