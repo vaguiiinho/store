@@ -4,43 +4,43 @@ Este documento transforma o plano da loja virtual em uma sequencia de PRs pequen
 
 ## PR 1 - Fundacao
 
-- [ ] Estrutura inicial do frontend criada.
-- [ ] Estrutura inicial do backend criada.
-- [ ] Layout base da aplicacao pronto.
-- [ ] Rotas principais definidas.
-- [ ] Banco e configuracao inicial preparados.
-- [ ] Validacao e tratamento de erros basicos prontos.
+- [x] Estrutura inicial do frontend criada.
+- [x] Estrutura inicial do backend criada.
+- [x] Layout base da aplicacao pronto.
+- [x] Rotas principais definidas.
+- [x] Banco e configuracao inicial preparados.
+- [x] Validacao e tratamento de erros basicos prontos.
 
 ## PR 2 - Dominio e Persistencia
 
-- [ ] Entidades principais modeladas.
-- [ ] Repositorios definidos por contrato.
-- [ ] Prisma isolado na infraestrutura.
-- [ ] Migrations iniciais criadas.
-- [ ] Casos de uso basicos preparados.
+- [x] Entidades principais modeladas.
+- [x] Repositorios definidos por contrato.
+- [x] Prisma isolado na infraestrutura.
+- [x] Migrations iniciais criadas.
+- [x] Casos de uso basicos preparados.
 
 ## PR 3 - Catalogo Publico
 
-- [ ] Home exibindo produtos em destaque.
-- [ ] Listagem de produtos funcionando.
-- [ ] Busca e filtros basicos disponiveis.
-- [ ] Pagina de detalhe do produto implementada.
+- [x] Home exibindo produtos em destaque.
+- [x] Listagem de produtos funcionando.
+- [x] Busca e filtros basicos disponiveis.
+- [x] Pagina de detalhe do produto implementada.
 - [ ] Estados de loading, vazio e erro tratados.
 
 ## PR 4 - Carrinho
 
-- [ ] Adicionar item ao carrinho.
-- [ ] Remover item do carrinho.
-- [ ] Alterar quantidade.
-- [ ] Calcular subtotal.
-- [ ] Manter estado do carrinho de forma previsivel.
+- [x] Adicionar item ao carrinho.
+- [x] Remover item do carrinho.
+- [x] Alterar quantidade.
+- [x] Calcular subtotal.
+- [x] Manter estado do carrinho de forma previsivel.
 
 ## PR 5 - Checkout e Pedido
 
-- [ ] Formulario de checkout implementado.
+- [x] Formulario de checkout implementado.
 - [ ] Validacao de nome, contato e endereco.
-- [ ] Frete fixo por regiao exibido.
-- [ ] Pix e cartao via Mercado Pago disponiveis.
+- [x] Frete fixo por regiao exibido.
+- [x] Pix e cartao via Mercado Pago disponiveis.
 - [ ] Pedido criado com numero e status.
 - [ ] Pagina de sucesso pronta.
 
