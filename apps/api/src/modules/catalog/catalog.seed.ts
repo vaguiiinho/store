@@ -128,7 +128,7 @@ export class CatalogSeedService implements OnModuleInit {
           description: product.description,
           priceCents: product.priceCents,
           active: true,
-          images: product.images,
+          images: [...product.images],
           categories: {
             connect: product.categorySlugs.map((slug) => ({ slug }))
           },
