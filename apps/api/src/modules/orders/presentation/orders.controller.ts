@@ -1,7 +1,9 @@
-import { BadRequestException, Body, Controller, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Inject, NotFoundException, Param, Post } from "@nestjs/common";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { CreateOrderUseCase } from "../application/create-order.use-case";
 import { CreateOrderDto } from "./dto/create-order.dto";
+import { ORDER_REPOSITORY } from "../orders.tokens";
+import { OrderRepository } from "../domain/repositories/order.repository";
 
 function serializeOrder(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>>) {
   return {
@@ -61,13 +63,21 @@ function serializeOrder(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>
 
 @Controller()
 export class OrdersController {
-  constructor(private readonly createOrderUseCase: CreateOrderUseCase) {}
+  constructor(
+    private readonly createOrderUseCase: CreateOrderUseCase,
+    @Inject(ORDER_REPOSITORY)
+    private readonly orderRepository: OrderRepository
+  ) {}
+
+  private serialize(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>>) {
+    return serializeOrder(order);
+  }
 
   @Post("orders")
   async create(@Body() body: CreateOrderDto) {
     try {
       const order = await this.createOrderUseCase.execute(body);
-      return serializeOrder(order);
+      return this.serialize(order);
     } catch (error) {
       if (error instanceof DomainError) {
         throw new BadRequestException(error.message);
@@ -75,5 +85,16 @@ export class OrdersController {
 
       throw error;
     }
+  }
+
+  @Get("orders/number/:number")
+  async getByNumber(@Param("number") number: string) {
+    const order = await this.orderRepository.findByNumber(number);
+
+    if (!order) {
+      throw new NotFoundException("Pedido nao encontrado.");
+    }
+
+    return this.serialize(order);
   }
 }

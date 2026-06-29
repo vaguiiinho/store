@@ -33,6 +33,58 @@ type ApiProduct = {
   stock: ApiStock;
 };
 
+type ApiOrderPayment = {
+  id: string;
+  method: "PIX" | "CARD";
+  status: "PENDING" | "PAID" | "DECLINED" | "CANCELLED";
+  amountCents: number;
+  externalReference: string | null;
+  gatewayReference: string | null;
+  provider: string | null;
+  checkoutUrl: string | null;
+  qrCodeText: string | null;
+  qrCodeBase64: string | null;
+  instructions: string[];
+  expiresAt: string | null;
+};
+
+type ApiOrder = {
+  id: string;
+  number: string;
+  status: "CREATED" | "AWAITING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+  subtotalCents: number;
+  shippingCents: number;
+  totalCents: number;
+  customer: {
+    id: string;
+    name: string;
+    email: string | null;
+    phone: string;
+    document: string | null;
+  } | null;
+  shippingAddress: {
+    id: string;
+    cep: string;
+    street: string;
+    number: string;
+    complement: string | null;
+    district: string;
+    city: string;
+    state: string;
+    reference: string | null;
+  };
+  items: Array<{
+    id: string;
+    productId: string;
+    productName: string;
+    quantity: number;
+    unitPriceCents: number;
+    variantId: string | null;
+    totalCents: number;
+  }>;
+  payment: ApiOrderPayment | null;
+};
+
 const apiBaseUrl = process.env.API_URL ?? "http://localhost:3001/api";
 
 async function fetchApi<T>(path: string) {
@@ -108,4 +160,8 @@ export async function getFeaturedProduct(slug: string) {
   }
 
   return findFallbackProduct(slug);
+}
+
+export async function getOrderByNumber(number: string) {
+  return fetchApi<ApiOrder>(`/orders/number/${number}`);
 }
