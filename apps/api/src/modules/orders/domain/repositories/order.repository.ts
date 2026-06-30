@@ -5,5 +5,6 @@ export interface OrderRepository {
   findById(id: string): Promise<Order | null>;
   findByNumber(number: string): Promise<Order | null>;
   findByPaymentGatewayReference(gatewayReference: string): Promise<Order | null>;
+  findAll(limit?: number): Promise<Order[]>;
   save(order: Order, tx?: Prisma.TransactionClient): Promise<void>;
 }

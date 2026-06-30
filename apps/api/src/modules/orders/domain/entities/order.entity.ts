@@ -24,6 +24,7 @@ export type OrderProps = {
   status?: OrderStatus;
   payment?: Payment | null;
   customer?: Customer | null;
+  createdAt?: Date;
 };
 
 export class Order {
@@ -37,7 +38,8 @@ export class Order {
     public shippingCents = 0,
     public status: OrderStatus = OrderStatus.CREATED,
     public payment: Payment | null = null,
-    public customer: Customer | null = null
+    public customer: Customer | null = null,
+    public readonly createdAt: Date = new Date()
   ) {}
 
   static create(props: OrderProps) {
@@ -51,7 +53,8 @@ export class Order {
       props.shippingCents ?? 0,
       props.status ?? OrderStatus.CREATED,
       props.payment ?? null,
-      props.customer ?? null
+      props.customer ?? null,
+      props.createdAt ?? new Date()
     );
 
     order.recalculateTotals();

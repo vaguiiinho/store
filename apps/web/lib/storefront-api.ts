@@ -52,6 +52,7 @@ type ApiOrder = {
   id: string;
   number: string;
   status: "CREATED" | "AWAITING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+  createdAt: string;
   subtotalCents: number;
   shippingCents: number;
   totalCents: number;
@@ -164,4 +165,8 @@ export async function getFeaturedProduct(slug: string) {
 
 export async function getOrderByNumber(number: string) {
   return fetchApi<ApiOrder>(`/orders/number/${number}`);
+}
+
+export async function getAdminOrders() {
+  return fetchApi<ApiOrder[]>("/admin/orders");
 }

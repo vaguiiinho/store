@@ -10,6 +10,7 @@ function serializeOrder(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>
     id: order.id,
     number: order.number,
     status: order.status,
+    createdAt: order.createdAt,
     subtotalCents: order.subtotalCents,
     shippingCents: order.shippingCents,
     totalCents: order.totalCents,
@@ -96,5 +97,12 @@ export class OrdersController {
     }
 
     return this.serialize(order);
+  }
+
+  @Get("admin/orders")
+  async listAdminOrders() {
+    const orders = await this.orderRepository.findAll(50);
+
+    return orders.map((order) => this.serialize(order));
   }
 }

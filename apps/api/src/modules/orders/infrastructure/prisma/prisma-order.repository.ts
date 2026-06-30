@@ -17,6 +17,7 @@ type PrismaOrderRecord = {
   shippingCents: number;
   totalCents: number;
   status: OrderStatus;
+  createdAt: Date;
   customer: {
     id: string;
     name: string;
@@ -100,6 +101,7 @@ function mapOrder(record: PrismaOrderRecord) {
     subtotalCents: record.subtotalCents,
     shippingCents: record.shippingCents,
     status: record.status,
+    createdAt: record.createdAt,
     payment: record.payment
       ? Payment.create({
           id: record.payment.id,
@@ -168,6 +170,21 @@ export class PrismaOrderRepository implements OrderRepository {
     });
 
     return order ? mapOrder(order as PrismaOrderRecord) : null;
+  }
+
+  async findAll(limit = 50) {
+    const orders = await this.prisma.order.findMany({
+      include: {
+        customer: true,
+        shippingAddress: true,
+        items: true,
+        payment: true
+      },
+      orderBy: [{ createdAt: "desc" }],
+      take: limit
+    });
+
+    return orders.map((order) => mapOrder(order as PrismaOrderRecord));
   }
 
   async save(order: Order, tx?: Prisma.TransactionClient) {
