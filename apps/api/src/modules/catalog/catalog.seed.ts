@@ -16,6 +16,11 @@ const seedCategories = [
     id: "cat-kits",
     name: "Kits",
     slug: "kits"
+  },
+  {
+    id: "cat-presentes",
+    name: "Presentes",
+    slug: "presentes"
   }
 ] as const;
 
@@ -23,9 +28,9 @@ const seedProducts = [
   {
     id: "prod-cafeteira-essencial",
     name: "Cafeteira Essencial",
-    slug: "cafeteria-essencial",
+    slug: "cafeteira-essencial",
     description:
-      "Modelo compacto para o ritual diário, com acabamento em aço e aquecimento rápido.",
+      "Modelo compacto para o ritual diário, com acabamento em aço escovado e aquecimento rápido.",
     priceCents: 27900,
     images: [
       "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,w_1200,h_1200/v1/sample.jpg"
@@ -50,7 +55,7 @@ const seedProducts = [
     name: "Moedor Premium",
     slug: "moedor-premium",
     description:
-      "Controle fino de moagem para quem quer consistência entre preparo e sabor.",
+      "Controle fino de moagem para quem quer consistência entre preparo, aroma e sabor.",
     priceCents: 18900,
     images: [
       "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,w_1200,h_1200/v1/sample.jpg"
@@ -75,7 +80,7 @@ const seedProducts = [
     name: "Kit Manhã Serena",
     slug: "kit-manha-serena",
     description:
-      "Conjunto com itens selecionados para criar uma experiência de compra completa.",
+      "Conjunto com itens selecionados para criar uma experiência de compra mais completa e presenteável.",
     priceCents: 12400,
     images: [
       "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,w_1200,h_1200/v1/sample.jpg"
@@ -92,6 +97,31 @@ const seedProducts = [
         name: "Embalagem",
         value: "Presenteável",
         sku: "KIT-SERENA-PRES"
+      }
+    ]
+  },
+  {
+    id: "prod-kit-presente-aroma",
+    name: "Kit Presente Aroma",
+    slug: "kit-presente-aroma",
+    description:
+      "Seleção pronta para presente com itens de abertura, ideal para mostrar ticket médio e cross-sell.",
+    priceCents: 14800,
+    images: [
+      "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_fill,w_1200,h_1200/v1/sample.jpg"
+    ],
+    categorySlugs: ["kits", "presentes"],
+    stock: {
+      id: "stock-kit-presente-aroma",
+      availableQuantity: 19,
+      reservedQuantity: 0
+    },
+    variants: [
+      {
+        id: "variant-kit-presente-aroma-caixa",
+        name: "Embalagem",
+        value: "Caixa rígida",
+        sku: "KIT-AROMA-BOX"
       }
     ]
   }

@@ -26,12 +26,12 @@ export const routeLinks: RouteLink[] = [
 
 export const featuredProducts: FeaturedProduct[] = [
   {
-    slug: "cafeteria-essencial",
+    slug: "cafeteira-essencial",
     name: "Cafeteira Essencial",
-    description: "Modelo compacto para o ritual diário, com acabamento em aço e aquecimento rápido.",
+    description: "Modelo compacto para o ritual diário, com acabamento em aço escovado e aquecimento rápido.",
     priceCents: 27900,
     badge: "Mais pedida",
-    note: "Ideal para a primeira compra da loja.",
+    note: "Boa peça de abertura para a apresentação da demo.",
     details: ["Reservatório de 1,2L", "Modo economia", "Limpeza simples"],
     categories: [
       { slug: "cafe", name: "Café" }
@@ -40,10 +40,10 @@ export const featuredProducts: FeaturedProduct[] = [
   {
     slug: "moedor-premium",
     name: "Moedor Premium",
-    description: "Controle fino de moagem para quem quer consistência entre preparo e sabor.",
+    description: "Controle fino de moagem para quem quer consistência entre preparo, aroma e sabor.",
     priceCents: 18900,
     badge: "Novo",
-    note: "Boa combinação para upsell no carrinho.",
+    note: "Excelente para mostrar complemento de compra.",
     details: ["15 níveis de moagem", "Lâminas em cerâmica", "Base antiderrapante"],
     categories: [
       { slug: "cafe", name: "Café" },
@@ -53,13 +53,26 @@ export const featuredProducts: FeaturedProduct[] = [
   {
     slug: "kit-manha-serena",
     name: "Kit Manhã Serena",
-    description: "Conjunto com itens selecionados para criar uma experiência de compra completa.",
+    description: "Conjunto com itens selecionados para criar uma experiência de compra mais completa e presenteável.",
     priceCents: 12400,
     badge: "Combo",
     note: "Ótimo para testar variações e frete fixo por região.",
     details: ["Seleção curada", "Embalagem presenteável", "Envio prioritário"],
     categories: [
       { slug: "kits", name: "Kits" }
+    ]
+  },
+  {
+    slug: "kit-presente-aroma",
+    name: "Kit Presente Aroma",
+    description: "Seleção pronta para presente com itens de abertura e ticket médio mais alto.",
+    priceCents: 14800,
+    badge: "Presente",
+    note: "Bom para mostrar cross-sell e apresentação premium.",
+    details: ["Caixa rígida", "Cartão presente", "Embalagem premium"],
+    categories: [
+      { slug: "kits", name: "Kits" },
+      { slug: "presentes", name: "Presentes" }
     ]
   }
 ];
