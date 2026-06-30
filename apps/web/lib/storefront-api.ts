@@ -216,6 +216,38 @@ export async function getAdminProduct(id: string, cookieHeader?: string) {
   return fetchApi<ApiAdminProductDetail>(`/admin/products/${id}`, cookieHeader);
 }
 
+export async function getCategories() {
+  return fetchApi<ApiCategory[]>("/categories");
+}
+
+export async function createAdminProduct(input: {
+  name: string;
+  slug: string;
+  description: string;
+  priceCents: number;
+  images: string[];
+  categoryIds: string[];
+}) {
+  try {
+    const response = await fetch(`${apiBaseUrl}/admin/products`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as ApiAdminProduct;
+  } catch {
+    return null;
+  }
+}
+
 export async function updateAdminProduct(
   id: string,
   input: {

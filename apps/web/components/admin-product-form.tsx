@@ -2,11 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { updateAdminProduct } from "../lib/storefront-api";
+import { createAdminProduct, updateAdminProduct } from "../lib/storefront-api";
 import { formatCurrencyBRL } from "../lib/format";
 
 type AdminProductFormProps = {
-  product: {
+  mode: "create" | "edit";
+  product?: {
     id: string;
     name: string;
     slug: string;
@@ -14,6 +15,7 @@ type AdminProductFormProps = {
     priceCents: number;
     images: string[];
     categories: Array<{ id: string; name: string; slug: string }>;
+    active?: boolean;
   };
   categories: Array<{
     id: string;
@@ -22,11 +24,12 @@ type AdminProductFormProps = {
   }>;
 };
 
-export function AdminProductForm({ product, categories }: AdminProductFormProps) {
+export function AdminProductForm({ mode, product, categories }: AdminProductFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isCreate = mode === "create";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,17 +45,27 @@ export function AdminProductForm({ product, categories }: AdminProductFormProps)
       setError(null);
       setMessage(null);
 
-      const response = await updateAdminProduct(product.id, {
+      const payload = {
         name: String(formData.get("name") ?? "").trim(),
         slug: String(formData.get("slug") ?? "").trim(),
         description: String(formData.get("description") ?? "").trim(),
         priceCents: Number(formData.get("priceCents") ?? 0),
         images: nextImages,
         categoryIds: nextCategoryIds
-      });
+      };
+
+      const response = isCreate
+        ? await createAdminProduct(payload)
+        : await updateAdminProduct(product?.id ?? "", payload);
 
       if (!response) {
         throw new Error("Nao foi possivel salvar o produto.");
+      }
+
+      if (isCreate) {
+        router.push(`/admin/produtos/${response.id}`);
+        router.refresh();
+        return;
       }
 
       router.refresh();
@@ -64,7 +77,7 @@ export function AdminProductForm({ product, categories }: AdminProductFormProps)
     }
   }
 
-  const selectedCategoryIds = new Set(product.categories.map((category) => category.id));
+  const selectedCategoryIds = new Set(product?.categories.map((category) => category.id) ?? []);
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -75,7 +88,7 @@ export function AdminProductForm({ product, categories }: AdminProductFormProps)
             type="text"
             name="name"
             required
-            defaultValue={product.name}
+            defaultValue={product?.name ?? ""}
             className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
           />
         </label>
@@ -86,7 +99,7 @@ export function AdminProductForm({ product, categories }: AdminProductFormProps)
             type="text"
             name="slug"
             required
-            defaultValue={product.slug}
+            defaultValue={product?.slug ?? ""}
             className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
           />
         </label>
@@ -97,7 +110,7 @@ export function AdminProductForm({ product, categories }: AdminProductFormProps)
             name="description"
             required
             rows={6}
-            defaultValue={product.description}
+            defaultValue={product?.description ?? ""}
             className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
           />
         </label>
@@ -107,7 +120,7 @@ export function AdminProductForm({ product, categories }: AdminProductFormProps)
           <textarea
             name="images"
             rows={5}
-            defaultValue={product.images.join("\n")}
+            defaultValue={product?.images.join("\n") ?? ""}
             placeholder="Uma URL por linha"
             className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
           />
@@ -126,10 +139,10 @@ export function AdminProductForm({ product, categories }: AdminProductFormProps)
                 min={1}
                 step={1}
                 required
-                defaultValue={product.priceCents}
+                defaultValue={product?.priceCents ?? 0}
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
-              <p className="text-sm text-muted">{formatCurrencyBRL(product.priceCents)}</p>
+              <p className="text-sm text-muted">{formatCurrencyBRL(product?.priceCents ?? 0)}</p>
             </div>
           </div>
 
@@ -175,7 +188,7 @@ export function AdminProductForm({ product, categories }: AdminProductFormProps)
           disabled={isSubmitting}
           className="inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-5 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSubmitting ? "Salvando..." : "Salvar produto"}
+          {isSubmitting ? "Salvando..." : isCreate ? "Criar produto" : "Salvar produto"}
         </button>
       </div>
     </form>

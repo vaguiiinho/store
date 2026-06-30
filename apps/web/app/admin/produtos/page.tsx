@@ -37,6 +37,15 @@ export default async function AdminProdutosPage() {
         </div>
 
         <div className="px-6 py-8 sm:px-10 sm:py-10">
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <Link
+              href="/admin/produtos/novo"
+              className="inline-flex rounded-full bg-[#1d1712] px-5 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d]"
+            >
+              Novo produto
+            </Link>
+          </div>
+
           {products && products.length > 0 ? (
             <div className="grid gap-4 lg:grid-cols-2">
               {products.map((product) => (

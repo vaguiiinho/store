@@ -5,6 +5,7 @@ import { CatalogController } from "./catalog.controller";
 import { CatalogSeedService } from "./catalog.seed";
 import { GetProductBySlugUseCase } from "./application/get-product-by-slug.use-case";
 import { GetAdminProductUseCase } from "./application/get-admin-product.use-case";
+import { CreateProductUseCase } from "./application/create-product.use-case";
 import { ListActiveProductsUseCase } from "./application/list-active-products.use-case";
 import { ListCategoriesUseCase } from "./application/list-categories.use-case";
 import { ListAdminProductsUseCase } from "./application/list-admin-products.use-case";
@@ -25,6 +26,7 @@ import { AdminAuthModule } from "../admin-auth/admin-auth.module";
     GetAdminProductUseCase,
     GetProductBySlugUseCase,
     ListCategoriesUseCase,
+    CreateProductUseCase,
     UpdateProductUseCase,
     UpdateProductStatusUseCase,
     {

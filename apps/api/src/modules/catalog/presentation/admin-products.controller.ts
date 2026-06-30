@@ -5,17 +5,20 @@ import {
   Get,
   Headers,
   Param,
+  Post,
   Patch,
   NotFoundException,
   UnauthorizedException
 } from "@nestjs/common";
 import { AdminAuthService } from "../../admin-auth/admin-auth.service";
 import { DomainError } from "../../shared/domain/errors/domain-error";
+import { CreateProductUseCase } from "../application/create-product.use-case";
 import { GetAdminProductUseCase } from "../application/get-admin-product.use-case";
 import { ListAdminProductsUseCase } from "../application/list-admin-products.use-case";
 import { UpdateProductUseCase } from "../application/update-product.use-case";
 import { UpdateProductStatusUseCase } from "../application/update-product-status.use-case";
 import { ListCategoriesUseCase } from "../application/list-categories.use-case";
+import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { UpdateProductStatusDto } from "./dto/update-product-status.dto";
 
@@ -100,6 +103,7 @@ export class AdminProductsController {
   constructor(
     private readonly listAdminProductsUseCase: ListAdminProductsUseCase,
     private readonly getAdminProductUseCase: GetAdminProductUseCase,
+    private readonly createProductUseCase: CreateProductUseCase,
     private readonly listCategoriesUseCase: ListCategoriesUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly updateProductStatusUseCase: UpdateProductStatusUseCase,
@@ -117,6 +121,37 @@ export class AdminProductsController {
     const products = await this.listAdminProductsUseCase.execute();
 
     return products.map(serializeProduct);
+  }
+
+  @Post("admin/products")
+  async createProduct(
+    @Body() body: CreateProductDto,
+    @Headers("cookie") cookieHeader?: string
+  ) {
+    const session = this.adminAuthService.verifyCookie(cookieHeader);
+
+    if (!session) {
+      throw new UnauthorizedException("Autenticacao de admin necessaria.");
+    }
+
+    try {
+      const product = await this.createProductUseCase.execute({
+        name: body.name,
+        slug: body.slug,
+        description: body.description,
+        priceCents: body.priceCents,
+        images: body.images,
+        categoryIds: body.categoryIds
+      });
+
+      return serializeProduct(product);
+    } catch (error) {
+      if (error instanceof DomainError) {
+        throw new BadRequestException(error.message);
+      }
+
+      throw error;
+    }
   }
 
   @Get("admin/products/:id")
