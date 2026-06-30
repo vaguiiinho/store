@@ -170,3 +170,23 @@ export async function getOrderByNumber(number: string) {
 export async function getAdminOrders() {
   return fetchApi<ApiOrder[]>("/admin/orders");
 }
+
+export async function updateAdminOrderStatus(orderId: string, status: ApiOrder["status"]) {
+  try {
+    const response = await fetch(`${apiBaseUrl}/admin/orders/${orderId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status })
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as ApiOrder;
+  } catch {
+    return null;
+  }
+}

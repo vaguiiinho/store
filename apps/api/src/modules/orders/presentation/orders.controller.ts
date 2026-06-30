@@ -1,9 +1,11 @@
-import { BadRequestException, Body, Controller, Get, Inject, NotFoundException, Param, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Inject, NotFoundException, Param, Patch, Post } from "@nestjs/common";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { CreateOrderUseCase } from "../application/create-order.use-case";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { ORDER_REPOSITORY } from "../orders.tokens";
 import { OrderRepository } from "../domain/repositories/order.repository";
+import { UpdateOrderStatusUseCase } from "../application/update-order-status.use-case";
+import { UpdateOrderStatusDto } from "./dto/update-order-status.dto";
 
 function serializeOrder(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>>) {
   return {
@@ -66,6 +68,7 @@ function serializeOrder(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>
 export class OrdersController {
   constructor(
     private readonly createOrderUseCase: CreateOrderUseCase,
+    private readonly updateOrderStatusUseCase: UpdateOrderStatusUseCase,
     @Inject(ORDER_REPOSITORY)
     private readonly orderRepository: OrderRepository
   ) {}
@@ -104,5 +107,23 @@ export class OrdersController {
     const orders = await this.orderRepository.findAll(50);
 
     return orders.map((order) => this.serialize(order));
+  }
+
+  @Patch("admin/orders/:id/status")
+  async updateAdminOrderStatus(@Param("id") id: string, @Body() body: UpdateOrderStatusDto) {
+    try {
+      const order = await this.updateOrderStatusUseCase.execute({
+        orderId: id,
+        status: body.status
+      });
+
+      return this.serialize(order);
+    } catch (error) {
+      if (error instanceof DomainError) {
+        throw new BadRequestException(error.message);
+      }
+
+      throw error;
+    }
   }
 }

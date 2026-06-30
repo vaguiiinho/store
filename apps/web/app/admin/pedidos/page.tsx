@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { getAdminOrders } from "../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../lib/format";
+import { AdminOrderStatusControl } from "../../../components/admin-order-status-control";
 
 function formatDateTime(value: string | null | undefined) {
   if (!value) {
@@ -47,25 +49,32 @@ export default async function AdminPedidosPage() {
                 </thead>
                 <tbody className="divide-y divide-[color:var(--border)]">
                   {orders.map((order) => (
-                    <tr key={order.id} className="bg-white/70">
-                      <td className="px-4 py-4 font-semibold text-[#1d1712]">{order.number}</td>
-                      <td className="px-4 py-4 text-muted">
-                        {order.customer?.name ?? "Cliente visitante"}
-                      </td>
-                      <td className="px-4 py-4 text-muted">{order.status}</td>
-                      <td className="px-4 py-4 font-semibold text-[#1d1712]">
-                        {formatCurrencyBRL(order.totalCents)}
-                      </td>
-                      <td className="px-4 py-4 text-muted">{formatDateTime(order.createdAt)}</td>
-                      <td className="px-4 py-4">
-                        <Link
-                          href={`/pedido/${order.number}`}
-                          className="font-semibold accent-text transition hover:text-[#5f3719]"
-                        >
-                          Abrir
-                        </Link>
-                      </td>
-                    </tr>
+                    <Fragment key={order.id}>
+                      <tr key={order.id} className="bg-white/70">
+                        <td className="px-4 py-4 font-semibold text-[#1d1712]">{order.number}</td>
+                        <td className="px-4 py-4 text-muted">
+                          {order.customer?.name ?? "Cliente visitante"}
+                        </td>
+                        <td className="px-4 py-4 text-muted">{order.status}</td>
+                        <td className="px-4 py-4 font-semibold text-[#1d1712]">
+                          {formatCurrencyBRL(order.totalCents)}
+                        </td>
+                        <td className="px-4 py-4 text-muted">{formatDateTime(order.createdAt)}</td>
+                        <td className="px-4 py-4">
+                          <Link
+                            href={`/pedido/${order.number}`}
+                            className="font-semibold accent-text transition hover:text-[#5f3719]"
+                          >
+                            Abrir
+                          </Link>
+                        </td>
+                      </tr>
+                      <tr className="border-b border-[color:var(--border)] bg-white/40">
+                        <td className="px-4 pb-4 pt-0" colSpan={6}>
+                          <AdminOrderStatusControl orderId={order.id} currentStatus={order.status} />
+                        </td>
+                      </tr>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
