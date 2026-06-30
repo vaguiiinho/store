@@ -125,6 +125,24 @@ export class PrismaProductRepository implements ProductRepository {
     });
   }
 
+  async update(product: Product, categoryIds: string[]) {
+    await this.prisma.product.update({
+      where: { id: product.id },
+      data: {
+        name: product.name,
+        slug: product.slug,
+        description: product.description,
+        priceCents: product.priceCents,
+        active: product.active,
+        images: product.images,
+        categories: {
+          set: [],
+          connect: categoryIds.map((id) => ({ id }))
+        }
+      }
+    });
+  }
+
   private toEntity(product: PrismaProductRecord) {
     return Product.create({
       id: product.id,

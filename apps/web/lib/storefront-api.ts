@@ -4,6 +4,7 @@ type ApiCategory = {
   id: string;
   name: string;
   slug: string;
+  active?: boolean;
 };
 
 type ApiVariant = {
@@ -34,6 +35,11 @@ type ApiProduct = {
 };
 
 type ApiAdminProduct = ApiProduct;
+
+type ApiAdminProductDetail = {
+  product: ApiAdminProduct;
+  categories: ApiCategory[];
+};
 
 type ApiOrderPayment = {
   id: string;
@@ -204,4 +210,39 @@ export async function updateAdminOrderStatus(orderId: string, status: ApiOrder["
 
 export async function getAdminProducts(cookieHeader?: string) {
   return fetchApi<ApiAdminProduct[]>("/admin/products", cookieHeader);
+}
+
+export async function getAdminProduct(id: string, cookieHeader?: string) {
+  return fetchApi<ApiAdminProductDetail>(`/admin/products/${id}`, cookieHeader);
+}
+
+export async function updateAdminProduct(
+  id: string,
+  input: {
+    name: string;
+    slug: string;
+    description: string;
+    priceCents: number;
+    images: string[];
+    categoryIds: string[];
+  }
+) {
+  try {
+    const response = await fetch(`${apiBaseUrl}/admin/products/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as ApiAdminProduct;
+  } catch {
+    return null;
+  }
 }

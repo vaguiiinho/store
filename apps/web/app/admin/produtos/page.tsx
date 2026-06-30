@@ -29,7 +29,8 @@ export default async function AdminProdutosPage() {
               Catálogo e ativação
             </h1>
             <p className="max-w-2xl text-base text-muted sm:text-lg">
-              Base operacional para ligar e desligar produtos enquanto o CRUD completo segue para a próxima fatia.
+              Base operacional para editar, ligar e desligar produtos enquanto o restante do CRUD segue para a
+              próxima fatia.
             </p>
             <p className="text-sm text-muted">Autenticado como {session.email}</p>
           </div>
@@ -76,6 +77,15 @@ export default async function AdminProdutosPage() {
 
                   <div className="mt-5">
                     <AdminProductStatusControl productId={product.id} currentActive={product.active} />
+                  </div>
+
+                  <div className="mt-4">
+                    <Link
+                      href={`/admin/produtos/${product.id}`}
+                      className="inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/75 px-4 py-2 text-sm font-semibold text-[#3a281c] transition hover:bg-white"
+                    >
+                      Editar produto
+                    </Link>
                   </div>
                 </article>
               ))}

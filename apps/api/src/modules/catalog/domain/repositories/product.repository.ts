@@ -5,4 +5,5 @@ export interface ProductRepository {
   findBySlug(slug: string): Promise<Product | null>;
   findAll(activeOnly?: boolean): Promise<Product[]>;
   save(product: Product): Promise<void>;
+  update(product: Product, categoryIds: string[]): Promise<void>;
 }

@@ -1,8 +1,22 @@
-import { BadRequestException, Body, Controller, Get, Headers, Param, Patch, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  NotFoundException,
+  UnauthorizedException
+} from "@nestjs/common";
 import { AdminAuthService } from "../../admin-auth/admin-auth.service";
 import { DomainError } from "../../shared/domain/errors/domain-error";
+import { GetAdminProductUseCase } from "../application/get-admin-product.use-case";
 import { ListAdminProductsUseCase } from "../application/list-admin-products.use-case";
+import { UpdateProductUseCase } from "../application/update-product.use-case";
 import { UpdateProductStatusUseCase } from "../application/update-product-status.use-case";
+import { ListCategoriesUseCase } from "../application/list-categories.use-case";
+import { UpdateProductDto } from "./dto/update-product.dto";
 import { UpdateProductStatusDto } from "./dto/update-product-status.dto";
 
 function serializeCategory(category: { id: string; name: string; slug: string }) {
@@ -85,6 +99,9 @@ function serializeProduct(product: {
 export class AdminProductsController {
   constructor(
     private readonly listAdminProductsUseCase: ListAdminProductsUseCase,
+    private readonly getAdminProductUseCase: GetAdminProductUseCase,
+    private readonly listCategoriesUseCase: ListCategoriesUseCase,
+    private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly updateProductStatusUseCase: UpdateProductStatusUseCase,
     private readonly adminAuthService: AdminAuthService
   ) {}
@@ -100,6 +117,28 @@ export class AdminProductsController {
     const products = await this.listAdminProductsUseCase.execute();
 
     return products.map(serializeProduct);
+  }
+
+  @Get("admin/products/:id")
+  async getAdminProduct(@Param("id") id: string, @Headers("cookie") cookieHeader?: string) {
+    const session = this.adminAuthService.verifyCookie(cookieHeader);
+
+    if (!session) {
+      throw new UnauthorizedException("Autenticacao de admin necessaria.");
+    }
+
+    const product = await this.getAdminProductUseCase.execute(id);
+
+    if (!product) {
+      throw new NotFoundException("Produto nao encontrado.");
+    }
+
+    const categories = await this.listCategoriesUseCase.execute(false);
+
+    return {
+      product: serializeProduct(product),
+      categories: categories.map(serializeCategory)
+    };
   }
 
   @Patch("admin/products/:id/status")
@@ -118,6 +157,39 @@ export class AdminProductsController {
       const product = await this.updateProductStatusUseCase.execute({
         productId: id,
         active: body.active
+      });
+
+      return serializeProduct(product);
+    } catch (error) {
+      if (error instanceof DomainError) {
+        throw new BadRequestException(error.message);
+      }
+
+      throw error;
+    }
+  }
+
+  @Patch("admin/products/:id")
+  async updateProduct(
+    @Param("id") id: string,
+    @Body() body: UpdateProductDto,
+    @Headers("cookie") cookieHeader?: string
+  ) {
+    const session = this.adminAuthService.verifyCookie(cookieHeader);
+
+    if (!session) {
+      throw new UnauthorizedException("Autenticacao de admin necessaria.");
+    }
+
+    try {
+      const product = await this.updateProductUseCase.execute({
+        productId: id,
+        name: body.name,
+        slug: body.slug,
+        description: body.description,
+        priceCents: body.priceCents,
+        images: body.images,
+        categoryIds: body.categoryIds
       });
 
       return serializeProduct(product);

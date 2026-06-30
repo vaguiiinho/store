@@ -1,0 +1,183 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { updateAdminProduct } from "../lib/storefront-api";
+import { formatCurrencyBRL } from "../lib/format";
+
+type AdminProductFormProps = {
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+    priceCents: number;
+    images: string[];
+    categories: Array<{ id: string; name: string; slug: string }>;
+  };
+  categories: Array<{
+    id: string;
+    name: string;
+    slug: string;
+  }>;
+};
+
+export function AdminProductForm({ product, categories }: AdminProductFormProps) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const nextImages = String(formData.get("images") ?? "")
+      .split("\n")
+      .map((image) => image.trim())
+      .filter(Boolean);
+    const nextCategoryIds = formData.getAll("categoryIds").map((value) => String(value));
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      setMessage(null);
+
+      const response = await updateAdminProduct(product.id, {
+        name: String(formData.get("name") ?? "").trim(),
+        slug: String(formData.get("slug") ?? "").trim(),
+        description: String(formData.get("description") ?? "").trim(),
+        priceCents: Number(formData.get("priceCents") ?? 0),
+        images: nextImages,
+        categoryIds: nextCategoryIds
+      });
+
+      if (!response) {
+        throw new Error("Nao foi possivel salvar o produto.");
+      }
+
+      router.refresh();
+      setMessage("Produto atualizado.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Falha ao salvar produto.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const selectedCategoryIds = new Set(product.categories.map((category) => category.id));
+
+  return (
+    <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="space-y-4">
+        <label className="block space-y-2">
+          <span className="text-sm font-semibold text-[#1d1712]">Nome</span>
+          <input
+            type="text"
+            name="name"
+            required
+            defaultValue={product.name}
+            className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+          />
+        </label>
+
+        <label className="block space-y-2">
+          <span className="text-sm font-semibold text-[#1d1712]">Slug</span>
+          <input
+            type="text"
+            name="slug"
+            required
+            defaultValue={product.slug}
+            className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+          />
+        </label>
+
+        <label className="block space-y-2">
+          <span className="text-sm font-semibold text-[#1d1712]">Descrição</span>
+          <textarea
+            name="description"
+            required
+            rows={6}
+            defaultValue={product.description}
+            className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+          />
+        </label>
+
+        <label className="block space-y-2">
+          <span className="text-sm font-semibold text-[#1d1712]">Imagens</span>
+          <textarea
+            name="images"
+            rows={5}
+            defaultValue={product.images.join("\n")}
+            placeholder="Uma URL por linha"
+            className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+          />
+          <p className="text-xs text-muted">O painel grava as URLs em linhas separadas como array de imagens.</p>
+        </label>
+      </div>
+
+      <div className="space-y-4">
+        <div className="rounded-[28px] border border-[color:var(--border)] bg-white/80 p-5">
+          <div className="space-y-2">
+            <span className="text-sm font-semibold text-[#1d1712]">Preço</span>
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-center">
+              <input
+                type="number"
+                name="priceCents"
+                min={1}
+                step={1}
+                required
+                defaultValue={product.priceCents}
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+              <p className="text-sm text-muted">{formatCurrencyBRL(product.priceCents)}</p>
+            </div>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            <p className="text-sm font-semibold text-[#1d1712]">Categorias</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {categories.map((category) => (
+                <label
+                  key={category.id}
+                  className="flex items-start gap-3 rounded-2xl border border-[color:var(--border)] bg-white px-3 py-3 text-sm text-[#2d2119]"
+                >
+                  <input
+                    type="checkbox"
+                    name="categoryIds"
+                    value={category.id}
+                    defaultChecked={selectedCategoryIds.has(category.id)}
+                    className="mt-1 h-4 w-4 rounded border-[color:var(--border)] text-[#1d1712] focus:ring-[color:rgba(124,79,36,0.25)]"
+                  />
+                  <span>
+                    <span className="block font-semibold text-[#1d1712]">{category.name}</span>
+                    <span className="block text-xs text-muted">{category.slug}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {error ? (
+          <div className="rounded-2xl border border-[color:rgba(153,27,27,0.24)] bg-[color:rgba(254,242,242,0.8)] p-4 text-sm text-[#7f1d1d]">
+            {error}
+          </div>
+        ) : null}
+
+        {message ? (
+          <div className="rounded-2xl border border-[color:rgba(22,101,52,0.18)] bg-[color:rgba(240,253,244,0.85)] p-4 text-sm text-[#166534]">
+            {message}
+          </div>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-5 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d] disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {isSubmitting ? "Salvando..." : "Salvar produto"}
+        </button>
+      </div>
+    </form>
+  );
+}
