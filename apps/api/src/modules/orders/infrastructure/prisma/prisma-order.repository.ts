@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../../../infrastructure/prisma/prisma.service";
 import { Address } from "../../domain/entities/address.entity";
 import { Customer } from "../../domain/entities/customer.entity";
@@ -169,8 +170,10 @@ export class PrismaOrderRepository implements OrderRepository {
     return order ? mapOrder(order as PrismaOrderRecord) : null;
   }
 
-  async save(order: Order) {
-    await this.prisma.order.upsert({
+  async save(order: Order, tx?: Prisma.TransactionClient) {
+    const client = tx ?? this.prisma;
+
+    await client.order.upsert({
       where: { id: order.id },
       create: {
         id: order.id,

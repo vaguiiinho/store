@@ -1,8 +1,12 @@
 import { randomUUID } from "node:crypto";
+import { Prisma } from "@prisma/client";
 import { Inject, Injectable } from "@nestjs/common";
 import { DomainError } from "../../shared/domain/errors/domain-error";
+import { PrismaService } from "../../../infrastructure/prisma/prisma.service";
 import { PRODUCT_REPOSITORY } from "../../catalog/catalog.tokens";
 import { ProductRepository } from "../../catalog/domain/repositories/product.repository";
+import { STOCK_REPOSITORY } from "../../inventory/inventory.tokens";
+import { StockRepository } from "../../inventory/domain/repositories/stock.repository";
 import { PAYMENT_GATEWAY } from "../../payments/payments.tokens";
 import { PaymentGateway } from "../../payments/domain/payment-gateway";
 import { CUSTOMER_REPOSITORY, ORDER_REPOSITORY } from "../orders.tokens";
@@ -62,12 +66,15 @@ export class CreateOrderUseCase {
   constructor(
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: ProductRepository,
+    @Inject(STOCK_REPOSITORY)
+    private readonly stockRepository: StockRepository,
     @Inject(PAYMENT_GATEWAY)
     private readonly paymentGateway: PaymentGateway,
     @Inject(CUSTOMER_REPOSITORY)
     private readonly customerRepository: CustomerRepository,
     @Inject(ORDER_REPOSITORY)
-    private readonly orderRepository: OrderRepository
+    private readonly orderRepository: OrderRepository,
+    private readonly prisma: PrismaService
   ) {}
 
   async execute(input: CreateOrderInput) {
@@ -93,8 +100,6 @@ export class CreateOrderUseCase {
     customer.phone = input.customer.phone;
     customer.email = input.customer.email ?? null;
     customer.document = input.customer.document ?? null;
-
-    await this.customerRepository.save(customer);
 
     const order = Order.create({
       id: randomUUID(),
@@ -198,7 +203,28 @@ export class CreateOrderUseCase {
 
     order.markAwaitingPayment();
 
-    await this.orderRepository.save(order);
+    await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      await this.customerRepository.save(customer, tx);
+
+      for (const item of input.items) {
+        const product = await this.productRepository.findBySlug(item.productSlug);
+
+        if (!product || !product.active) {
+          throw new DomainError(`Produto indisponivel: ${item.productSlug}`);
+        }
+
+        const matchedVariant =
+          item.variantId ? product.variants.find((variant) => variant.id === item.variantId) : null;
+
+        if (item.variantId && (!matchedVariant || !matchedVariant.active)) {
+          throw new DomainError(`Variacao indisponivel para ${product.slug}`);
+        }
+
+        await this.stockRepository.reserve(product.id, matchedVariant?.id ?? null, item.quantity, tx);
+      }
+
+      await this.orderRepository.save(order, tx);
+    });
 
     return order;
   }

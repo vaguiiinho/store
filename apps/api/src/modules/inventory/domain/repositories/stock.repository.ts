@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { Stock } from "../entities/stock.entity";
 
 export interface StockRepository {
@@ -6,5 +7,17 @@ export interface StockRepository {
     productId: string,
     variantId?: string | null
   ): Promise<Stock | null>;
-  save(stock: Stock): Promise<void>;
+  reserve(
+    productId: string,
+    variantId: string | null,
+    quantity: number,
+    tx?: Prisma.TransactionClient
+  ): Promise<Stock>;
+  release(
+    productId: string,
+    variantId: string | null,
+    quantity: number,
+    tx?: Prisma.TransactionClient
+  ): Promise<Stock>;
+  save(stock: Stock, tx?: Prisma.TransactionClient): Promise<void>;
 }

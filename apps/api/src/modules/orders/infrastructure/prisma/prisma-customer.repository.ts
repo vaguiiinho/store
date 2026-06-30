@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../../../infrastructure/prisma/prisma.service";
 import { Customer } from "../../domain/entities/customer.entity";
 import { CustomerRepository } from "../../domain/repositories/customer.repository";
@@ -31,8 +32,10 @@ export class PrismaCustomerRepository implements CustomerRepository {
     return customer ? this.toEntity(customer) : null;
   }
 
-  async save(customer: Customer) {
-    await this.prisma.customer.upsert({
+  async save(customer: Customer, tx?: Prisma.TransactionClient) {
+    const client = tx ?? this.prisma;
+
+    await client.customer.upsert({
       where: { id: customer.id },
       create: {
         id: customer.id,

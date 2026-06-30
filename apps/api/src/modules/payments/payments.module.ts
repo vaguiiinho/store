@@ -8,9 +8,10 @@ import { PrismaOrderRepository } from "../orders/infrastructure/prisma/prisma-or
 import { HandlePaymentWebhookUseCase } from "./application/handle-payment-webhook.use-case";
 import { GetPaymentByGatewayReferenceUseCase } from "./application/get-payment-by-gateway-reference.use-case";
 import { MercadoPagoPaymentGateway } from "./infrastructure/mercado-pago.payment.gateway";
+import { InventoryModule } from "../inventory/inventory.module";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, InventoryModule],
   controllers: [PaymentsController],
   providers: [
     HandlePaymentWebhookUseCase,

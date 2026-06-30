@@ -8,9 +8,10 @@ import { PrismaCustomerRepository } from "./infrastructure/prisma/prisma-custome
 import { PrismaOrderRepository } from "./infrastructure/prisma/prisma-order.repository";
 import { PrismaProductRepository } from "../catalog/infrastructure/prisma/prisma-product.repository";
 import { PaymentsModule } from "../payments/payments.module";
+import { InventoryModule } from "../inventory/inventory.module";
 
 @Module({
-  imports: [PrismaModule, PaymentsModule],
+  imports: [PrismaModule, PaymentsModule, InventoryModule],
   controllers: [OrdersController],
   providers: [
     CreateOrderUseCase,
