@@ -47,10 +47,10 @@ A proposta é mostrar uma jornada simples e apresentável:
 npm install
 ```
 
-2. Suba o PostgreSQL e os serviços locais:
+2. Suba a stack local:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
 3. Inicie os apps:

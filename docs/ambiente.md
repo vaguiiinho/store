@@ -46,7 +46,7 @@ O MVP pode usar Gmail free via SMTP. A evolucao recomendada e migrar para Resend
 
 1. Instalar dependencias.
 2. Configurar variaveis de ambiente.
-3. Subir banco local com `docker compose up -d`.
+3. Subir a stack local com `docker compose up -d --build`.
 4. Aplicar migracoes.
 5. Executar frontend e backend.
 6. Rodar testes antes de publicar mudancas.

@@ -11,7 +11,7 @@ Subir a loja virtual em ambiente de produção com:
 
 ## Arquivos
 
-- `docker-compose.deploy.yml`
+- `docker-compose.yml`
 - `apps/api/Dockerfile`
 - `apps/web/Dockerfile`
 - `deploy/nginx/default.conf`
@@ -42,19 +42,19 @@ Use um arquivo `.env` de deploy com pelo menos:
 Subir a stack:
 
 ```bash
-docker compose -f docker-compose.deploy.yml up -d --build
+docker compose up -d --build
 ```
 
 Ver logs:
 
 ```bash
-docker compose -f docker-compose.deploy.yml logs -f
+docker compose logs -f
 ```
 
 Descer a stack:
 
 ```bash
-docker compose -f docker-compose.deploy.yml down
+docker compose down
 ```
 
 ## Roteamento
