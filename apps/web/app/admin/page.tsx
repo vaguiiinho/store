@@ -29,6 +29,12 @@ export default async function AdminHomePage() {
             >
               Ver pedidos
             </Link>
+            <Link
+              href="/admin/produtos"
+              className="inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/70 px-5 py-3 text-sm font-semibold text-[#392a1e] transition hover:bg-white"
+            >
+              Ver produtos
+            </Link>
             <p className="text-sm text-muted">Autenticado como {session.email}</p>
           </div>
         </div>

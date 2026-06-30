@@ -33,6 +33,8 @@ type ApiProduct = {
   stock: ApiStock;
 };
 
+type ApiAdminProduct = ApiProduct;
+
 type ApiOrderPayment = {
   id: string;
   method: "PIX" | "CARD";
@@ -198,4 +200,8 @@ export async function updateAdminOrderStatus(orderId: string, status: ApiOrder["
   } catch {
     return null;
   }
+}
+
+export async function getAdminProducts(cookieHeader?: string) {
+  return fetchApi<ApiAdminProduct[]>("/admin/products", cookieHeader);
 }
