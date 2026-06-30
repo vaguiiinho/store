@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Fragment } from "react";
-import { getAdminOrders } from "../../../lib/storefront-api";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { getAdminAuthMe, getAdminOrders } from "../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../lib/format";
 import { AdminOrderStatusControl } from "../../../components/admin-order-status-control";
 
@@ -16,7 +18,14 @@ function formatDateTime(value: string | null | undefined) {
 }
 
 export default async function AdminPedidosPage() {
-  const orders = await getAdminOrders();
+  const cookieHeader = cookies().toString();
+  const session = await getAdminAuthMe(cookieHeader);
+
+  if (!session?.authenticated) {
+    redirect("/admin/login");
+  }
+
+  const orders = await getAdminOrders(cookieHeader);
 
   return (
     <main className="page-shell min-h-screen px-6 py-8 sm:py-12">
@@ -30,6 +39,7 @@ export default async function AdminPedidosPage() {
             <p className="max-w-2xl text-base text-muted sm:text-lg">
               Lista inicial para consulta operacional. O próximo passo é restringir acesso por autenticação de admin.
             </p>
+            <p className="text-sm text-muted">Autenticado como {session.email}</p>
           </div>
         </div>
 

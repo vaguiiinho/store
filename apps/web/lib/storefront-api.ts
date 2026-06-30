@@ -88,10 +88,15 @@ type ApiOrder = {
 
 const apiBaseUrl = process.env.API_URL ?? "http://localhost:3001/api";
 
-async function fetchApi<T>(path: string) {
+async function fetchApi<T>(path: string, cookieHeader?: string) {
   try {
     const response = await fetch(`${apiBaseUrl}${path}`, {
-      cache: "no-store"
+      cache: "no-store",
+      headers: cookieHeader
+        ? {
+            cookie: cookieHeader
+          }
+        : undefined
     });
 
     if (!response.ok) {
@@ -167,8 +172,12 @@ export async function getOrderByNumber(number: string) {
   return fetchApi<ApiOrder>(`/orders/number/${number}`);
 }
 
-export async function getAdminOrders() {
-  return fetchApi<ApiOrder[]>("/admin/orders");
+export async function getAdminAuthMe(cookieHeader?: string) {
+  return fetchApi<{ authenticated: boolean; email?: string; role?: string }>("/admin/auth/me", cookieHeader);
+}
+
+export async function getAdminOrders(cookieHeader?: string) {
+  return fetchApi<ApiOrder[]>("/admin/orders", cookieHeader);
 }
 
 export async function updateAdminOrderStatus(orderId: string, status: ApiOrder["status"]) {

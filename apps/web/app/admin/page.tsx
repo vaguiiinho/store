@@ -1,6 +1,16 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { getAdminAuthMe } from "../../lib/storefront-api";
 
-export default function AdminHomePage() {
+export default async function AdminHomePage() {
+  const cookieHeader = cookies().toString();
+  const session = await getAdminAuthMe(cookieHeader);
+
+  if (!session?.authenticated) {
+    redirect("/admin/login");
+  }
+
   return (
     <main className="page-shell min-h-screen px-6 py-8 sm:py-12">
       <section className="surface overflow-hidden rounded-[36px]">
@@ -19,6 +29,7 @@ export default function AdminHomePage() {
             >
               Ver pedidos
             </Link>
+            <p className="text-sm text-muted">Autenticado como {session.email}</p>
           </div>
         </div>
       </section>

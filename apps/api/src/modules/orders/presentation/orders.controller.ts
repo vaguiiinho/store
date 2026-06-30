@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Inject, NotFoundException, Param, Patch, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Headers, Inject, NotFoundException, Param, Patch, Post, UnauthorizedException } from "@nestjs/common";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { CreateOrderUseCase } from "../application/create-order.use-case";
 import { CreateOrderDto } from "./dto/create-order.dto";
@@ -6,6 +6,7 @@ import { ORDER_REPOSITORY } from "../orders.tokens";
 import { OrderRepository } from "../domain/repositories/order.repository";
 import { UpdateOrderStatusUseCase } from "../application/update-order-status.use-case";
 import { UpdateOrderStatusDto } from "./dto/update-order-status.dto";
+import { AdminAuthService } from "../../admin-auth/admin-auth.service";
 
 function serializeOrder(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>>) {
   return {
@@ -69,6 +70,7 @@ export class OrdersController {
   constructor(
     private readonly createOrderUseCase: CreateOrderUseCase,
     private readonly updateOrderStatusUseCase: UpdateOrderStatusUseCase,
+    private readonly adminAuthService: AdminAuthService,
     @Inject(ORDER_REPOSITORY)
     private readonly orderRepository: OrderRepository
   ) {}
@@ -103,14 +105,30 @@ export class OrdersController {
   }
 
   @Get("admin/orders")
-  async listAdminOrders() {
+  async listAdminOrders(@Headers("cookie") cookieHeader?: string) {
+    const session = this.adminAuthService.verifyCookie(cookieHeader);
+
+    if (!session) {
+      throw new UnauthorizedException("Autenticacao de admin necessaria.");
+    }
+
     const orders = await this.orderRepository.findAll(50);
 
     return orders.map((order) => this.serialize(order));
   }
 
   @Patch("admin/orders/:id/status")
-  async updateAdminOrderStatus(@Param("id") id: string, @Body() body: UpdateOrderStatusDto) {
+  async updateAdminOrderStatus(
+    @Param("id") id: string,
+    @Body() body: UpdateOrderStatusDto,
+    @Headers("cookie") cookieHeader?: string
+  ) {
+    const session = this.adminAuthService.verifyCookie(cookieHeader);
+
+    if (!session) {
+      throw new UnauthorizedException("Autenticacao de admin necessaria.");
+    }
+
     try {
       const order = await this.updateOrderStatusUseCase.execute({
         orderId: id,

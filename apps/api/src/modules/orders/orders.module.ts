@@ -10,9 +10,10 @@ import { PrismaProductRepository } from "../catalog/infrastructure/prisma/prisma
 import { PaymentsModule } from "../payments/payments.module";
 import { InventoryModule } from "../inventory/inventory.module";
 import { UpdateOrderStatusUseCase } from "./application/update-order-status.use-case";
+import { AdminAuthModule } from "../admin-auth/admin-auth.module";
 
 @Module({
-  imports: [PrismaModule, PaymentsModule, InventoryModule],
+  imports: [PrismaModule, PaymentsModule, InventoryModule, AdminAuthModule],
   controllers: [OrdersController],
   providers: [
     CreateOrderUseCase,

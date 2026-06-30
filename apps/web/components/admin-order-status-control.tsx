@@ -41,6 +41,7 @@ export function AdminOrderStatusControl({ orderId, currentStatus }: AdminOrderSt
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify({ status })
     });
 

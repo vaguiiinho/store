@@ -19,6 +19,8 @@ Documentar os requisitos de ambiente para desenvolver e operar a loja virtual.
 - `NEXT_PUBLIC_APP_URL`
 - `API_URL`
 - `AUTH_SECRET`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
 - `PAYMENT_PROVIDER_KEY`
 - `PAYMENT_PROVIDER_SECRET`
 - `PAYMENT_PROVIDER`

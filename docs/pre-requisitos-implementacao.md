@@ -22,7 +22,7 @@ Este documento resume o que precisa estar decidido antes de começar a codificar
 - Pagamento recusado: pedido vai para `cancelado` e libera o estoque reservado.
 - Pix na v1: envio de instrucoes e confirmacao via webhook do gateway.
 - Admin na v1: lista de produtos, edicao de produto, imagens, preco, estoque, variacoes, lista de pedidos, detalhe do pedido e atualizacao de status.
-- Variaveis de ambiente reais: `DATABASE_URL`, `APP_URL`, `NEXT_PUBLIC_APP_URL`, `API_URL`, `AUTH_SECRET`, `PAYMENT_PROVIDER_KEY`, `PAYMENT_PROVIDER_SECRET`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `RESEND_API_KEY` (futuro), `STORAGE_BUCKET`.
+- Variaveis de ambiente reais: `DATABASE_URL`, `APP_URL`, `NEXT_PUBLIC_APP_URL`, `API_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `PAYMENT_PROVIDER_KEY`, `PAYMENT_PROVIDER_SECRET`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `RESEND_API_KEY` (futuro), `STORAGE_BUCKET`.
 
 ## Decisoes Minimas para Liberar o Inicio
 
