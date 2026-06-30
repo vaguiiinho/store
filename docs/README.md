@@ -18,6 +18,7 @@ Este diretorio organiza a documentacao da loja virtual.
 12. `docs/roadmap.md` para ver a evolucao por fase.
 13. `docs/runbook.md` para operacao e suporte.
 14. `docs/deploy.md` para subir a stack com Docker e Nginx.
+15. `docs/demo-apresentacao.md` para o roteiro de gravação e apresentação.
 
 ## Subdiretorios
 

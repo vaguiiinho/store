@@ -69,6 +69,7 @@ npm run dev:api
 ## Documentação
 
 - [docs/README.md](docs/README.md)
+- [docs/demo-apresentacao.md](docs/demo-apresentacao.md)
 - [docs/prd-loja-virtual.md](docs/prd-loja-virtual.md)
 - [docs/ambiente.md](docs/ambiente.md)
 - [docs/implementacao-tasks.md](docs/implementacao-tasks.md)
@@ -84,4 +85,3 @@ O repositório também mantém a documentação de agentes e decisões técnicas
 - [.agents/README.md](.agents/README.md)
 - [.agents/agent-router.md](.agents/agent-router.md)
 - [.agents/project-architecture.md](.agents/project-architecture.md)
-
