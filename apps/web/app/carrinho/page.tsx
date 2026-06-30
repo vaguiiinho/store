@@ -5,8 +5,8 @@ export default function CarrinhoPage() {
   return (
     <PublicPage
       eyebrow="Carrinho"
-      title="Resumo do pedido com total previsível antes do checkout."
-      description="A primeira versão já separa o que é item, subtotal e próxima ação. Depois entram persistência local e controle de quantidade."
+      title="Resumo do pedido com total claro antes do checkout."
+      description="A primeira versão já deixa item, subtotal e próxima ação na mesma tela para reduzir atrito na apresentação."
       primaryAction={{ href: "/checkout", label: "Continuar para checkout" }}
       secondaryAction={{ href: "/catalogo", label: "Adicionar mais itens" }}
     >

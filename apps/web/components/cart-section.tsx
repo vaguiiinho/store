@@ -12,7 +12,7 @@ export function CartSection() {
   if (!hydrated) {
     return (
       <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-6 text-sm text-muted">
-        Carregando carrinho...
+        Preparando o carrinho...
       </div>
     );
   }
@@ -22,7 +22,7 @@ export function CartSection() {
       <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-6">
         <p className="text-sm font-semibold text-[#1d1712]">Seu carrinho está vazio.</p>
         <p className="mt-2 text-sm text-muted">
-          Adicione um produto no catálogo para testar o fluxo completo.
+          Adicione um produto no catálogo para seguir com a demonstração.
         </p>
         <Link
           href="/catalogo"
@@ -39,10 +39,10 @@ export function CartSection() {
       <section className="space-y-4">
         <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-5">
           <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold text-[#1d1712]">Itens no carrinho</h2>
-              <p className="text-sm text-muted">{itemCount} item(ns) selecionado(s)</p>
-            </div>
+          <div>
+            <h2 className="text-lg font-semibold text-[#1d1712]">Itens no carrinho</h2>
+            <p className="text-sm text-muted">{itemCount} item(ns) prontos para o checkout</p>
+          </div>
             <button
               type="button"
               onClick={clearCart}

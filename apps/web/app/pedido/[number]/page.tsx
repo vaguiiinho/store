@@ -21,7 +21,7 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
     <PublicPage
       eyebrow="Pedido confirmado"
       title={`Pedido ${order.number} criado com sucesso.`}
-      description="A primeira versão já devolve o resumo da compra, o valor total e as instruções mockadas de pagamento."
+      description="A primeira versão já devolve o resumo da compra, o valor total e as instruções de pagamento simuladas."
       primaryAction={{ href: "/catalogo", label: "Continuar comprando" }}
       secondaryAction={{ href: "/checkout", label: "Novo checkout" }}
     >

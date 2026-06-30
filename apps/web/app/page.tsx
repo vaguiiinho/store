@@ -9,9 +9,9 @@ export default async function HomePage() {
 
   return (
     <PublicPage
-      eyebrow="Base da V1"
-      title="Uma loja física com navegação clara, fluxo simples e espaço para crescer."
-      description="A primeira entrega da v1 deixa a vitrine pública pronta para catálogo, carrinho e checkout, sem depender de conta do cliente."
+      eyebrow="Demo principal"
+      title="Uma loja física pronta para apresentação, com vitrine, carrinho e checkout visitante."
+      description="A base da v1 já conta a jornada completa: descoberta do produto, resumo do pedido e confirmação com pagamento simulado."
       primaryAction={{ href: "/catalogo", label: "Abrir catálogo" }}
       secondaryAction={{ href: "/checkout", label: "Ir para checkout" }}
     >
@@ -41,7 +41,7 @@ export default async function HomePage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Produtos em destaque</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[#1c1511]">
-                Conteúdo já alinhado com a jornada principal
+                Itens curados para mostrar o fluxo completo
               </h2>
             </div>
 
@@ -62,7 +62,7 @@ export default async function HomePage() {
                     href={`/produto/${product.slug}`}
                     className="mt-4 inline-flex text-sm font-semibold accent-text transition hover:text-[#5f3719]"
                   >
-                    Ver detalhe do produto
+                    Abrir detalhe do produto
                   </Link>
                 </article>
               ))}

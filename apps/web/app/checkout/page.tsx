@@ -5,8 +5,8 @@ export default async function CheckoutPage() {
   return (
     <PublicPage
       eyebrow="Checkout"
-      title="Fluxo de compra como visitante, sem fricção desnecessária."
-      description="O checkout já deixa preparados os blocos de contato, endereço, frete por região e escolha entre Pix e cartão via Mercado Pago."
+      title="Fluxo de compra como visitante, direto ao ponto."
+      description="O checkout já organiza contato, endereço, frete por região e escolha entre Pix e cartão sem quebrar a jornada."
       primaryAction={{ href: "#pagamento", label: "Ver opções de pagamento" }}
       secondaryAction={{ href: "/carrinho", label: "Revisar carrinho" }}
     >

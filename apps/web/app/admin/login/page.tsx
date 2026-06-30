@@ -21,7 +21,7 @@ export default async function AdminLoginPage() {
               Acesso administrativo
             </h1>
             <p className="max-w-2xl text-base text-muted sm:text-lg">
-              Entre com o e-mail e a senha do admin para acessar pedidos e, depois, a gestão de produtos.
+              Entre com o e-mail e a senha do admin para acessar pedidos e a gestão de produtos.
             </p>
           </div>
         </div>

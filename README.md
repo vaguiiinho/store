@@ -1,98 +1,73 @@
-# Projeto
+# Loja Ritual
 
-Este repositório tem uma camada de agentes para ajudar a transformar ideias em requisitos, plano de ação, implementação e revisão.
+Demo de portfólio de uma loja virtual de produtos físicos.
 
-## Ponto de partida
+A proposta é mostrar uma jornada simples e apresentável:
 
-Se você tem só uma ideia, comece pelo agente `architect`.
+- vitrine pública com catálogo, carrinho e checkout;
+- pedido confirmado com resumo, frete e pagamento simulado;
+- admin com acesso autenticado para pedidos e produtos;
+- base preparada para evoluir sem reescrever o fluxo principal.
 
-Use o `architect` quando você precisar de ajuda para:
+## O que a demo cobre
 
-- entender o problema;
-- levantar requisitos;
-- definir escopo de MVP;
-- identificar riscos e dependências;
-- criar um plano de ação em etapas.
+- home com proposta clara e destaque para produtos;
+- catálogo com busca e filtro por categoria;
+- detalhe do produto com ação de adicionar ao carrinho;
+- carrinho com subtotal, frete e total;
+- checkout como visitante;
+- confirmação do pedido com resumo da compra;
+- painel admin para consulta e operação básica.
 
-## Como invocar um agente especializado
+## Stack
 
-Se estiver usando o Codex, abra uma thread do agente mais adequado ao tipo de tarefa.
+- Frontend: Next.js App Router
+- Backend: NestJS
+- ORM: Prisma
+- Banco: PostgreSQL
+- Pagamento: Mercado Pago
+- Imagens: Cloudinary
+- E-mail transacional: Gmail free no MVP
 
-### Exemplos práticos
+## Rotas principais
 
-- `architect`: transformar uma ideia em requisitos e plano técnico.
-- `backend`: organizar domínio, APIs, dados e integrações.
-- `frontend`: estruturar tela, componente e fluxo de interface.
-- `nestjs-backend`: desenhar módulos NestJS, Prisma e PostgreSQL.
-- `nextjs-frontend`: planejar frontend Next.js App Router.
-- `qa`: definir cenários de teste e critérios de aceite.
-- `reviewer`: revisar mudanças antes de PR ou entrega.
-- `security`: avaliar dados sensíveis, permissões e riscos.
+- `/` - home da demo
+- `/catalogo` - catálogo público
+- `/produto/[slug]` - detalhe do produto
+- `/carrinho` - resumo do carrinho
+- `/checkout` - checkout visitante
+- `/pedido/[number]` - confirmação do pedido
+- `/admin` - painel administrativo
 
-## Prompts prontos
+## Como rodar
 
-### Para levantar requisitos
+1. Instale dependências:
 
-Use algo neste formato:
-
-```text
-Você é o agente architect.
-
-Tenho esta ideia: [descreva a ideia].
-
-Quero que você me ajude a:
-- entender o problema;
-- listar os requisitos funcionais e não funcionais;
-- apontar dúvidas em aberto;
-- sugerir um MVP;
-- indicar riscos e dependências.
-
-Responda em pt-BR, de forma objetiva.
+```bash
+npm install
 ```
 
-### Para criar um plano de ação
+2. Suba o PostgreSQL e os serviços locais:
 
-```text
-Você é o agente architect.
-
-Com base nesta ideia: [descreva a ideia].
-
-Crie um plano de ação com:
-- etapas em ordem de execução;
-- decisões técnicas importantes;
-- riscos e mitigacoes;
-- sugestão de quais agentes chamar depois.
-
-Responda em pt-BR, de forma objetiva.
+```bash
+docker compose up -d
 ```
 
-### Para seguir depois do planejamento
+3. Inicie os apps:
 
-- Se o problema for de API, chame `backend` ou `nestjs-backend`.
-- Se o problema for de interface, chame `frontend` ou `nextjs-frontend`.
-- Se o foco for validação, chame `qa`.
-- Se houver dados sensíveis ou autenticação, chame `security`.
-- Antes de finalizar, chame `reviewer`.
+```bash
+npm run dev
+```
 
-## Fluxo recomendado
+Se preferir executar separado:
 
-1. `architect` para organizar a ideia.
-2. Agente especialista para detalhar a execução.
-3. `qa` para validar riscos e cenários.
-4. `reviewer` para revisar a qualidade final.
+```bash
+npm run dev:web
+npm run dev:api
+```
 
-## Arquivos úteis
+## Documentação
 
-- [.agents/README.md](.agents/README.md)
-- [.agents/agent-router.md](.agents/agent-router.md)
-- [.agents/project-architecture.md](.agents/project-architecture.md)
-- [.agents/templates/task-brief.md](.agents/templates/task-brief.md)
-- [.agents/templates/review-request.md](.agents/templates/review-request.md)
-- [.codex/README.md](.codex/README.md)
-
-## Documentos do projeto
-
-- [plan.md](plan.md)
 - [docs/README.md](docs/README.md)
 - [docs/prd-loja-virtual.md](docs/prd-loja-virtual.md)
 - [docs/ambiente.md](docs/ambiente.md)
@@ -102,29 +77,11 @@ Responda em pt-BR, de forma objetiva.
 - [docs/plano-implementacao-v1.md](docs/plano-implementacao-v1.md)
 - [docs/backlog-tecnico-v1.md](docs/backlog-tecnico-v1.md)
 
-## Inicio rapido
+## Contexto do repositório
 
-1. Suba o PostgreSQL:
+O repositório também mantém a documentação de agentes e decisões técnicas que orientam as próximas etapas da v1.
 
-```bash
-docker compose up -d
-```
+- [.agents/README.md](.agents/README.md)
+- [.agents/agent-router.md](.agents/agent-router.md)
+- [.agents/project-architecture.md](.agents/project-architecture.md)
 
-2. Instale dependencias:
-
-```bash
-npm install
-```
-
-3. Inicie os apps:
-
-```bash
-npm run dev
-```
-
-Se preferir subir cada app separadamente:
-
-```bash
-npm run dev:web
-npm run dev:api
-```

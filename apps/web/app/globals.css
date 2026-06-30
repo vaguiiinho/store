@@ -21,20 +21,50 @@ body {
   padding: 0;
   min-height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(215, 178, 132, 0.34), transparent 33%),
-    radial-gradient(circle at top right, rgba(105, 71, 40, 0.14), transparent 28%),
-    linear-gradient(180deg, #fbf7f1 0%, #f6f2ea 52%, #efe7db 100%);
+    radial-gradient(circle at top left, rgba(215, 178, 132, 0.42), transparent 30%),
+    radial-gradient(circle at top right, rgba(105, 71, 40, 0.14), transparent 26%),
+    radial-gradient(circle at bottom left, rgba(124, 79, 36, 0.08), transparent 24%),
+    linear-gradient(180deg, #fbf7f1 0%, #f6f2ea 48%, #efe7db 100%);
   color: var(--foreground);
 }
 
 body {
   font-family:
-    "Inter",
+    "Avenir Next",
     "Segoe UI",
     "Helvetica Neue",
     Arial,
     sans-serif;
   line-height: 1.5;
+  position: relative;
+}
+
+body::before,
+body::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: auto;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(60px);
+  opacity: 0.72;
+}
+
+body::before {
+  top: 4rem;
+  right: -4rem;
+  width: 18rem;
+  height: 18rem;
+  background: rgba(255, 231, 201, 0.52);
+}
+
+body::after {
+  left: -5rem;
+  bottom: 7rem;
+  width: 16rem;
+  height: 16rem;
+  background: rgba(124, 79, 36, 0.12);
 }
 
 a {
@@ -78,4 +108,20 @@ a {
 .grid-dots {
   background-image: radial-gradient(rgba(124, 79, 36, 0.16) 1px, transparent 0);
   background-size: 18px 18px;
+}
+
+.fade-in-up {
+  animation: fade-in-up 520ms ease both;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

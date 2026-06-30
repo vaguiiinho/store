@@ -37,7 +37,7 @@ export default async function AdminPedidosPage() {
               Acompanhamento de pedidos
             </h1>
             <p className="max-w-2xl text-base text-muted sm:text-lg">
-              Lista inicial para consulta operacional. O próximo passo é restringir acesso por autenticação de admin.
+              Lista inicial para consulta operacional e atualização rápida de status.
             </p>
             <p className="text-sm text-muted">Autenticado como {session.email}</p>
           </div>

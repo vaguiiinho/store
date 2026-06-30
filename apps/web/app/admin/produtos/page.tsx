@@ -29,8 +29,8 @@ export default async function AdminProdutosPage() {
               Catálogo e ativação
             </h1>
             <p className="max-w-2xl text-base text-muted sm:text-lg">
-              Base operacional para editar, ligar e desligar produtos enquanto o restante do CRUD segue para a
-              próxima fatia.
+              Base operacional para editar, ativar e desativar produtos enquanto o CRUD completo segue para a
+              próxima etapa.
             </p>
             <p className="text-sm text-muted">Autenticado como {session.email}</p>
           </div>

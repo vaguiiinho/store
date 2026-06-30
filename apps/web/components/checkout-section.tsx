@@ -159,7 +159,7 @@ export function CheckoutSection() {
   if (!hydrated) {
     return (
       <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-6 text-sm text-muted">
-        Carregando carrinho para checkout...
+        Preparando os dados do checkout...
       </div>
     );
   }
@@ -187,7 +187,7 @@ export function CheckoutSection() {
         <section id="pagamento" className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
           <h2 className="text-lg font-semibold text-[#1d1712]">Contato e endereço</h2>
           <p className="mt-2 text-sm text-muted">
-            Campos preparados para o checkout como visitante e para validação no backend.
+            Campos organizados para o checkout como visitante e para validação no backend.
           </p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -441,7 +441,7 @@ export function CheckoutSection() {
         </button>
 
         <p className="mt-4 text-xs text-muted">
-          Integração com backend, reserva de estoque e pagamento real entram na próxima fatia.
+          Integração com backend, reserva de estoque e pagamento real entram na próxima etapa.
         </p>
       </aside>
     </form>

@@ -18,7 +18,7 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
       title={product?.name ?? "Produto em destaque"}
       description={
         product?.description ??
-        "O detalhe do produto já prepara a página para exibir imagens, preço, variações e acesso ao carrinho."
+        "O detalhe do produto já prepara a página para exibir imagem, preço, variações e acesso ao carrinho."
       }
       primaryAction={product ? undefined : { href: "/carrinho", label: "Ir ao carrinho" }}
       secondaryAction={{ href: "/catalogo", label: "Voltar ao catálogo" }}
@@ -46,7 +46,7 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
             </div>
             <p className="mt-3 text-sm text-muted">
               {product
-                ? "Produto disponível para compor o primeiro fluxo do checkout."
+                ? "Produto pronto para entrar no carrinho e seguir para o checkout."
                 : `Slug atual: ${slug}.`}
             </p>
           </section>
@@ -55,7 +55,7 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
             <section className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Ação rápida</p>
               <p className="mt-3 text-sm text-muted">
-                Use o botão abaixo para adicionar este item ao carrinho local e continuar a simulação de compra.
+                Use o botão abaixo para adicionar este item ao carrinho local e continuar a simulação da compra.
               </p>
               <div className="mt-5">
                 <AddToCartButton product={product} />

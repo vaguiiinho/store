@@ -65,22 +65,22 @@ export const featuredProducts: FeaturedProduct[] = [
 ];
 
 export const storefrontStats = [
-  { value: "24h", label: "Para colocar a base no ar" },
-  { value: "3 passos", label: "Do catálogo ao checkout" },
-  { value: "1 fluxo", label: "Visitante primeiro, sem cadastro" }
+  { value: "24h", label: "Para subir a vitrine da demo" },
+  { value: "3 etapas", label: "Do catálogo ao pedido confirmado" },
+  { value: "0 cadastro", label: "Checkout como visitante na v1" }
 ];
 
 export const storePillars = [
   {
-    title: "Catálogo claro",
-    description: "Cada produto precisa ser fácil de descobrir, comparar e abrir no detalhe."
+    title: "Vitrine direta",
+    description: "Cada produto aparece com contexto suficiente para o visitante decidir sem ruído."
   },
   {
     title: "Carrinho previsível",
-    description: "Quantidade, subtotal e total devem se comportar sem surpresa em toda a jornada."
+    description: "Quantidade, subtotal e total continuam claros em toda a jornada, sem surpresa."
   },
   {
     title: "Checkout enxuto",
-    description: "Como visitante, o cliente deve concluir a compra sem criar conta na v1."
+    description: "A compra termina sem cadastro e sem desvio da narrativa principal."
   }
 ];

@@ -45,8 +45,8 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
   return (
     <PublicPage
       eyebrow="Catálogo"
-      title="Seleção inicial pensada para navegação rápida e decisão simples."
-      description="A listagem já deixa claro o que entra no carrinho, o que abre o detalhe do produto e o que ajuda a testar o fluxo de compra."
+      title="Seleção inicial pensada para leitura rápida e decisão sem atrito."
+      description="A vitrine já separa descoberta, comparação e detalhe do produto, deixando a demo fácil de apresentar."
       primaryAction={{ href: "/carrinho", label: "Ir para carrinho" }}
       secondaryAction={{ href: "/", label: "Voltar para início" }}
     >
@@ -59,7 +59,7 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
                 type="search"
                 name="q"
                 defaultValue={searchParams?.q ?? ""}
-                placeholder="Nome, descrição, categoria ou benefício"
+                placeholder="Nome, categoria, benefício ou ocasião"
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
             </label>
@@ -118,7 +118,7 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
 
         {filteredProducts.length === 0 ? (
           <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6 text-sm text-muted">
-            Nenhum produto encontrado com os filtros atuais.
+            Nenhum produto encontrado com os filtros atuais. Tente limpar a busca ou trocar a categoria.
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
@@ -147,7 +147,7 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
                   href={`/produto/${product.slug}`}
                   className="mt-5 inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/80 px-4 py-2 text-sm font-semibold text-[#3a281c] transition hover:bg-white"
                 >
-                  Abrir detalhe
+                  Ver detalhe
                 </Link>
               </article>
             ))}
