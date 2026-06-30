@@ -16,6 +16,18 @@ type AdminProductFormProps = {
     images: string[];
     categories: Array<{ id: string; name: string; slug: string }>;
     active?: boolean;
+    variants?: Array<{
+      id: string;
+      name: string;
+      value: string;
+      sku: string | null;
+      active: boolean;
+    }>;
+    stock?: {
+      id: string;
+      availableQuantity: number;
+      reservedQuantity: number;
+    } | null;
   };
   categories: Array<{
     id: string;
@@ -51,7 +63,12 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
         description: String(formData.get("description") ?? "").trim(),
         priceCents: Number(formData.get("priceCents") ?? 0),
         images: nextImages,
-        categoryIds: nextCategoryIds
+        categoryIds: nextCategoryIds,
+        variantName: String(formData.get("variantName") ?? "").trim(),
+        variantValue: String(formData.get("variantValue") ?? "").trim(),
+        variantSku: String(formData.get("variantSku") ?? "").trim(),
+        availableQuantity: Number(formData.get("availableQuantity") ?? 0),
+        reservedQuantity: Number(formData.get("reservedQuantity") ?? 0)
       };
 
       const response = isCreate
@@ -78,6 +95,9 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
   }
 
   const selectedCategoryIds = new Set(product?.categories.map((category) => category.id) ?? []);
+  const primaryVariant = product?.variants?.[0] ?? null;
+  const currentAvailableQuantity = product?.stock?.availableQuantity ?? 0;
+  const currentReservedQuantity = product?.stock?.reservedQuantity ?? 0;
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -126,6 +146,72 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
           />
           <p className="text-xs text-muted">O painel grava as URLs em linhas separadas como array de imagens.</p>
         </label>
+
+        <div className="rounded-[28px] border border-[color:var(--border)] bg-white/80 p-5">
+          <p className="text-sm font-semibold text-[#1d1712]">Variante principal</p>
+          <p className="mt-1 text-xs text-muted">Os produtos da v1 usam uma variante principal e uma linha de estoque.</p>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="block space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">Nome da variante</span>
+              <input
+                type="text"
+                name="variantName"
+                defaultValue={primaryVariant?.name ?? ""}
+                placeholder="Cor, tamanho, acabamento..."
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">Valor da variante</span>
+              <input
+                type="text"
+                name="variantValue"
+                defaultValue={primaryVariant?.value ?? ""}
+                placeholder="Preto, M, premium..."
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+          </div>
+
+          <label className="mt-4 block space-y-2">
+            <span className="text-sm font-semibold text-[#1d1712]">SKU</span>
+            <input
+              type="text"
+              name="variantSku"
+              defaultValue={primaryVariant?.sku ?? ""}
+              placeholder="Opcional"
+              className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+            />
+          </label>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="block space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">Disponível</span>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                name="availableQuantity"
+                defaultValue={currentAvailableQuantity}
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-semibold text-[#1d1712]">Reservado</span>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                name="reservedQuantity"
+                defaultValue={currentReservedQuantity}
+                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
+              />
+            </label>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-4">

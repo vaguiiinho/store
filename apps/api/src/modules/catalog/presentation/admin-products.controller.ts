@@ -141,7 +141,12 @@ export class AdminProductsController {
         description: body.description,
         priceCents: body.priceCents,
         images: body.images,
-        categoryIds: body.categoryIds
+        categoryIds: body.categoryIds,
+        variantName: body.variantName ?? null,
+        variantValue: body.variantValue ?? null,
+        variantSku: body.variantSku ?? null,
+        availableQuantity: body.availableQuantity ?? 0,
+        reservedQuantity: body.reservedQuantity ?? 0
       });
 
       return serializeProduct(product);
@@ -224,7 +229,12 @@ export class AdminProductsController {
         description: body.description,
         priceCents: body.priceCents,
         images: body.images,
-        categoryIds: body.categoryIds
+        categoryIds: body.categoryIds,
+        variantName: body.variantName ?? null,
+        variantValue: body.variantValue ?? null,
+        variantSku: body.variantSku ?? null,
+        availableQuantity: body.availableQuantity ?? 0,
+        reservedQuantity: body.reservedQuantity ?? 0
       });
 
       return serializeProduct(product);

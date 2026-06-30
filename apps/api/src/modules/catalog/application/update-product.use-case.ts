@@ -11,6 +11,11 @@ export type UpdateProductInput = {
   priceCents: number;
   images: string[];
   categoryIds: string[];
+  variantName?: string | null;
+  variantValue?: string | null;
+  variantSku?: string | null;
+  availableQuantity?: number | null;
+  reservedQuantity?: number | null;
 };
 
 @Injectable()
@@ -49,7 +54,26 @@ export class UpdateProductUseCase {
       throw new DomainError("Selecione ao menos uma categoria.");
     }
 
-    await this.productRepository.update(product, categoryIds);
+    const variantName = input.variantName?.trim() ?? "";
+    const variantValue = input.variantValue?.trim() ?? "";
+    const variantInput =
+      variantName && variantValue
+        ? {
+            name: variantName,
+            value: variantValue,
+            sku: input.variantSku?.trim() || null
+          }
+        : null;
+
+    const stockInput =
+      input.availableQuantity !== undefined || input.reservedQuantity !== undefined
+        ? {
+            availableQuantity: input.availableQuantity ?? 0,
+            reservedQuantity: input.reservedQuantity ?? 0
+          }
+        : null;
+
+    await this.productRepository.update(product, categoryIds, variantInput, stockInput);
 
     const updatedProduct = await this.productRepository.findById(product.id);
 

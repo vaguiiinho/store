@@ -6,6 +6,8 @@ import { CategoryRepository } from "../domain/repositories/category.repository";
 import { ProductRepository } from "../domain/repositories/product.repository";
 import { Category } from "../domain/entities/category.entity";
 import { Product } from "../domain/entities/product.entity";
+import { Variant } from "../domain/entities/variant.entity";
+import { Stock } from "../../inventory/domain/entities/stock.entity";
 
 export type CreateProductInput = {
   name: string;
@@ -14,6 +16,11 @@ export type CreateProductInput = {
   priceCents: number;
   images: string[];
   categoryIds: string[];
+  variantName?: string | null;
+  variantValue?: string | null;
+  variantSku?: string | null;
+  availableQuantity?: number | null;
+  reservedQuantity?: number | null;
 };
 
 @Injectable()
@@ -49,14 +56,34 @@ export class CreateProductUseCase {
       throw new DomainError("Categoria invalida.");
     }
 
+    const productId = randomUUID();
+    const variant =
+      input.variantName && input.variantValue
+        ? Variant.create({
+            id: randomUUID(),
+            productId,
+            name: input.variantName.trim(),
+            value: input.variantValue.trim(),
+            sku: input.variantSku?.trim() || null,
+            active: true
+          })
+        : null;
+
     const product = Product.create({
-      id: randomUUID(),
+      id: productId,
       name: input.name.trim(),
       slug,
       description: input.description.trim(),
       priceCents: input.priceCents,
       images: input.images.map((image) => image.trim()).filter(Boolean),
-      categories: selectedCategories
+      categories: selectedCategories,
+      variants: variant ? [variant] : [],
+      stock: Stock.create({
+        id: randomUUID(),
+        productId,
+        availableQuantity: input.availableQuantity ?? 0,
+        reservedQuantity: input.reservedQuantity ?? 0
+      })
     });
 
     await this.productRepository.save(product);

@@ -227,6 +227,11 @@ export async function createAdminProduct(input: {
   priceCents: number;
   images: string[];
   categoryIds: string[];
+  variantName?: string;
+  variantValue?: string;
+  variantSku?: string;
+  availableQuantity?: number;
+  reservedQuantity?: number;
 }) {
   try {
     const response = await fetch(`${apiBaseUrl}/admin/products`, {
@@ -257,6 +262,11 @@ export async function updateAdminProduct(
     priceCents: number;
     images: string[];
     categoryIds: string[];
+    variantName?: string;
+    variantValue?: string;
+    variantSku?: string;
+    availableQuantity?: number;
+    reservedQuantity?: number;
   }
 ) {
   try {

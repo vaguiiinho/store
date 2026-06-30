@@ -61,7 +61,7 @@ Este documento transforma o plano da loja virtual em uma sequencia de PRs pequen
 - [x] Area administrativa criada.
 - [x] CRUD de produtos pronto.
 - [x] Ativar e desativar produto.
-- [ ] Gerenciar imagens, preco, variacoes e estoque.
+- [x] Gerenciar imagens, preco, variacoes e estoque.
 
 ## PR 8 - Admin de Pedidos
 

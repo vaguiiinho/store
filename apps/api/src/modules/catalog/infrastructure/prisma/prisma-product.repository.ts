@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../../infrastructure/prisma/prisma.service";
 import { Category } from "../../domain/entities/category.entity";
@@ -125,7 +126,12 @@ export class PrismaProductRepository implements ProductRepository {
     });
   }
 
-  async update(product: Product, categoryIds: string[]) {
+  async update(
+    product: Product,
+    categoryIds: string[],
+    variantInput: { name: string; value: string; sku: string | null } | null,
+    stockInput: { availableQuantity: number; reservedQuantity: number } | null
+  ) {
     await this.prisma.product.update({
       where: { id: product.id },
       data: {
@@ -141,6 +147,56 @@ export class PrismaProductRepository implements ProductRepository {
         }
       }
     });
+
+    if (variantInput) {
+      const firstVariant = product.variants[0];
+
+      if (firstVariant) {
+        await this.prisma.variant.update({
+          where: { id: firstVariant.id },
+          data: {
+            name: variantInput.name,
+            value: variantInput.value,
+            sku: variantInput.sku,
+            active: product.active
+          }
+        });
+      } else {
+        await this.prisma.variant.create({
+          data: {
+            id: randomUUID(),
+            productId: product.id,
+            name: variantInput.name,
+            value: variantInput.value,
+            sku: variantInput.sku,
+            active: product.active
+          }
+        });
+      }
+    }
+
+    if (stockInput) {
+      const existingStock = product.stock;
+
+      if (existingStock) {
+        await this.prisma.stock.update({
+          where: { id: existingStock.id },
+          data: {
+            availableQuantity: stockInput.availableQuantity,
+            reservedQuantity: stockInput.reservedQuantity
+          }
+        });
+      } else {
+        await this.prisma.stock.create({
+          data: {
+            id: randomUUID(),
+            productId: product.id,
+            availableQuantity: stockInput.availableQuantity,
+            reservedQuantity: stockInput.reservedQuantity
+          }
+        });
+      }
+    }
   }
 
   private toEntity(product: PrismaProductRecord) {
