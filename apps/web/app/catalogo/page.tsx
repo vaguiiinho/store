@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AddToCartButton } from "../../components/add-to-cart-button";
 import { PublicPage } from "../../components/public-page";
 import { getFeaturedProducts } from "../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../lib/format";
@@ -149,6 +150,9 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
                 >
                   Ver detalhe
                 </Link>
+                <div className="mt-3">
+                  <AddToCartButton product={product} />
+                </div>
               </article>
             ))}
           </div>

@@ -7,6 +7,7 @@
     "start": "node dist/main",
     "lint": "eslint .",
     "test": "node -e \"console.log('No api tests configured yet')\"",
+    "db:seed": "node prisma/seed.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",

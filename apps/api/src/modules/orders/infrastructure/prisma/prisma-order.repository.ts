@@ -173,7 +173,7 @@ export class PrismaOrderRepository implements OrderRepository {
   }
 
   async findAll(limit = 50) {
-    const orders = await this.prisma.order.findMany({
+    const orders = (await this.prisma.order.findMany({
       include: {
         customer: true,
         shippingAddress: true,
@@ -182,7 +182,7 @@ export class PrismaOrderRepository implements OrderRepository {
       },
       orderBy: [{ createdAt: "desc" }],
       take: limit
-    });
+    })) as PrismaOrderRecord[];
 
     return orders.map((order) => mapOrder(order as PrismaOrderRecord));
   }
