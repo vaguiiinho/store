@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { AddToCartButton } from "../../../components/add-to-cart-button";
 import { PublicPage } from "../../../components/public-page";
 import { getFeaturedProduct } from "../../../lib/storefront-api";
@@ -11,6 +12,11 @@ type ProdutoPageProps = {
 export default async function ProdutoPage({ params }: ProdutoPageProps) {
   const { slug } = params;
   const product = await getFeaturedProduct(slug);
+
+  if (!product) {
+    notFound();
+  }
+
   const availableQuantity = product?.stock?.availableQuantity ?? null;
   const reservedQuantity = product?.stock?.reservedQuantity ?? null;
 

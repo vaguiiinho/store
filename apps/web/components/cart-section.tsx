@@ -5,7 +5,7 @@ import { useCart } from "./cart-provider";
 import { formatCurrencyBRL } from "../lib/format";
 
 export function CartSection() {
-  const { items, itemCount, subtotalCents, hydrated, removeItem, updateQuantity, clearCart, loadDemoCart } = useCart();
+  const { items, itemCount, subtotalCents, hydrated, removeItem, updateQuantity, clearCart } = useCart();
   const shippingCents = items.length > 0 ? 2300 : 0;
   const totalCents = subtotalCents + shippingCents;
 
@@ -31,13 +31,6 @@ export function CartSection() {
           >
             Ir para o catálogo
           </Link>
-          <button
-            type="button"
-            onClick={loadDemoCart}
-            className="inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/80 px-4 py-3 text-sm font-semibold text-[#3a281c]"
-          >
-            Carregar carrinho de demonstração
-          </button>
         </div>
       </div>
     );

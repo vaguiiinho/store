@@ -1,4 +1,4 @@
-import { featuredProducts, type FeaturedProduct } from "./storefront-content";
+import type { FeaturedProduct } from "./storefront-content";
 
 type ApiCategory = {
   id: string;
@@ -32,23 +32,6 @@ type ApiProduct = {
   categories: ApiCategory[];
   variants: ApiVariant[];
   stock: ApiStock;
-};
-
-type ProductStock = {
-  availableQuantity: number;
-  reservedQuantity: number;
-};
-
-type StorefrontProduct = FeaturedProduct & {
-  images: string[];
-  variants: Array<{
-    id: string;
-    name: string;
-    value: string;
-    sku: string | null;
-    active: boolean;
-  }>;
-  stock: ProductStock | null;
 };
 
 type ApiAdminProduct = ApiProduct;
@@ -134,7 +117,7 @@ async function fetchApi<T>(path: string, cookieHeader?: string) {
   }
 }
 
-function toFeaturedProduct(product: ApiProduct): StorefrontProduct {
+function toFeaturedProduct(product: ApiProduct): FeaturedProduct {
   const badge = product.categories[0]?.name ?? "Em destaque";
   const note =
     product.stock && product.stock.availableQuantity > 0
@@ -167,7 +150,11 @@ function toFeaturedProduct(product: ApiProduct): StorefrontProduct {
     })),
     details: details.length > 0 ? details : ["Conteúdo inicial do catálogo"],
     images: product.images,
-    variants: product.variants,
+    variants: product.variants.map((variant) => ({
+      name: variant.name,
+      value: variant.value,
+      sku: variant.sku
+    })),
     stock: product.stock
       ? {
           availableQuantity: product.stock.availableQuantity,
@@ -177,68 +164,16 @@ function toFeaturedProduct(product: ApiProduct): StorefrontProduct {
   };
 }
 
-function findFallbackProduct(slug: string): StorefrontProduct | null {
-  const product = featuredProducts.find((item) => item.slug === slug);
-
-  if (!product) {
-    return null;
-  }
-
-  return {
-    ...product,
-    images: product.images ?? [],
-    variants:
-      product.variants?.map((variant, index) => ({
-        id: `${product.slug}-variant-${index + 1}`,
-        name: variant.name,
-        value: variant.value,
-        sku: variant.sku ?? null,
-        active: true
-      })) ?? [],
-    stock: product.stock ?? null
-  };
-}
-
-function enrichProducts(products: ApiProduct[]) {
-  return products.map((product) => {
-    const fallback = findFallbackProduct(product.slug);
-
-    if (!fallback) {
-      return toFeaturedProduct(product);
-    }
-
-    return {
-      ...fallback,
-      ...toFeaturedProduct(product),
-      images: product.images.length > 0 ? product.images : fallback.images,
-      stock: product.stock
-        ? {
-            availableQuantity: product.stock.availableQuantity,
-            reservedQuantity: product.stock.reservedQuantity
-          }
-        : fallback.stock
-    };
-  });
-}
-
 export async function getFeaturedProducts() {
   const products = await fetchApi<ApiProduct[]>("/products");
 
-  if (!products || products.length === 0) {
-    return featuredProducts.map((product) => findFallbackProduct(product.slug) ?? product);
-  }
-
-  return enrichProducts(products);
+  return products?.map(toFeaturedProduct) ?? [];
 }
 
 export async function getFeaturedProduct(slug: string) {
   const product = await fetchApi<ApiProduct>(`/products/${slug}`);
 
-  if (product) {
-    return enrichProducts([product])[0] ?? findFallbackProduct(slug);
-  }
-
-  return findFallbackProduct(slug);
+  return product ? toFeaturedProduct(product) : null;
 }
 
 export async function getOrderByNumber(number: string) {

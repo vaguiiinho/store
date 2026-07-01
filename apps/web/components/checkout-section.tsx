@@ -64,20 +64,10 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api
 
 export function CheckoutSection() {
   const router = useRouter();
-  const { items, itemCount, subtotalCents, hydrated, clearCart, loadDemoCart } = useCart();
+  const { items, itemCount, subtotalCents, hydrated, clearCart } = useCart();
   const [selectedRegionId, setSelectedRegionId] = useState<ShippingRegionId>("capital");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodId>("pix");
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(null);
-  const [mockReturn, setMockReturn] = useState<{
-    orderNumber: string;
-    provider: string;
-    paymentMethod: PaymentApiValue;
-    status: "PENDING" | "PAID" | "DECLINED" | "CANCELLED";
-    instructions: string[];
-    checkoutUrl: string | null;
-    qrCodeText: string | null;
-    totalCents: number;
-  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedRegion = useMemo(
@@ -87,32 +77,6 @@ export function CheckoutSection() {
   const selectedPayment = paymentMethods.find((method) => method.id === selectedPaymentMethod) ?? paymentMethods[0];
 
   const totalCents = subtotalCents + selectedRegion.shippingCents;
-
-  function buildMockReturn(orderNumber: string) {
-    return {
-      orderNumber,
-      provider: "mock",
-      paymentMethod: selectedPayment.apiValue,
-      status: "PENDING" as const,
-      instructions:
-        selectedPayment.apiValue === "PIX"
-          ? [
-              "Abra o app do banco e use o codigo PIX exibido abaixo.",
-              "Esta resposta veio do mock para manter a demo funcional sem backend."
-            ]
-          : [
-              "O checkout do cartão foi simulado com sucesso.",
-              "Use a URL de teste para mostrar a integracao com provedor."
-            ],
-      checkoutUrl:
-        selectedPayment.apiValue === "CARD" ? `https://mock-pay.local/checkout/${orderNumber}` : null,
-      qrCodeText:
-        selectedPayment.apiValue === "PIX"
-          ? `00020126580014BR.GOV.BCB.PIX0136${orderNumber}5204000053039865802BR5920LOJA RITUAL6009SAO PAULO62070503***6304MOCK`
-          : null,
-      totalCents
-    };
-  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -178,22 +142,15 @@ export function CheckoutSection() {
         throw new Error(message);
       }
 
-      setMockReturn(null);
       clearCart();
       event.currentTarget.reset();
       router.push(`/pedido/${body.number}`);
       return;
     } catch (error) {
-      const mockOrderNumber = `MOCK-${Date.now().toString().slice(-8)}`;
-
       setFeedback({
-        kind: "success",
-        message: error instanceof Error
-          ? `${error.message} Usando retorno mock para seguir a apresentacao.`
-          : "Falha ao criar o pedido. Usando retorno mock para seguir a apresentacao."
+        kind: "error",
+        message: error instanceof Error ? error.message : "Falha ao criar o pedido."
       });
-      setMockReturn(buildMockReturn(mockOrderNumber));
-      clearCart();
     } finally {
       setIsSubmitting(false);
     }
@@ -213,7 +170,7 @@ export function CheckoutSection() {
         <section className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
           <p className="text-sm font-semibold text-[#1d1712]">Seu carrinho está vazio.</p>
           <p className="mt-2 text-sm text-muted">
-            Adicione um produto no catálogo antes de seguir para o checkout, ou carregue um pedido de demonstração.
+            Adicione um produto no catálogo antes de seguir para o checkout.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-3">
@@ -223,34 +180,8 @@ export function CheckoutSection() {
             >
               Ir para o catálogo
             </Link>
-            <button
-              type="button"
-              onClick={loadDemoCart}
-              className="inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/80 px-4 py-3 text-sm font-semibold text-[#3a281c]"
-            >
-              Carregar pedido de demonstração
-            </button>
-          </div>
-
-          <div className="mt-6 rounded-[24px] border border-[color:var(--border)] bg-white/75 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Pagamentos mock</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {paymentMethods.map((method) => (
-                <div key={method.id} className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
-                  <div className="text-sm font-semibold text-[#1e1713]">{method.label}</div>
-                  <p className="mt-2 text-sm text-muted">{method.description}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </section>
-
-        <aside className="surface-strong h-fit rounded-[28px] border border-[color:var(--border)] p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Retorno mock</p>
-          <p className="mt-3 text-sm text-muted">
-            O checkout pode usar uma resposta simulada para mostrar a mensagem final mesmo sem backend.
-          </p>
-        </aside>
       </div>
     );
   }
@@ -258,42 +189,6 @@ export function CheckoutSection() {
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_0.72fr]">
       <div className="space-y-4">
-        {mockReturn ? (
-          <section className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Retorno mock</p>
-            <div className="mt-4 rounded-3xl border border-[color:rgba(124,79,36,0.18)] bg-white/80 p-4 text-sm">
-              <p className="font-semibold text-[#1d1712]">Pedido {mockReturn.orderNumber}</p>
-              <p className="mt-2 text-muted">Provedor: {mockReturn.provider}</p>
-              <p className="mt-1 text-muted">Pagamento: {mockReturn.paymentMethod}</p>
-              <p className="mt-1 text-muted">Status: {mockReturn.status}</p>
-              <p className="mt-1 text-muted">Total: {formatCurrencyBRL(mockReturn.totalCents)}</p>
-              <ul className="mt-4 space-y-2 text-[#33251b]">
-                {mockReturn.instructions.map((instruction) => (
-                  <li key={instruction} className="flex gap-3">
-                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#8b5a2b]" />
-                    <span>{instruction}</span>
-                  </li>
-                ))}
-              </ul>
-              {mockReturn.qrCodeText ? (
-                <div className="mt-4 rounded-2xl border border-dashed border-[color:rgba(124,79,36,0.24)] bg-[color:rgba(255,250,242,0.8)] p-4 font-mono text-xs break-all text-[#33251b]">
-                  {mockReturn.qrCodeText}
-                </div>
-              ) : null}
-              {mockReturn.checkoutUrl ? (
-                <a
-                  href={mockReturn.checkoutUrl}
-                  className="mt-4 inline-flex rounded-full bg-[#1d1712] px-4 py-2 text-sm font-semibold text-[#fffaf2]"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Abrir checkout mock
-                </a>
-              ) : null}
-            </div>
-          </section>
-        ) : null}
-
         <section id="pagamento" className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
           <h2 className="text-lg font-semibold text-[#1d1712]">Contato e endereço</h2>
           <p className="mt-2 text-sm text-muted">
