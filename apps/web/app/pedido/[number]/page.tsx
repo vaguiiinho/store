@@ -24,7 +24,7 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
     <PublicPage
       eyebrow="Pedido confirmado"
       title={`Pedido ${order.number} confirmado.`}
-      description="A confirmação mostra resumo, entrega e instruções de pagamento em uma tela com aparência de produto final."
+      description="A confirmação apresenta o estado do pedido com mais presença visual, como uma tela final de e-commerce."
       primaryAction={{ href: "/catalogo", label: "Continuar comprando" }}
       secondaryAction={{ href: "/checkout", label: "Novo checkout" }}
     >
@@ -34,7 +34,9 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Resumo</p>
-                <p className="mt-2 text-sm leading-6 text-muted">Pedido registrado e pronto para acompanhar a próxima atualização de pagamento.</p>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Pedido registrado e pronto para acompanhar a próxima atualização de pagamento.
+                </p>
               </div>
               <span className="rounded-full border border-[color:rgba(124,79,36,0.18)] bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#6e4a29]">
                 {order.status}
@@ -53,6 +55,27 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
                 <div className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Total</div>
                 <div className="mt-2 text-sm font-semibold text-[#1d1712]">{formatCurrencyBRL(order.totalCents)}</div>
               </div>
+            </div>
+          </div>
+
+          <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
+            <h2 className="text-lg font-semibold text-[#1d1712]">Linha do pedido</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                { label: "Pedido criado", description: "Carrinho convertido em compra." },
+                { label: "Pagamento pendente", description: "Aguardando confirmação do gateway." },
+                { label: "Próximo passo", description: "Atualização automática via webhook." }
+              ].map((step, index) => (
+                <div key={step.label} className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--accent-soft)] text-xs font-semibold accent-text">
+                      {index + 1}
+                    </span>
+                    <p className="text-sm font-semibold text-[#1d1712]">{step.label}</p>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-muted">{step.description}</p>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -115,10 +138,10 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
 
           <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
             <h2 className="text-lg font-semibold text-[#1d1712]">Entrega</h2>
-            <p className="mt-3 text-sm text-muted">
+            <p className="mt-3 text-sm leading-6 text-muted">
               {order.shippingAddress.street}, {order.shippingAddress.number}
             </p>
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm leading-6 text-muted">
               {order.shippingAddress.district} - {order.shippingAddress.city}/{order.shippingAddress.state}
             </p>
             <p className="mt-2 text-sm text-muted">CEP {order.shippingAddress.cep}</p>
