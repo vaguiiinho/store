@@ -26,20 +26,44 @@ export default async function AdminPedidosPage() {
   }
 
   const orders = await getAdminOrders(cookieHeader);
+  const pendingOrders = orders?.filter((order) => order.status === "AWAITING_PAYMENT").length ?? 0;
+  const paidOrders = orders?.filter((order) => order.status === "PAID").length ?? 0;
+  const totalRevenue = orders?.reduce((sum, order) => sum + order.totalCents, 0) ?? 0;
 
   return (
     <main className="page-shell min-h-screen px-6 py-8 sm:py-12">
       <section className="surface overflow-hidden rounded-[36px]">
         <div className="grid-dots border-b border-[color:var(--border)] px-6 py-10 sm:px-10 sm:py-14">
-          <div className="max-w-3xl space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Admin / Pedidos</p>
-            <h1 className="text-4xl font-semibold tracking-[-0.05em] text-[#191310] sm:text-5xl">
-              Acompanhamento de pedidos
-            </h1>
-            <p className="max-w-2xl text-base text-muted sm:text-lg">
-              Lista inicial para consulta operacional e atualização rápida de status.
-            </p>
-            <p className="text-sm text-muted">Autenticado como {session.email}</p>
+          <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-start">
+            <div className="max-w-3xl space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Admin / Pedidos</p>
+              <h1 className="text-4xl font-semibold tracking-[-0.06em] text-[#191310] sm:text-5xl">
+                Acompanhamento de pedidos
+              </h1>
+              <p className="max-w-2xl text-base leading-7 text-muted sm:text-lg">
+                Lista inicial para consulta operacional e atualização rápida de status.
+              </p>
+              <p className="text-sm text-muted">Autenticado como {session.email}</p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-[24px] border border-[color:var(--border)] bg-white/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#896139]">Pedidos</p>
+                <p className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#1d1712]">{orders?.length ?? 0}</p>
+              </div>
+              <div className="rounded-[24px] border border-[color:var(--border)] bg-white/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#896139]">Pendentes</p>
+                <p className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#1d1712]">{pendingOrders}</p>
+              </div>
+              <div className="rounded-[24px] border border-[color:var(--border)] bg-white/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#896139]">Receita</p>
+                <p className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#1d1712]">{formatCurrencyBRL(totalRevenue)}</p>
+              </div>
+              <div className="rounded-[24px] border border-[color:var(--border)] bg-white/80 p-4 sm:col-span-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#896139]">Pagos</p>
+                <p className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#1d1712]">{paidOrders}</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -65,7 +89,11 @@ export default async function AdminPedidosPage() {
                         <td className="px-4 py-4 text-muted">
                           {order.customer?.name ?? "Cliente visitante"}
                         </td>
-                        <td className="px-4 py-4 text-muted">{order.status}</td>
+                        <td className="px-4 py-4">
+                          <span className="rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] accent-text">
+                            {order.status}
+                          </span>
+                        </td>
                         <td className="px-4 py-4 font-semibold text-[#1d1712]">
                           {formatCurrencyBRL(order.totalCents)}
                         </td>

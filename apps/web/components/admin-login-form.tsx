@@ -85,10 +85,15 @@ export function AdminLoginForm() {
         </div>
       ) : null}
 
+      <div className="rounded-[24px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(247,239,228,0.9))] p-4 text-sm leading-6 text-muted">
+        O acesso administra pedidos e produtos com sessão protegida por cookie. A experiência é propositalmente
+        simples para servir de demonstração do fluxo interno.
+      </div>
+
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-5 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d] disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-5 py-3 text-sm font-semibold text-[#fffaf2] shadow-[0_10px_24px_rgba(29,23,18,0.16)] transition hover:bg-[#34261d] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isSubmitting ? "Entrando..." : "Entrar"}
       </button>
