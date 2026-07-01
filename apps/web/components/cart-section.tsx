@@ -5,7 +5,7 @@ import { useCart } from "./cart-provider";
 import { formatCurrencyBRL } from "../lib/format";
 
 export function CartSection() {
-  const { items, itemCount, subtotalCents, hydrated, removeItem, updateQuantity, clearCart } = useCart();
+  const { items, itemCount, subtotalCents, hydrated, removeItem, updateQuantity, clearCart, loadDemoCart } = useCart();
   const shippingCents = items.length > 0 ? 2300 : 0;
   const totalCents = subtotalCents + shippingCents;
 
@@ -24,12 +24,21 @@ export function CartSection() {
         <p className="mt-2 text-sm text-muted">
           Adicione um produto no catálogo para seguir com a demonstração.
         </p>
-        <Link
-          href="/catalogo"
-          className="mt-5 inline-flex rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2]"
-        >
-          Ir para o catálogo
-        </Link>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link
+            href="/catalogo"
+            className="inline-flex rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2]"
+          >
+            Ir para o catálogo
+          </Link>
+          <button
+            type="button"
+            onClick={loadDemoCart}
+            className="inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/80 px-4 py-3 text-sm font-semibold text-[#3a281c]"
+          >
+            Carregar carrinho de demonstração
+          </button>
+        </div>
       </div>
     );
   }
@@ -39,10 +48,10 @@ export function CartSection() {
       <section className="space-y-4">
         <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-5">
           <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-[#1d1712]">Itens no carrinho</h2>
-            <p className="text-sm text-muted">{itemCount} item(ns) prontos para o checkout</p>
-          </div>
+            <div>
+              <h2 className="text-lg font-semibold text-[#1d1712]">Itens no carrinho</h2>
+              <p className="text-sm text-muted">{itemCount} item(ns) prontos para o checkout</p>
+            </div>
             <button
               type="button"
               onClick={clearCart}
@@ -66,6 +75,11 @@ export function CartSection() {
                 </span>
               </div>
               <p className="text-sm text-muted">{item.note}</p>
+              {item.stock ? (
+                <p className="text-xs font-medium text-muted">
+                  Estoque mock: {item.stock.availableQuantity} disponível(is), {item.stock.reservedQuantity} reservado(s)
+                </p>
+              ) : null}
               <p className="text-sm text-[#33251b]">{formatCurrencyBRL(item.priceCents)} por unidade</p>
             </div>
 

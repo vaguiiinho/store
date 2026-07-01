@@ -11,6 +11,8 @@ type AddToCartButtonProps = {
 export function AddToCartButton({ product }: AddToCartButtonProps) {
   const { addItem } = useCart();
   const [isPending, startTransition] = useTransition();
+  const availableQuantity = product.stock?.availableQuantity ?? null;
+  const isSoldOut = typeof availableQuantity === "number" && availableQuantity <= 0;
 
   return (
     <button
@@ -21,9 +23,9 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
         });
       }}
       className="rounded-full bg-[#1d1712] px-5 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d] disabled:cursor-not-allowed disabled:opacity-70"
-      disabled={isPending}
+      disabled={isPending || isSoldOut}
     >
-      {isPending ? "Adicionando..." : "Adicionar ao carrinho"}
+      {isSoldOut ? "Sem estoque" : isPending ? "Adicionando..." : "Adicionar ao carrinho"}
     </button>
   );
 }

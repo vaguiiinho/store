@@ -1,8 +1,15 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { createCartItem, getCartItemCount, getCartSubtotal, loadCartFromStorage, persistCartToStorage, type CartState } from "../lib/cart";
-import type { FeaturedProduct } from "../lib/storefront-content";
+import {
+  createCartItem,
+  getCartItemCount,
+  getCartSubtotal,
+  loadCartFromStorage,
+  persistCartToStorage,
+  type CartState
+} from "../lib/cart";
+import { featuredProducts, type FeaturedProduct } from "../lib/storefront-content";
 
 type CartContextValue = {
   items: CartState["items"];
@@ -13,6 +20,7 @@ type CartContextValue = {
   removeItem: (slug: string) => void;
   updateQuantity: (slug: string, quantity: number) => void;
   clearCart: () => void;
+  loadDemoCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -73,6 +81,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       },
       clearCart: () => {
         setState({ items: [] });
+      },
+      loadDemoCart: () => {
+        const [firstProduct, secondProduct] = featuredProducts;
+
+        setState({
+          items: [firstProduct, secondProduct]
+            .filter((product): product is FeaturedProduct => Boolean(product))
+            .map((product, index) => createCartItem(product, index === 0 ? 1 : 2))
+        });
       }
     }),
     [hydrated, state]
