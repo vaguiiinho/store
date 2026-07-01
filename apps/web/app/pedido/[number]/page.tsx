@@ -4,14 +4,17 @@ import { PublicPage } from "../../../components/public-page";
 import { formatCurrencyBRL } from "../../../lib/format";
 import { getOrderByNumber } from "../../../lib/storefront-api";
 
+export const dynamic = "force-dynamic";
+
 type PedidoPageProps = {
-  params: {
+  params: Promise<{
     number: string;
-  };
+  }>;
 };
 
 export default async function PedidoPage({ params }: PedidoPageProps) {
-  const order = await getOrderByNumber(params.number);
+  const { number } = await params;
+  const order = await getOrderByNumber(number);
 
   if (!order) {
     notFound();

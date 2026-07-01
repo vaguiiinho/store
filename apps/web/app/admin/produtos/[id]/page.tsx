@@ -4,14 +4,16 @@ import { notFound, redirect } from "next/navigation";
 import { AdminProductForm } from "../../../../components/admin-product-form";
 import { getAdminAuthMe, getAdminProduct } from "../../../../lib/storefront-api";
 
+export const dynamic = "force-dynamic";
+
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export default async function AdminProdutoPage({ params }: PageProps) {
-  const { id } = params;
+  const { id } = await params;
   const cookieHeader = cookies().toString();
   const session = await getAdminAuthMe(cookieHeader);
 

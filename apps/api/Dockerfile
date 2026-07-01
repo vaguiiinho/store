@@ -15,8 +15,9 @@ FROM node:22-alpine AS runtime
 WORKDIR /app/apps/api
 ENV NODE_ENV=production
 COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/apps/api/node_modules /app/apps/api/node_modules
 COPY --from=build /app/apps/api/package.json ./package.json
 COPY --from=build /app/apps/api/dist ./dist
 COPY --from=build /app/apps/api/prisma ./prisma
 EXPOSE 3001
-CMD ["sh", "-c", "npm exec --workspace api -- prisma migrate deploy --schema prisma/schema.prisma && node dist/main"]
+CMD ["sh", "-c", "node /app/apps/api/node_modules/prisma/build/index.js migrate deploy --schema /app/apps/api/prisma/schema.prisma && node /app/apps/api/dist/main"]

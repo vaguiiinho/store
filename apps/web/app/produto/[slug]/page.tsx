@@ -5,12 +5,14 @@ import { PublicPage } from "../../../components/public-page";
 import { getFeaturedProduct } from "../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../lib/format";
 
+export const dynamic = "force-dynamic";
+
 type ProdutoPageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export default async function ProdutoPage({ params }: ProdutoPageProps) {
-  const { slug } = params;
+  const { slug } = await params;
   const product = await getFeaturedProduct(slug);
 
   if (!product) {
