@@ -46,8 +46,8 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
   return (
     <PublicPage
       eyebrow="Catálogo"
-      title="Seleção inicial pensada para leitura rápida e decisão sem atrito."
-      description="A vitrine já separa descoberta, comparação e detalhe do produto, deixando a demo fácil de apresentar."
+      title="Seleção curada para comparar rápido e entrar no detalhe sem ruído."
+      description="O catálogo foi desenhado para mostrar imagem, contexto e ação principal com uma leitura mais elegante."
       primaryAction={{ href: "/carrinho", label: "Ir para carrinho" }}
       secondaryAction={{ href: "/", label: "Voltar para início" }}
     >
@@ -96,6 +96,9 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
               </Link>
             </div>
           </div>
+          <p className="mt-4 text-sm text-muted">
+            {filteredProducts.length} produto(s) encontrados com os filtros atuais.
+          </p>
         </form>
 
         <div className="flex flex-wrap gap-2">
@@ -122,36 +125,45 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
             Nenhum produto encontrado com os filtros atuais. Tente limpar a busca ou trocar a categoria.
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filteredProducts.map((product) => (
               <article
                 key={product.slug}
-                className="surface-strong rounded-[28px] border border-[color:var(--border)] p-5"
+                className="overflow-hidden surface-strong rounded-[28px] border border-[color:var(--border)]"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] accent-text">
-                    {product.badge}
-                  </span>
-                  <span className="text-sm font-semibold text-[#241b17]">{formatCurrencyBRL(product.priceCents)}</span>
-                </div>
-                <h2 className="mt-4 text-xl font-semibold tracking-[-0.04em] text-[#1c1511]">{product.name}</h2>
-                <p className="mt-3 text-sm text-muted">{product.description}</p>
-                <ul className="mt-4 space-y-2 text-sm text-[#33251b]">
-                  {product.details.map((detail) => (
-                    <li key={detail} className="flex gap-3">
-                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#8b5a2b]" />
-                      <span>{detail}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={`/produto/${product.slug}`}
-                  className="mt-5 inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/80 px-4 py-2 text-sm font-semibold text-[#3a281c] transition hover:bg-white"
-                >
-                  Ver detalhe
-                </Link>
-                <div className="mt-3">
-                  <AddToCartButton product={product} />
+                {product.images?.[0] ? (
+                  <div className="h-52 overflow-hidden bg-[#f2e8db]">
+                    <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                  </div>
+                ) : null}
+                <div className="space-y-4 p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] accent-text">
+                      {product.badge}
+                    </span>
+                    <span className="text-sm font-semibold text-[#241b17]">{formatCurrencyBRL(product.priceCents)}</span>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold tracking-[-0.04em] text-[#1c1511]">{product.name}</h2>
+                    <p className="mt-2 text-sm leading-6 text-muted">{product.description}</p>
+                  </div>
+                  <ul className="space-y-2 text-sm text-[#33251b]">
+                    {product.details.slice(0, 4).map((detail) => (
+                      <li key={detail} className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#8b5a2b]" />
+                        <span>{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href={`/produto/${product.slug}`}
+                      className="inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/80 px-4 py-2 text-sm font-semibold text-[#3a281c] transition hover:bg-white"
+                    >
+                      Ver detalhe
+                    </Link>
+                    <AddToCartButton product={product} />
+                  </div>
                 </div>
               </article>
             ))}

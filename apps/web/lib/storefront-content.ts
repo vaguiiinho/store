@@ -128,22 +128,22 @@ export const featuredProducts: FeaturedProduct[] = [
 ];
 
 export const storefrontStats = [
-  { value: "24h", label: "Para subir a vitrine da demo" },
-  { value: "3 etapas", label: "Do catálogo ao pedido confirmado" },
-  { value: "0 cadastro", label: "Checkout como visitante na v1" }
+  { value: "3 etapas", label: "Catálogo, carrinho e confirmação" },
+  { value: "0 cadastro", label: "Checkout como visitante na v1" },
+  { value: "100%", label: "Fluxo navegável de ponta a ponta" }
 ];
 
 export const storePillars = [
   {
-    title: "Vitrine direta",
-    description: "Cada produto aparece com contexto suficiente para o visitante decidir sem ruído."
+    title: "Vitrine curada",
+    description: "Cada produto entra com imagem, contexto e hierarquia visual clara."
   },
   {
-    title: "Carrinho previsível",
-    description: "Quantidade, subtotal e total continuam claros em toda a jornada, sem surpresa."
+    title: "Carrinho legível",
+    description: "Quantidade, subtotal, frete e total ficam sempre visíveis."
   },
   {
-    title: "Checkout enxuto",
-    description: "A compra termina sem cadastro e sem desvio da narrativa principal."
+    title: "Checkout direto",
+    description: "Compra como visitante, com foco no essencial e sem fricção."
   }
 ];

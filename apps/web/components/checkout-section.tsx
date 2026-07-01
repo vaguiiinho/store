@@ -189,10 +189,18 @@ export function CheckoutSection() {
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_0.72fr]">
       <div className="space-y-4">
-        <section id="pagamento" className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
-          <h2 className="text-lg font-semibold text-[#1d1712]">Contato e endereço</h2>
-          <p className="mt-2 text-sm text-muted">
-            Campos organizados para o checkout como visitante e para validação no backend.
+        <section className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Checkout visitante</p>
+              <h2 className="mt-2 text-lg font-semibold text-[#1d1712]">Contato e endereço</h2>
+            </div>
+            <div className="rounded-full border border-[color:rgba(124,79,36,0.18)] bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#6e4a29]">
+              1. Dados 2. Frete 3. Pagamento
+            </div>
+          </div>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
+            Um formulário enxuto, organizado para leitura rápida e para a próxima etapa da jornada sem cadastro.
           </p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -355,7 +363,7 @@ export function CheckoutSection() {
                 >
                   <div className="text-sm font-semibold text-[#1e1713]">{region.label}</div>
                   <div className="mt-1 text-sm text-muted">{formatCurrencyBRL(region.shippingCents)}</div>
-                  <p className="mt-3 text-xs text-muted">{region.note}</p>
+                  <p className="mt-3 text-xs leading-5 text-muted">{region.note}</p>
                 </button>
               );
             })}
@@ -380,7 +388,7 @@ export function CheckoutSection() {
                   }`}
                 >
                   <div className="text-sm font-semibold text-[#1e1713]">{method.label}</div>
-                  <p className="mt-2 text-sm text-muted">{method.description}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted">{method.description}</p>
                 </button>
               );
             })}
@@ -440,7 +448,7 @@ export function CheckoutSection() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d] disabled:cursor-not-allowed disabled:opacity-70"
+          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2] shadow-[0_10px_24px_rgba(29,23,18,0.16)] transition hover:bg-[#34261d] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting ? "Enviando pedido..." : `Continuar com ${selectedPayment.label}`}
         </button>

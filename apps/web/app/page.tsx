@@ -10,27 +10,27 @@ export default async function HomePage() {
   return (
     <PublicPage
       eyebrow="Demo principal"
-      title="Uma loja física pronta para apresentação, com vitrine, carrinho e checkout visitante."
-      description="A base da v1 já conta a jornada completa: descoberta do produto, resumo do pedido e confirmação com pagamento simulado."
+      title="Uma vitrine de loja com presença visual, fluxo claro e checkout visitante."
+      description="A proposta desta versão é mostrar produto, jornada e confirmação com acabamento suficiente para portfólio sem parecer um protótipo cru."
       primaryAction={{ href: "/catalogo", label: "Abrir catálogo" }}
       secondaryAction={{ href: "/checkout", label: "Ir para checkout" }}
     >
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-6 lg:grid-cols-[1.16fr_0.84fr]">
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
             {storefrontStats.map((stat) => (
-              <div key={stat.label} className="surface-strong rounded-3xl border border-[color:var(--border)] p-5">
-                <div className="text-2xl font-semibold tracking-[-0.04em] text-[#1f1814]">{stat.value}</div>
-                <div className="mt-2 text-sm text-muted">{stat.label}</div>
+              <div key={stat.label} className="surface-strong rounded-[28px] border border-[color:var(--border)] p-5">
+                <div className="text-2xl font-semibold tracking-[-0.05em] text-[#1f1814]">{stat.value}</div>
+                <div className="mt-2 text-sm leading-6 text-muted">{stat.label}</div>
               </div>
             ))}
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             {storePillars.map((pillar) => (
-              <article key={pillar.title} className="surface-strong rounded-3xl border border-[color:var(--border)] p-5">
+              <article key={pillar.title} className="surface-strong rounded-[28px] border border-[color:var(--border)] p-5">
                 <h2 className="text-base font-semibold text-[#201813]">{pillar.title}</h2>
-                <p className="mt-3 text-sm text-muted">{pillar.description}</p>
+                <p className="mt-3 text-sm leading-6 text-muted">{pillar.description}</p>
               </article>
             ))}
           </div>
@@ -40,30 +40,37 @@ export default async function HomePage() {
           <div className="space-y-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Produtos em destaque</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[#1c1511]">
-                Itens curados para mostrar o fluxo completo
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#1c1511]">
+                Uma seleção curada para apresentar a loja com rapidez
               </h2>
             </div>
 
             <div className="space-y-4">
               {featuredProducts.map((product) => (
-                <article key={product.slug} className="rounded-3xl border border-[color:var(--border)] bg-white/75 p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] accent-text">
-                      {product.badge}
-                    </span>
-                    <span className="text-sm font-semibold text-[#241b17]">
-                      {formatCurrencyBRL(product.priceCents)}
-                    </span>
+                <article key={product.slug} className="overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white/75">
+                  {product.images?.[0] ? (
+                    <div className="h-44 overflow-hidden">
+                      <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                    </div>
+                  ) : null}
+                  <div className="p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] accent-text">
+                        {product.badge}
+                      </span>
+                      <span className="text-sm font-semibold text-[#241b17]">
+                        {formatCurrencyBRL(product.priceCents)}
+                      </span>
+                    </div>
+                    <h3 className="mt-4 text-lg font-semibold tracking-[-0.03em] text-[#1f1713]">{product.name}</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted">{product.description}</p>
+                    <Link
+                      href={`/produto/${product.slug}`}
+                      className="mt-4 inline-flex text-sm font-semibold accent-text transition hover:text-[#5f3719]"
+                    >
+                      Abrir detalhe do produto
+                    </Link>
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold text-[#1f1713]">{product.name}</h3>
-                  <p className="mt-2 text-sm text-muted">{product.description}</p>
-                  <Link
-                    href={`/produto/${product.slug}`}
-                    className="mt-4 inline-flex text-sm font-semibold accent-text transition hover:text-[#5f3719]"
-                  >
-                    Abrir detalhe do produto
-                  </Link>
                 </article>
               ))}
             </div>

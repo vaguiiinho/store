@@ -23,23 +23,31 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
   return (
     <PublicPage
       eyebrow="Pedido confirmado"
-      title={`Pedido ${order.number} criado com sucesso.`}
-      description="A primeira versão já devolve o resumo da compra, o valor total e as instruções de pagamento simuladas."
+      title={`Pedido ${order.number} confirmado.`}
+      description="A confirmação mostra resumo, entrega e instruções de pagamento em uma tela com aparência de produto final."
       primaryAction={{ href: "/catalogo", label: "Continuar comprando" }}
       secondaryAction={{ href: "/checkout", label: "Novo checkout" }}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_0.72fr]">
         <section className="space-y-4">
           <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Resumo</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Status</div>
-                <div className="mt-2 text-sm font-semibold text-[#1d1712]">{order.status}</div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Resumo</p>
+                <p className="mt-2 text-sm leading-6 text-muted">Pedido registrado e pronto para acompanhar a próxima atualização de pagamento.</p>
               </div>
+              <span className="rounded-full border border-[color:rgba(124,79,36,0.18)] bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#6e4a29]">
+                {order.status}
+              </span>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <div className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Subtotal</div>
                 <div className="mt-2 text-sm font-semibold text-[#1d1712]">{formatCurrencyBRL(order.subtotalCents)}</div>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Frete</div>
+                <div className="mt-2 text-sm font-semibold text-[#1d1712]">{formatCurrencyBRL(order.shippingCents)}</div>
               </div>
               <div className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Total</div>
@@ -70,15 +78,13 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
           <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
             <h2 className="text-lg font-semibold text-[#1d1712]">Pagamento</h2>
             <div className="mt-4 rounded-3xl border border-[color:var(--border)] bg-white/80 p-4 text-sm">
-              <p className="font-semibold text-[#1d1712]">
-                {order.payment?.method === "PIX" ? "Pix" : "Cartão"}
-              </p>
-              <p className="mt-2 text-muted">
-                Status: {order.payment?.status ?? "PENDING"}
-              </p>
-              <p className="mt-2 text-muted">
-                Provedor: {order.payment?.provider ?? "mock"}
-              </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-semibold text-[#1d1712]">{order.payment?.method === "PIX" ? "Pix" : "Cartão"}</p>
+                <span className="rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] accent-text">
+                  {order.payment?.status ?? "PENDING"}
+                </span>
+              </div>
+              <p className="mt-2 text-muted">Provedor: {order.payment?.provider ?? "mock"}</p>
               {order.payment?.instructions?.length ? (
                 <ul className="mt-4 space-y-2 text-[#33251b]">
                   {order.payment.instructions.map((instruction) => (

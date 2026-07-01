@@ -21,7 +21,7 @@ export function CartSection() {
     return (
       <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-6">
         <p className="text-sm font-semibold text-[#1d1712]">Seu carrinho está vazio.</p>
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-2 text-sm leading-6 text-muted">
           Adicione um produto no catálogo para seguir com a demonstração.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
@@ -43,12 +43,12 @@ export function CartSection() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-[#1d1712]">Itens no carrinho</h2>
-              <p className="text-sm text-muted">{itemCount} item(ns) prontos para o checkout</p>
+              <p className="text-sm leading-6 text-muted">{itemCount} item(ns) prontos para o checkout.</p>
             </div>
             <button
               type="button"
               onClick={clearCart}
-              className="rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/80 px-4 py-2 text-sm font-semibold text-[#3a281c]"
+              className="rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/80 px-4 py-2 text-sm font-semibold text-[#3a281c] transition hover:bg-white"
             >
               Limpar carrinho
             </button>
@@ -67,7 +67,7 @@ export function CartSection() {
                   {item.badge}
                 </span>
               </div>
-              <p className="text-sm text-muted">{item.note}</p>
+              <p className="text-sm leading-6 text-muted">{item.note}</p>
               {item.stock ? (
                 <p className="text-xs font-medium text-muted">
                   Estoque mock: {item.stock.availableQuantity} disponível(is), {item.stock.reservedQuantity} reservado(s)
@@ -104,7 +104,7 @@ export function CartSection() {
               <button
                 type="button"
                 onClick={() => removeItem(item.slug)}
-                className="rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/75 px-4 py-2 text-sm font-semibold text-[#3a281c]"
+                className="rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/75 px-4 py-2 text-sm font-semibold text-[#3a281c] transition hover:bg-white"
               >
                 Remover
               </button>
@@ -132,7 +132,7 @@ export function CartSection() {
 
         <Link
           href="/checkout"
-          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2] transition hover:bg-[#34261d]"
+          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#1d1712] px-4 py-3 text-sm font-semibold text-[#fffaf2] shadow-[0_10px_24px_rgba(29,23,18,0.16)] transition hover:bg-[#34261d]"
         >
           Finalizar compra
         </Link>
