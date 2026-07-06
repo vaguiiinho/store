@@ -22,5 +22,6 @@ COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/apps/web/package.json ./package.json
 COPY --from=build /app/apps/web/.next ./.next
 COPY --from=build /app/apps/web/next.config.js ./next.config.js
+COPY --from=build /app/apps/web/healthcheck.js ./healthcheck.js
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start", "--", "--hostname", "0.0.0.0"]

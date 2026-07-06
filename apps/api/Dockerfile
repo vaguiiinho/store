@@ -19,5 +19,6 @@ COPY --from=build /app/apps/api/node_modules /app/apps/api/node_modules
 COPY --from=build /app/apps/api/package.json ./package.json
 COPY --from=build /app/apps/api/dist ./dist
 COPY --from=build /app/apps/api/prisma ./prisma
+COPY --from=build /app/apps/api/healthcheck.js ./healthcheck.js
 EXPOSE 3001
-CMD ["sh", "-c", "node /app/apps/api/node_modules/prisma/build/index.js migrate deploy --schema /app/apps/api/prisma/schema.prisma && node /app/apps/api/dist/main"]
+CMD ["sh", "-c", "node /app/apps/api/node_modules/prisma/build/index.js migrate deploy --schema /app/apps/api/prisma/schema.prisma && node /app/apps/api/dist/main.js"]
