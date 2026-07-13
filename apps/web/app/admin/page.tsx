@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { getAdminAuthMe } from "../../lib/storefront-api";
 
 export default async function AdminHomePage() {
-  const cookieHeader = cookies().toString();
+  const cookieHeader = (await cookies()).toString();
   const session = await getAdminAuthMe(cookieHeader);
 
   if (!session?.authenticated) {
@@ -20,7 +20,7 @@ export default async function AdminHomePage() {
               <div className="space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Admin</p>
                 <h1 className="text-4xl font-semibold tracking-[-0.06em] text-[#191310] sm:text-5xl">
-                  Base administrativa da demo
+                  Gestão da loja
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-muted sm:text-lg">
                   Uma visão enxuta para operar pedidos, produto e status sem perder o acabamento da vitrine pública.
@@ -39,6 +39,12 @@ export default async function AdminHomePage() {
                   className="inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/70 px-5 py-3 text-sm font-semibold text-[#392a1e] transition hover:bg-white"
                 >
                   Ver produtos
+                </Link>
+                <Link
+                  href="/"
+                  className="inline-flex rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-3 text-sm font-semibold transition hover:bg-white/10"
+                >
+                  Ver vitrine
                 </Link>
               </div>
 

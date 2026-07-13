@@ -2,6 +2,7 @@ import { Address } from "./address.entity";
 import { Customer } from "./customer.entity";
 import { OrderItem } from "./order-item.entity";
 import { Payment } from "./payment.entity";
+import { DomainError } from "../../../shared/domain/errors/domain-error";
 
 export enum OrderStatus {
   CREATED = "CREATED",
@@ -62,6 +63,18 @@ export class Order {
   }
 
   addItem(item: OrderItem) {
+    if (this.status !== OrderStatus.CREATED) {
+      throw new DomainError("Nao e possivel alterar itens de um pedido iniciado.");
+    }
+
+    const duplicate = this.items.some(
+      (current) => current.productId === item.productId && current.variantId === item.variantId
+    );
+
+    if (duplicate) {
+      throw new DomainError("Um produto so pode aparecer uma vez no pedido.");
+    }
+
     this.items.push(item);
     this.recalculateTotals();
   }
@@ -83,5 +96,22 @@ export class Order {
 
   markPaid() {
     this.status = OrderStatus.PAID;
+  }
+
+  cancel() {
+    if (this.status === OrderStatus.PAID) {
+      throw new DomainError("Um pedido pago nao pode ser cancelado por este fluxo.");
+    }
+
+    this.status = OrderStatus.CANCELLED;
+  }
+
+  changeStatus(status: OrderStatus) {
+    if (status === OrderStatus.CANCELLED) {
+      this.cancel();
+      return;
+    }
+
+    this.status = status;
   }
 }

@@ -46,7 +46,7 @@ export class HandlePaymentWebhookUseCase {
           await this.releaseReservedStocks(order, tx);
         }
 
-        order.status = OrderStatus.CANCELLED;
+        order.cancel();
         payment.status = input.status;
       } else {
         order.markAwaitingPayment();

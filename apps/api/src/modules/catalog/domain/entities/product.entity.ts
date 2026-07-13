@@ -1,6 +1,8 @@
 import { Category } from "./category.entity";
 import { Stock } from "../../../inventory/domain/entities/stock.entity";
 import { Variant } from "./variant.entity";
+import { Money } from "../../../shared/domain/value-objects/money.value-object";
+import { RequiredText } from "../../../shared/domain/value-objects/required-text.value-object";
 
 export type ProductProps = {
   id: string;
@@ -30,12 +32,17 @@ export class Product {
   ) {}
 
   static create(props: ProductProps) {
+    const name = RequiredText.create(props.name, "Nome do produto");
+    const slug = RequiredText.create(props.slug, "Slug do produto");
+    const description = RequiredText.create(props.description, "Descricao do produto");
+    const price = Money.create(props.priceCents, "Preco do produto");
+
     return new Product(
       props.id,
-      props.name,
-      props.slug,
-      props.description,
-      props.priceCents,
+      name.value,
+      slug.value,
+      description.value,
+      price.cents,
       props.images ?? [],
       props.active ?? true,
       props.categories ?? [],
@@ -58,6 +65,14 @@ export class Product {
     }
 
     this.variants.push(variant);
+  }
+
+  updateDetails(input: Pick<ProductProps, "name" | "slug" | "description" | "priceCents" | "images">) {
+    this.name = RequiredText.create(input.name, "Nome do produto").value;
+    this.slug = RequiredText.create(input.slug, "Slug do produto").value;
+    this.description = RequiredText.create(input.description, "Descricao do produto").value;
+    this.priceCents = Money.create(input.priceCents, "Preco do produto").cents;
+    this.images = (input.images ?? []).map((image) => image.trim()).filter(Boolean);
   }
 
   deactivate() {

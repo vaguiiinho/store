@@ -14,7 +14,7 @@ type PageProps = {
 
 export default async function AdminProdutoPage({ params }: PageProps) {
   const { id } = await params;
-  const cookieHeader = cookies().toString();
+  const cookieHeader = (await cookies()).toString();
   const session = await getAdminAuthMe(cookieHeader);
 
   if (!session?.authenticated) {

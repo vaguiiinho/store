@@ -2,13 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { updateAdminProductStatusAction } from "../app/actions/storefront-actions";
 
 type AdminProductStatusControlProps = {
   productId: string;
   currentActive: boolean;
 };
-
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
 
 export function AdminProductStatusControl({ productId, currentActive }: AdminProductStatusControlProps) {
   const router = useRouter();
@@ -19,27 +18,8 @@ export function AdminProductStatusControl({ productId, currentActive }: AdminPro
     setMessage(null);
     const nextActive = !currentActive;
 
-    const response = await fetch(`${apiBaseUrl}/admin/products/${productId}/status`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",
-      body: JSON.stringify({ active: nextActive })
-    });
-
-    const body = (await response.json()) as { message?: string | string[] } | null;
-
-    if (!response.ok) {
-      const fallback = "Nao foi possivel atualizar o produto.";
-      const nextMessage = body?.message
-        ? Array.isArray(body.message)
-          ? body.message.join(", ")
-          : body.message
-        : fallback;
-
-      throw new Error(nextMessage);
-    }
+    const response = await updateAdminProductStatusAction(productId, nextActive);
+    if (!response.ok) throw new Error(response.message);
 
     router.refresh();
     setMessage(nextActive ? "Produto ativado." : "Produto desativado.");

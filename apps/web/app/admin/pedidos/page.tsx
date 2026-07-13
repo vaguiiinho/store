@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getAdminAuthMe, getAdminOrders } from "../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../lib/format";
 import { AdminOrderStatusControl } from "../../../components/admin-order-status-control";
+import { AdminOrderDeleteControl } from "../../../components/admin-order-delete-control";
 
 function formatDateTime(value: string | null | undefined) {
   if (!value) {
@@ -18,7 +19,7 @@ function formatDateTime(value: string | null | undefined) {
 }
 
 export default async function AdminPedidosPage() {
-  const cookieHeader = cookies().toString();
+  const cookieHeader = (await cookies()).toString();
   const session = await getAdminAuthMe(cookieHeader);
 
   if (!session?.authenticated) {
@@ -110,6 +111,7 @@ export default async function AdminPedidosPage() {
                       <tr className="border-b border-[color:var(--border)] bg-white/40">
                         <td className="px-4 pb-4 pt-0" colSpan={6}>
                           <AdminOrderStatusControl orderId={order.id} currentStatus={order.status} />
+                          <AdminOrderDeleteControl orderId={order.id} />
                         </td>
                       </tr>
                     </Fragment>

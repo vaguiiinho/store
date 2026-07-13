@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { updateAdminOrderStatusAction } from "../app/actions/storefront-actions";
 
 type OrderStatus = "CREATED" | "AWAITING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 
@@ -20,8 +21,6 @@ const statusOptions: StatusOption[] = [
   { value: "CANCELLED", label: "Cancelado" }
 ];
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
-
 type AdminOrderStatusControlProps = {
   orderId: string;
   currentStatus: OrderStatus;
@@ -36,27 +35,8 @@ export function AdminOrderStatusControl({ orderId, currentStatus }: AdminOrderSt
   async function updateStatus() {
     setMessage(null);
 
-    const response = await fetch(`${apiBaseUrl}/admin/orders/${orderId}/status`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",
-      body: JSON.stringify({ status })
-    });
-
-    const body = (await response.json()) as { message?: string | string[] } | null;
-
-    if (!response.ok) {
-      const fallback = "Nao foi possivel atualizar o status.";
-      const nextMessage = body?.message
-        ? Array.isArray(body.message)
-          ? body.message.join(", ")
-          : body.message
-        : fallback;
-
-      throw new Error(nextMessage);
-    }
+    const response = await updateAdminOrderStatusAction(orderId, status);
+    if (!response.ok) throw new Error(response.message);
 
     router.refresh();
     setMessage("Status atualizado.");

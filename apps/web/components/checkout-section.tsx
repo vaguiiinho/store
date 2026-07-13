@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "./cart-provider";
 import { formatCurrencyBRL } from "../lib/format";
+import { createOrderAction } from "../app/actions/storefront-actions";
 
 type ShippingRegionId = "capital" | "interior" | "litoral";
 type PaymentMethodId = "pix" | "card";
@@ -60,15 +61,24 @@ const paymentMethods: PaymentMethod[] = [
   }
 ];
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
+type CheckoutSectionProps = { loggedEmail?: string };
 
-export function CheckoutSection() {
+export function CheckoutSection({ loggedEmail }: CheckoutSectionProps) {
   const router = useRouter();
   const { items, itemCount, subtotalCents, hydrated, clearCart } = useCart();
   const [selectedRegionId, setSelectedRegionId] = useState<ShippingRegionId>("capital");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodId>("pix");
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedData, setSavedData] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    try {
+      setSavedData(JSON.parse(window.localStorage.getItem("loja-ritual-checkout") ?? "{}") as Record<string, string>);
+    } catch {
+      setSavedData({});
+    }
+  }, []);
 
   const selectedRegion = useMemo(
     () => shippingRegions.find((region) => region.id === selectedRegionId) ?? shippingRegions[0],
@@ -82,6 +92,8 @@ export function CheckoutSection() {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+    const remembered = Object.fromEntries(Array.from(formData.entries()).map(([key, value]) => [key, String(value)]));
+    window.localStorage.setItem("loja-ritual-checkout", JSON.stringify(remembered));
 
     const payload = {
       customer: {
@@ -112,39 +124,12 @@ export function CheckoutSection() {
       setIsSubmitting(true);
       setFeedback(null);
 
-      const response = await fetch(`${apiBaseUrl}/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const body = (await response.json()) as {
-        number?: string;
-        totalCents?: number;
-        payment?: {
-          provider?: string | null;
-          checkoutUrl?: string | null;
-          qrCodeText?: string | null;
-          qrCodeBase64?: string | null;
-          instructions?: string[];
-          expiresAt?: string | null;
-        } | null;
-        message?: string | string[];
-      };
-
-      if (!response.ok) {
-        const message = Array.isArray(body.message)
-          ? body.message.join(", ")
-          : body.message ?? "Nao foi possivel criar o pedido.";
-
-        throw new Error(message);
-      }
+      const response = await createOrderAction(payload);
+      if (!response.ok || !response.data) throw new Error(response.ok ? "Nao foi possivel criar o pedido." : response.message);
 
       clearCart();
       event.currentTarget.reset();
-      router.push(`/pedido/${body.number}`);
+      router.push(`/pedido/${response.data.number}`);
       return;
     } catch (error) {
       setFeedback({
@@ -187,7 +172,7 @@ export function CheckoutSection() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_0.72fr]">
+    <form key={JSON.stringify(savedData)} onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_0.72fr]">
       <div className="space-y-4">
         <section className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -209,6 +194,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="name"
+                defaultValue={savedData.name ?? ""}
                 placeholder="Seu nome"
                 required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
@@ -220,6 +206,7 @@ export function CheckoutSection() {
               <input
                 type="email"
                 name="email"
+                defaultValue={savedData.email ?? loggedEmail ?? ""}
                 placeholder="voce@exemplo.com"
                 required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
@@ -231,6 +218,7 @@ export function CheckoutSection() {
               <input
                 type="tel"
                 name="phone"
+                defaultValue={savedData.phone ?? ""}
                 placeholder="(11) 99999-9999"
                 required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
@@ -242,6 +230,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="document"
+                defaultValue={savedData.document ?? ""}
                 placeholder="CPF opcional"
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
@@ -254,6 +243,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="cep"
+                defaultValue={savedData.cep ?? ""}
                 placeholder="00000-000"
                 required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
@@ -265,6 +255,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="complement"
+                defaultValue={savedData.complement ?? ""}
                 placeholder="Apto, bloco..."
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
@@ -277,6 +268,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="street"
+                defaultValue={savedData.street ?? ""}
                 placeholder="Rua, avenida..."
                 required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
@@ -288,6 +280,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="number"
+                defaultValue={savedData.number ?? ""}
                 placeholder="123"
                 required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
@@ -299,6 +292,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="reference"
+                defaultValue={savedData.reference ?? ""}
                 placeholder="Perto de..."
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
               />
@@ -311,6 +305,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="district"
+                defaultValue={savedData.district ?? ""}
                 placeholder="Bairro"
                 required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
@@ -322,6 +317,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="city"
+                defaultValue={savedData.city ?? ""}
                 placeholder="Cidade"
                 required
                 className="w-full rounded-2xl border border-[color:var(--border)] bg-white/85 px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
@@ -335,6 +331,7 @@ export function CheckoutSection() {
               <input
                 type="text"
                 name="state"
+                defaultValue={savedData.state ?? ""}
                 placeholder="SP"
                 required
                 maxLength={2}
@@ -454,7 +451,7 @@ export function CheckoutSection() {
         </button>
 
         <p className="mt-4 text-xs text-muted">
-          Integração com backend, reserva de estoque e pagamento real entram na próxima etapa.
+          A compra reserva o estoque imediatamente; a disponibilidade é atualizada no catálogo.
         </p>
       </aside>
     </form>

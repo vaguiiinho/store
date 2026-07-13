@@ -4,13 +4,14 @@ import { redirect } from "next/navigation";
 import { AdminProductStatusControl } from "../../../components/admin-product-status-control";
 import { getAdminAuthMe, getAdminProducts } from "../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../lib/format";
+import { AdminProductInventoryControl } from "../../../components/admin-product-inventory-control";
 
 function formatStock(available: number, reserved: number) {
   return `${available} disponíveis, ${reserved} reservados`;
 }
 
 export default async function AdminProdutosPage() {
-  const cookieHeader = cookies().toString();
+  const cookieHeader = (await cookies()).toString();
   const session = await getAdminAuthMe(cookieHeader);
 
   if (!session?.authenticated) {
@@ -33,8 +34,7 @@ export default async function AdminProdutosPage() {
                 Catálogo e ativação
               </h1>
               <p className="max-w-2xl text-base leading-7 text-muted sm:text-lg">
-                Base operacional para editar, ativar e desativar produtos enquanto o CRUD completo segue para a
-                próxima etapa.
+                Crie, edite, ajuste o estoque ou exclua produtos.
               </p>
               <p className="text-sm text-muted">Autenticado como {session.email}</p>
             </div>
@@ -107,6 +107,8 @@ export default async function AdminProdutosPage() {
                   <div className="mt-5">
                     <AdminProductStatusControl productId={product.id} currentActive={product.active} />
                   </div>
+
+                  <div className="mt-3"><AdminProductInventoryControl productId={product.id} /></div>
 
                   <div className="mt-4">
                     <Link

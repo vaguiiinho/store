@@ -1,4 +1,5 @@
 import { DomainError } from "../../../shared/domain/errors/domain-error";
+import { NonNegativeQuantity } from "../../../shared/domain/value-objects/non-negative-quantity.value-object";
 
 export type StockProps = {
   id: string;
@@ -18,12 +19,15 @@ export class Stock {
   ) {}
 
   static create(props: StockProps) {
+    const availableQuantity = NonNegativeQuantity.create(props.availableQuantity ?? 0, "Estoque disponivel");
+    const reservedQuantity = NonNegativeQuantity.create(props.reservedQuantity ?? 0, "Estoque reservado");
+
     return new Stock(
       props.id,
       props.productId,
       props.variantId ?? null,
-      props.availableQuantity ?? 0,
-      props.reservedQuantity ?? 0
+      availableQuantity.value,
+      reservedQuantity.value
     );
   }
 
@@ -36,7 +40,7 @@ export class Stock {
   }
 
   reserve(quantity: number) {
-    if (quantity <= 0) {
+    if (!Number.isInteger(quantity) || quantity <= 0) {
       throw new DomainError("Quantidade de reserva deve ser maior que zero.");
     }
 
@@ -49,7 +53,7 @@ export class Stock {
   }
 
   release(quantity: number) {
-    if (quantity <= 0) {
+    if (!Number.isInteger(quantity) || quantity <= 0) {
       throw new DomainError("Quantidade de liberacao deve ser maior que zero.");
     }
 
@@ -59,5 +63,11 @@ export class Stock {
 
     this.availableQuantity += quantity;
     this.reservedQuantity -= quantity;
+  }
+
+  adjustAvailable(delta: number) {
+    if (!Number.isInteger(delta) || delta === 0) throw new DomainError("Ajuste de estoque deve ser um inteiro diferente de zero.");
+    if (this.availableQuantity + delta < 0) throw new DomainError("Estoque insuficiente para esta retirada.");
+    this.availableQuantity += delta;
   }
 }

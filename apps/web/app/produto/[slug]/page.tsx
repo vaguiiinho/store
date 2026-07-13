@@ -138,7 +138,7 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
                   <div key={`${variant.name}-${variant.value}`} className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
                     <div className="text-sm font-semibold text-[#1e1713]">{variant.name}</div>
                     <p className="mt-2 text-sm leading-6 text-muted">{variant.value}</p>
-                    {variant.sku ? <p className="mt-1 text-xs text-muted">SKU mock: {variant.sku}</p> : null}
+                    {variant.sku ? <p className="mt-1 text-xs text-muted">SKU: {variant.sku}</p> : null}
                   </div>
                 ))}
               </div>

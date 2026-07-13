@@ -1,7 +1,10 @@
 import { PublicPage } from "../../components/public-page";
 import { CheckoutSection } from "../../components/checkout-section";
+import { cookies } from "next/headers";
+import { getAdminAuthMe } from "../../lib/storefront-api";
 
 export default async function CheckoutPage() {
+  const session = await getAdminAuthMe((await cookies()).toString());
   return (
     <PublicPage
       eyebrow="Checkout"
@@ -10,7 +13,7 @@ export default async function CheckoutPage() {
       primaryAction={{ href: "#pagamento", label: "Ver opções de pagamento" }}
       secondaryAction={{ href: "/carrinho", label: "Revisar carrinho" }}
     >
-      <CheckoutSection />
+      <CheckoutSection loggedEmail={session?.authenticated ? session.email : undefined} />
     </PublicPage>
   );
 }

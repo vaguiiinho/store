@@ -17,6 +17,7 @@
     "db:migrate:dev": "npm run prisma:migrate:dev --workspace api",
     "db:migrate:deploy": "npm run prisma:migrate:deploy --workspace api",
     "db:seed": "npm run db:seed --workspace api",
+    "db:reset-demo": "npm run db:reset-demo --workspace api",
     "lint": "eslint .",
     "lint:web": "npm run lint --workspace web",
     "lint:api": "npm run lint --workspace api",

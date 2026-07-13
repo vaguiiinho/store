@@ -23,7 +23,7 @@ export class UpdateOrderStatusUseCase {
       throw new DomainError("Pedido nao encontrado.");
     }
 
-    order.status = input.status;
+    order.changeStatus(input.status);
 
     await this.orderRepository.save(order);
 

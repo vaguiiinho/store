@@ -32,7 +32,7 @@ export class Cart {
     );
 
     if (existing) {
-      existing.quantity += item.quantity;
+      existing.changeQuantity(existing.quantity + item.quantity);
       existing.unitPriceCents = item.unitPriceCents;
       return;
     }
@@ -58,7 +58,12 @@ export class Cart {
       return;
     }
 
-    item.quantity = quantity;
+    if (quantity <= 0) {
+      this.removeItem(productId, variantId);
+      return;
+    }
+
+    item.changeQuantity(quantity);
   }
 
   get subtotalCents() {

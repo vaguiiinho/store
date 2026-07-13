@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { createAdminProduct, updateAdminProduct } from "../lib/storefront-api";
 import { formatCurrencyBRL } from "../lib/format";
+import { saveAdminProductAction } from "../app/actions/storefront-actions";
 
 type AdminProductFormProps = {
   mode: "create" | "edit";
@@ -71,16 +71,11 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
         reservedQuantity: Number(formData.get("reservedQuantity") ?? 0)
       };
 
-      const response = isCreate
-        ? await createAdminProduct(payload)
-        : await updateAdminProduct(product?.id ?? "", payload);
-
-      if (!response) {
-        throw new Error("Nao foi possivel salvar o produto.");
-      }
+      const response = await saveAdminProductAction(isCreate ? null : product?.id ?? null, payload);
+      if (!response.ok || !response.data) throw new Error(response.ok ? "Nao foi possivel salvar o produto." : response.message);
 
       if (isCreate) {
-        router.push(`/admin/produtos/${response.id}`);
+        router.push(`/admin/produtos/${response.data.id}`);
         router.refresh();
         return;
       }

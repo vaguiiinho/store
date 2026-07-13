@@ -20,4 +20,5 @@ export interface StockRepository {
     tx?: Prisma.TransactionClient
   ): Promise<Stock>;
   save(stock: Stock, tx?: Prisma.TransactionClient): Promise<void>;
+  adjustAvailable(productId: string, variantId: string | null, delta: number): Promise<Stock>;
 }

@@ -11,13 +11,16 @@ import { ListCategoriesUseCase } from "./application/list-categories.use-case";
 import { ListAdminProductsUseCase } from "./application/list-admin-products.use-case";
 import { UpdateProductUseCase } from "./application/update-product.use-case";
 import { UpdateProductStatusUseCase } from "./application/update-product-status.use-case";
+import { DeleteProductUseCase } from "./application/delete-product.use-case";
+import { AdjustProductStockUseCase } from "./application/adjust-product-stock.use-case";
+import { InventoryModule } from "../inventory/inventory.module";
 import { PrismaCategoryRepository } from "./infrastructure/prisma/prisma-category.repository";
 import { PrismaProductRepository } from "./infrastructure/prisma/prisma-product.repository";
 import { AdminProductsController } from "./presentation/admin-products.controller";
 import { AdminAuthModule } from "../admin-auth/admin-auth.module";
 
 @Module({
-  imports: [PrismaModule, AdminAuthModule],
+  imports: [PrismaModule, AdminAuthModule, InventoryModule],
   controllers: [CatalogController, AdminProductsController],
   providers: [
     CatalogSeedService,
@@ -29,6 +32,8 @@ import { AdminAuthModule } from "../admin-auth/admin-auth.module";
     CreateProductUseCase,
     UpdateProductUseCase,
     UpdateProductStatusUseCase,
+    DeleteProductUseCase,
+    AdjustProductStockUseCase,
     {
       provide: PRODUCT_REPOSITORY,
       useClass: PrismaProductRepository

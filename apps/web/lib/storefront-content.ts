@@ -32,6 +32,7 @@ export const routeLinks: RouteLink[] = [
   { href: "/catalogo", label: "Catálogo" },
   { href: "/carrinho", label: "Carrinho" },
   { href: "/checkout", label: "Checkout" }
+  ,{ href: "/pedidos", label: "Meus pedidos" }
 ];
 
 export const featuredProducts: FeaturedProduct[] = [
@@ -41,8 +42,8 @@ export const featuredProducts: FeaturedProduct[] = [
     description: "Modelo compacto para o ritual diário, com acabamento em aço escovado e aquecimento rápido.",
     priceCents: 27900,
     badge: "Mais pedida",
-    note: "Boa peça de abertura para a apresentação da demo.",
-    details: ["Reservatório de 1,2L", "Modo economia", "Limpeza simples", "Estoque mock pronto para a demo"],
+    note: "Prática para o preparo diário.",
+    details: ["Reservatório de 1,2L", "Modo economia", "Limpeza simples", "Estoque disponível"],
     categories: [
       { slug: "cafe", name: "Café" }
     ],

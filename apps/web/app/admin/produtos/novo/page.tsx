@@ -5,7 +5,7 @@ import { AdminProductForm } from "../../../../components/admin-product-form";
 import { getAdminAuthMe, getCategories } from "../../../../lib/storefront-api";
 
 export default async function AdminNovoProdutoPage() {
-  const cookieHeader = cookies().toString();
+  const cookieHeader = (await cookies()).toString();
   const session = await getAdminAuthMe(cookieHeader);
 
   if (!session?.authenticated) {

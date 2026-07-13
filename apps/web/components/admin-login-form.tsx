@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
+import { loginAdminAction } from "../app/actions/storefront-actions";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -18,35 +17,10 @@ export function AdminLoginForm() {
       setIsSubmitting(true);
       setError(null);
 
-      const response = await fetch(`${apiBaseUrl}/admin/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          email: String(formData.get("email") ?? "").trim(),
-          password: String(formData.get("password") ?? "")
-        })
-      });
+      const response = await loginAdminAction(String(formData.get("email") ?? "").trim(), String(formData.get("password") ?? ""));
+      if (!response.ok) throw new Error(response.message);
 
-      const body = (await response.json()) as {
-        authenticated?: boolean;
-        message?: string | string[];
-      };
-
-      if (!response.ok || !body.authenticated) {
-        const fallback = "Credenciais invalidas.";
-        const nextMessage = body.message
-          ? Array.isArray(body.message)
-            ? body.message.join(", ")
-            : body.message
-          : fallback;
-
-        throw new Error(nextMessage);
-      }
-
-      router.push("/admin");
+      router.push("/");
       router.refresh();
     } catch (error) {
       setError(error instanceof Error ? error.message : "Falha ao autenticar.");
@@ -86,8 +60,7 @@ export function AdminLoginForm() {
       ) : null}
 
       <div className="rounded-[24px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(247,239,228,0.9))] p-4 text-sm leading-6 text-muted">
-        O acesso administra pedidos e produtos com sessão protegida por cookie. A experiência é propositalmente
-        simples para servir de demonstração do fluxo interno.
+        Acesse produtos, estoque e pedidos com sessão protegida.
       </div>
 
       <button

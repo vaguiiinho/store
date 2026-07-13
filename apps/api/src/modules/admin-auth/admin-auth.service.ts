@@ -38,12 +38,12 @@ function safeEqual(left: string, right: string) {
 @Injectable()
 export class AdminAuthService {
   private readonly authSecret = process.env.AUTH_SECRET ?? "";
-  private readonly adminEmail = process.env.ADMIN_EMAIL ?? "admin@store.local";
-  private readonly adminPassword = process.env.ADMIN_PASSWORD ?? "admin123";
+  private readonly adminEmail = process.env.ADMIN_EMAIL ?? "";
+  private readonly adminPassword = process.env.ADMIN_PASSWORD ?? "";
 
   login(email: string, password: string): LoginResult | null {
-    if (!this.authSecret) {
-      throw new Error("AUTH_SECRET nao configurado.");
+    if (!this.authSecret || !this.adminEmail || !this.adminPassword) {
+      throw new Error("AUTH_SECRET, ADMIN_EMAIL e ADMIN_PASSWORD devem estar configurados.");
     }
 
     if (email.trim().toLowerCase() !== this.adminEmail.trim().toLowerCase()) {

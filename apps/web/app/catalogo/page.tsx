@@ -147,6 +147,9 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
                     <h2 className="text-xl font-semibold tracking-[-0.04em] text-[#1c1511]">{product.name}</h2>
                     <p className="mt-2 text-sm leading-6 text-muted">{product.description}</p>
                   </div>
+                  <p className="text-sm font-semibold text-[#3a281c]">
+                    {product.stock ? `${product.stock.availableQuantity} unidade(s) em estoque` : "Estoque sob consulta"}
+                  </p>
                   <ul className="space-y-2 text-sm text-[#33251b]">
                     {product.details.slice(0, 4).map((detail) => (
                       <li key={detail} className="flex gap-3">

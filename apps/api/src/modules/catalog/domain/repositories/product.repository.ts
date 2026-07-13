@@ -11,4 +11,5 @@ export interface ProductRepository {
     variantInput: { name: string; value: string; sku: string | null } | null,
     stockInput: { availableQuantity: number; reservedQuantity: number } | null
   ): Promise<void>;
+  delete(id: string): Promise<void>;
 }

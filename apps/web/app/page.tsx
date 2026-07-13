@@ -9,11 +9,12 @@ export default async function HomePage() {
 
   return (
     <PublicPage
-      eyebrow="Demo principal"
+      eyebrow="Loja online"
       title="Uma vitrine de loja com presença visual, fluxo claro e checkout visitante."
-      description="A proposta desta versão é mostrar produto, jornada e confirmação com acabamento suficiente para portfólio sem parecer um protótipo cru."
+      description="Encontre produtos, adicione ao carrinho e finalize sua compra em poucos passos."
       primaryAction={{ href: "/catalogo", label: "Abrir catálogo" }}
       secondaryAction={{ href: "/checkout", label: "Ir para checkout" }}
+      showHighlights
     >
       <div className="grid gap-6 lg:grid-cols-[1.16fr_0.84fr]">
         <div className="space-y-6">

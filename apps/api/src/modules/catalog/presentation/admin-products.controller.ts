@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Patch,
+  Delete,
   NotFoundException,
   UnauthorizedException
 } from "@nestjs/common";
@@ -17,10 +18,13 @@ import { GetAdminProductUseCase } from "../application/get-admin-product.use-cas
 import { ListAdminProductsUseCase } from "../application/list-admin-products.use-case";
 import { UpdateProductUseCase } from "../application/update-product.use-case";
 import { UpdateProductStatusUseCase } from "../application/update-product-status.use-case";
+import { DeleteProductUseCase } from "../application/delete-product.use-case";
 import { ListCategoriesUseCase } from "../application/list-categories.use-case";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { UpdateProductStatusDto } from "./dto/update-product-status.dto";
+import { AdjustStockDto } from "./dto/adjust-stock.dto";
+import { AdjustProductStockUseCase } from "../application/adjust-product-stock.use-case";
 
 function serializeCategory(category: { id: string; name: string; slug: string }) {
   return {
@@ -107,6 +111,8 @@ export class AdminProductsController {
     private readonly listCategoriesUseCase: ListCategoriesUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly updateProductStatusUseCase: UpdateProductStatusUseCase,
+    private readonly deleteProductUseCase: DeleteProductUseCase,
+    private readonly adjustProductStockUseCase: AdjustProductStockUseCase,
     private readonly adminAuthService: AdminAuthService
   ) {}
 
@@ -243,6 +249,31 @@ export class AdminProductsController {
         throw new BadRequestException(error.message);
       }
 
+      throw error;
+    }
+  }
+
+  @Delete("admin/products/:id")
+  async deleteProduct(@Param("id") id: string, @Headers("cookie") cookieHeader?: string) {
+    if (!this.adminAuthService.verifyCookie(cookieHeader)) throw new UnauthorizedException("Autenticacao de admin necessaria.");
+    try {
+      await this.deleteProductUseCase.execute(id);
+      return { deleted: true };
+    } catch (error) {
+      if (error instanceof DomainError) throw new BadRequestException(error.message);
+      throw error;
+    }
+  }
+
+  @Patch("admin/products/:id/stock")
+  async adjustStock(@Param("id") id: string, @Body() body: AdjustStockDto, @Headers("cookie") cookieHeader?: string) {
+    if (!this.adminAuthService.verifyCookie(cookieHeader)) throw new UnauthorizedException("Autenticacao de admin necessaria.");
+    try {
+      const product = await this.adjustProductStockUseCase.execute(id, body.delta);
+      if (!product) throw new NotFoundException("Produto nao encontrado.");
+      return serializeProduct(product);
+    } catch (error) {
+      if (error instanceof DomainError) throw new BadRequestException(error.message);
       throw error;
     }
   }

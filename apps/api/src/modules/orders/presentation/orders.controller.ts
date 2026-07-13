@@ -1,4 +1,5 @@
-import { BadRequestException, Body, Controller, Get, Headers, Inject, NotFoundException, Param, Patch, Post, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Headers, Inject, NotFoundException, Param, Patch, Post, Query, UnauthorizedException } from "@nestjs/common";
+import { DeleteOrderUseCase } from "../application/delete-order.use-case";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { CreateOrderUseCase } from "../application/create-order.use-case";
 import { CreateOrderDto } from "./dto/create-order.dto";
@@ -70,6 +71,7 @@ export class OrdersController {
   constructor(
     private readonly createOrderUseCase: CreateOrderUseCase,
     private readonly updateOrderStatusUseCase: UpdateOrderStatusUseCase,
+    private readonly deleteOrderUseCase: DeleteOrderUseCase,
     private readonly adminAuthService: AdminAuthService,
     @Inject(ORDER_REPOSITORY)
     private readonly orderRepository: OrderRepository
@@ -102,6 +104,13 @@ export class OrdersController {
     }
 
     return this.serialize(order);
+  }
+
+  @Get("orders")
+  async listVisitorOrders(@Query("email") email?: string, @Query("phone") phone?: string) {
+    if (!email?.trim() || !phone?.trim()) throw new BadRequestException("Informe e-mail e telefone para consultar pedidos.");
+    const orders = await this.orderRepository.findByCustomerContact(email, phone);
+    return orders.map((order) => this.serialize(order));
   }
 
   @Get("admin/orders")
@@ -141,6 +150,18 @@ export class OrdersController {
         throw new BadRequestException(error.message);
       }
 
+      throw error;
+    }
+  }
+
+  @Delete("admin/orders/:id")
+  async deleteAdminOrder(@Param("id") id: string, @Headers("cookie") cookieHeader?: string) {
+    if (!this.adminAuthService.verifyCookie(cookieHeader)) throw new UnauthorizedException("Autenticacao de admin necessaria.");
+    try {
+      await this.deleteOrderUseCase.execute(id);
+      return { deleted: true };
+    } catch (error) {
+      if (error instanceof DomainError) throw new BadRequestException(error.message);
       throw error;
     }
   }

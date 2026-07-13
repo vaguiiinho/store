@@ -82,6 +82,19 @@ export class CreateOrderUseCase {
       throw new DomainError("Adicione ao menos um item ao pedido.");
     }
 
+    const items = Array.from(
+      input.items.reduce((grouped, item) => {
+        const key = `${item.productSlug}:${item.variantId ?? ""}`;
+        const current = grouped.get(key);
+        grouped.set(key, current ? { ...current, quantity: current.quantity + item.quantity } : item);
+        return grouped;
+      }, new Map<string, CreateOrderItemInput>()).values()
+    );
+
+    if (items.some((item) => !Number.isInteger(item.quantity) || item.quantity <= 0)) {
+      throw new DomainError("A quantidade de cada item deve ser um inteiro maior que zero.");
+    }
+
     const customerRecord = input.customer.email
       ? await this.customerRepository.findByEmail(input.customer.email)
       : null;
@@ -122,7 +135,7 @@ export class CreateOrderUseCase {
       status: OrderStatus.CREATED
     });
 
-    for (const item of input.items) {
+    for (const item of items) {
       const product = await this.productRepository.findBySlug(item.productSlug);
 
       if (!product || !product.active) {
@@ -206,7 +219,7 @@ export class CreateOrderUseCase {
     await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await this.customerRepository.save(customer, tx);
 
-      for (const item of input.items) {
+      for (const item of items) {
         const product = await this.productRepository.findBySlug(item.productSlug);
 
         if (!product || !product.active) {

@@ -42,11 +42,13 @@ export class UpdateProductUseCase {
       }
     }
 
-    product.name = input.name.trim();
-    product.slug = nextSlug;
-    product.description = input.description.trim();
-    product.priceCents = input.priceCents;
-    product.images = input.images.map((image) => image.trim()).filter(Boolean);
+    product.updateDetails({
+      name: input.name,
+      slug: nextSlug,
+      description: input.description,
+      priceCents: input.priceCents,
+      images: input.images
+    });
 
     const categoryIds = [...new Set(input.categoryIds.map((categoryId) => categoryId.trim()).filter(Boolean))];
 

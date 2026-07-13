@@ -142,6 +142,14 @@ export class PrismaStockRepository implements StockRepository {
     });
   }
 
+  async adjustAvailable(productId: string, variantId: string | null, delta: number) {
+    const stock = await this.findByProductAndVariant(productId, variantId);
+    if (!stock) throw new DomainError("Estoque nao encontrado.");
+    stock.adjustAvailable(delta);
+    await this.save(stock);
+    return stock;
+  }
+
   private toEntity(stock: PrismaStockRecord) {
     return Stock.create({
       id: stock.id,

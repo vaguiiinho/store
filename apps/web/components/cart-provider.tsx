@@ -48,8 +48,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       subtotalCents: getCartSubtotal(state),
       hydrated,
       addItem: (product) => {
+        const availableQuantity = product.stock?.availableQuantity;
         setState((current) => {
           const existingItem = current.items.find((item) => item.slug === product.slug);
+
+          if (typeof availableQuantity === "number" && (existingItem?.quantity ?? 0) >= availableQuantity) {
+            return current;
+          }
 
           if (existingItem) {
             return {
@@ -74,7 +79,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateQuantity: (slug, quantity) => {
         setState((current) => ({
           items: current.items
-            .map((item) => (item.slug === slug ? { ...item, quantity } : item))
+            .map((item) => {
+              if (item.slug !== slug) return item;
+              const maximum = item.stock?.availableQuantity;
+              return { ...item, quantity: typeof maximum === "number" ? Math.min(quantity, maximum) : quantity };
+            })
             .filter((item) => item.quantity > 0)
         }));
       },

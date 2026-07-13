@@ -15,6 +15,19 @@
   --accent-soft: rgba(124, 79, 36, 0.12);
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #100d14;
+  --foreground: #f8f1ff;
+  --surface: rgba(29, 23, 37, 0.8);
+  --surface-strong: #1d1725;
+  --border: rgba(244, 232, 255, 0.14);
+  --muted: #c5b8cd;
+  --accent: #e2a2ff;
+  --accent-strong: #f2c7ff;
+  --accent-soft: rgba(226, 162, 255, 0.15);
+}
+
 html,
 body {
   margin: 0;
@@ -26,6 +39,25 @@ body {
     radial-gradient(circle at bottom left, rgba(124, 79, 36, 0.08), transparent 24%),
     linear-gradient(180deg, #fbf7f1 0%, #f6f2ea 48%, #efe7db 100%);
   color: var(--foreground);
+}
+
+:root[data-theme="dark"] body {
+  background: radial-gradient(circle at top left, rgba(128, 59, 173, 0.34), transparent 30%), radial-gradient(circle at top right, rgba(32, 123, 159, 0.2), transparent 28%), linear-gradient(160deg, #100d14, #191123 52%, #0c1420);
+}
+
+:root[data-theme="dark"] [class*="bg-white"] {
+  background-color: rgba(34, 27, 45, 0.88) !important;
+}
+
+:root[data-theme="dark"] [class*="text-[#"] {
+  color: var(--foreground) !important;
+}
+
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+  background-color: #251d31 !important;
+  color: var(--foreground) !important;
 }
 
 body {
@@ -81,6 +113,7 @@ a {
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
 }
+
 
 .surface {
   border: 1px solid var(--border);

@@ -4,7 +4,7 @@ import { AdminLoginForm } from "../../../components/admin-login-form";
 import { getAdminAuthMe } from "../../../lib/storefront-api";
 
 export default async function AdminLoginPage() {
-  const cookieHeader = cookies().toString();
+  const cookieHeader = (await cookies()).toString();
   const session = await getAdminAuthMe(cookieHeader);
 
   if (session?.authenticated) {
@@ -34,8 +34,8 @@ export default async function AdminLoginPage() {
                   <p className="mt-2 text-sm leading-6 text-[#1d1712]">Status de pedidos e produtos em um só lugar.</p>
                 </div>
                 <div className="rounded-[24px] border border-[color:var(--border)] bg-white/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#896139]">Portfólio</p>
-                  <p className="mt-2 text-sm leading-6 text-[#1d1712]">Painel suficiente para demonstrar controle e fluxo.</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#896139]">Administração</p>
+                  <p className="mt-2 text-sm leading-6 text-[#1d1712]">Acesse produtos, estoque e pedidos.</p>
                 </div>
               </div>
             </div>

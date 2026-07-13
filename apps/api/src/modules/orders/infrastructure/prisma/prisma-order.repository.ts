@@ -172,6 +172,30 @@ export class PrismaOrderRepository implements OrderRepository {
     return order ? mapOrder(order as PrismaOrderRecord) : null;
   }
 
+  async findExpiredAwaitingPayment(now: Date, limit = 50) {
+    const orders = (await this.prisma.order.findMany({
+      where: {
+        status: OrderStatus.AWAITING_PAYMENT,
+        payment: {
+          is: {
+            expiresAt: { lte: now },
+            status: PaymentStatus.PENDING
+          }
+        }
+      },
+      include: {
+        customer: true,
+        shippingAddress: true,
+        items: true,
+        payment: true
+      },
+      orderBy: [{ createdAt: "asc" }],
+      take: limit
+    })) as PrismaOrderRecord[];
+
+    return orders.map(mapOrder);
+  }
+
   async findAll(limit = 50) {
     const orders = (await this.prisma.order.findMany({
       include: {
@@ -185,6 +209,15 @@ export class PrismaOrderRepository implements OrderRepository {
     })) as PrismaOrderRecord[];
 
     return orders.map((order) => mapOrder(order as PrismaOrderRecord));
+  }
+
+  async findByCustomerContact(email: string, phone: string, limit = 20) {
+    const orders = (await this.prisma.order.findMany({
+      where: { customer: { is: { email: email.trim().toLowerCase(), phone: phone.trim() } } },
+      include: { customer: true, shippingAddress: true, items: true, payment: true },
+      orderBy: [{ createdAt: "desc" }], take: limit
+    })) as PrismaOrderRecord[];
+    return orders.map(mapOrder);
   }
 
   async save(order: Order, tx?: Prisma.TransactionClient) {
@@ -297,5 +330,9 @@ export class PrismaOrderRepository implements OrderRepository {
           : undefined
       }
     });
+  }
+
+  async delete(id: string, tx?: Prisma.TransactionClient) {
+    await (tx ?? this.prisma).order.delete({ where: { id } });
   }
 }

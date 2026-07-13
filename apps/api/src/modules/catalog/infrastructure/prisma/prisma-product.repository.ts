@@ -199,6 +199,10 @@ export class PrismaProductRepository implements ProductRepository {
     }
   }
 
+  async delete(id: string) {
+    await this.prisma.product.delete({ where: { id } });
+  }
+
   private toEntity(product: PrismaProductRecord) {
     return Product.create({
       id: product.id,

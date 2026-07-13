@@ -22,7 +22,7 @@ export function CartSection() {
       <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-6">
         <p className="text-sm font-semibold text-[#1d1712]">Seu carrinho está vazio.</p>
         <p className="mt-2 text-sm leading-6 text-muted">
-          Adicione um produto no catálogo para seguir com a demonstração.
+          Escolha produtos no catálogo para continuar.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link
@@ -70,7 +70,7 @@ export function CartSection() {
               <p className="text-sm leading-6 text-muted">{item.note}</p>
               {item.stock ? (
                 <p className="text-xs font-medium text-muted">
-                  Estoque mock: {item.stock.availableQuantity} disponível(is), {item.stock.reservedQuantity} reservado(s)
+                  {item.stock.availableQuantity} disponível(is), {item.stock.reservedQuantity} reservado(s)
                 </p>
               ) : null}
               <p className="text-sm text-[#33251b]">{formatCurrencyBRL(item.priceCents)} por unidade</p>
