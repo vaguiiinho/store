@@ -18,24 +18,18 @@ Subir a loja virtual em ambiente de produção com:
 
 ## Variaveis de ambiente
 
-Use um arquivo `.env` de deploy com pelo menos:
+Crie os arquivos a partir de seus exemplos e preencha os valores de produção:
 
-- `DATABASE_URL`
-- `APP_URL`
-- `NEXT_PUBLIC_APP_URL`
-- `AUTH_SECRET`
-- `PAYMENT_PROVIDER_KEY`
-- `PAYMENT_PROVIDER_SECRET`
-- `PAYMENT_PROVIDER`
-- `PAYMENT_PROVIDER_BASE_URL`
-- `PAYMENT_PROVIDER_WEBHOOK_SECRET`
-- `GMAIL_USER`
-- `GMAIL_APP_PASSWORD`
-- `RESEND_API_KEY`
-- `STORAGE_BUCKET`
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-- `POSTGRES_DB`
+```bash
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+mkdir -p deploy/postgres
+cp deploy/postgres/.env.example deploy/postgres/.env
+```
+
+- `apps/api/.env` contém `DATABASE_URL`, `APP_URL`, `AUTH_SECRET`, credenciais do admin e integrações externas;
+- `apps/web/.env` contém `API_URL`, `NEXT_PUBLIC_API_URL` e `NEXT_PUBLIC_APP_URL`;
+- `deploy/postgres/.env` contém `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_DB`.
 
 ## Comandos
 

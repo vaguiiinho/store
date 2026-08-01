@@ -50,6 +50,12 @@ npm install
 2. Suba a stack local:
 
 ```bash
+# Copie e ajuste os arquivos de ambiente de cada serviço na primeira execução.
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+mkdir -p deploy/postgres
+cp deploy/postgres/.env.example deploy/postgres/.env
+
 docker compose up -d --build
 ```
 

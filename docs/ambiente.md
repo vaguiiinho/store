@@ -12,24 +12,15 @@ Documentar os requisitos de ambiente para desenvolver e operar a loja virtual.
 - PostgreSQL como banco, via Docker.
 - Prisma para acesso ao banco.
 
-## Variaveis de Ambiente Esperadas
+## Arquivos de Ambiente
 
-- `DATABASE_URL`
-- `APP_URL`
-- `NEXT_PUBLIC_APP_URL`
-- `API_URL`
-- `AUTH_SECRET`
-- `ADMIN_EMAIL`
-- `ADMIN_PASSWORD`
-- `PAYMENT_PROVIDER_KEY`
-- `PAYMENT_PROVIDER_SECRET`
-- `PAYMENT_PROVIDER`
-- `PAYMENT_PROVIDER_BASE_URL`
-- `PAYMENT_PROVIDER_WEBHOOK_SECRET`
-- `GMAIL_USER`
-- `GMAIL_APP_PASSWORD`
-- `RESEND_API_KEY` (futuro)
-- `STORAGE_BUCKET`
+Cada serviço recebe apenas as variáveis de que precisa:
+
+- `apps/api/.env`: banco, autenticação do admin, pagamentos, e-mail, storage e URL pública da loja;
+- `apps/web/.env`: URLs usadas pelo frontend (interna e pública);
+- `deploy/postgres/.env`: credenciais de inicialização do PostgreSQL.
+
+Use os respectivos arquivos `.env.example` como ponto de partida. Os arquivos reais são ignorados pelo Git.
 
 ## Servicos Externos
 
