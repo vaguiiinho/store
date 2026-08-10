@@ -1,93 +1,73 @@
-# Loja Ritual
+# Store — E-commerce Full Stack
 
-Demo de portfólio de uma loja virtual de produtos físicos.
+Aplicação Full Stack de e-commerce desenvolvida com **Next.js, NestJS, PostgreSQL e Prisma**, estruturada em monorepo e preparada para evolução de funcionalidades de catálogo, estoque, carrinho, pedidos e pagamentos.
 
-A proposta é mostrar uma jornada simples e apresentável:
+O projeto faz parte do meu portfólio e tem como objetivo demonstrar desenvolvimento Full Stack, modelagem de domínio, APIs, persistência de dados e organização de uma aplicação moderna.
 
-- vitrine pública com catálogo, carrinho e checkout;
-- pedido confirmado com resumo, frete e pagamento simulado;
-- admin com acesso autenticado para pedidos e produtos;
-- base preparada para evoluir sem reescrever o fluxo principal.
+---
 
-## O que a demo cobre
+## 🚀 Tecnologias
 
-- home com proposta clara e destaque para produtos;
-- catálogo com busca e filtro por categoria;
-- detalhe do produto com ação de adicionar ao carrinho;
-- carrinho com subtotal, frete e total;
-- checkout como visitante;
-- confirmação do pedido com resumo da compra;
-- painel admin para consulta e operação básica.
+### Frontend
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
 
-## Stack
+### Backend
+- NestJS
+- TypeScript
+- Prisma ORM
 
-- Frontend: Next.js App Router
-- Backend: NestJS
-- ORM: Prisma
-- Banco: PostgreSQL
-- Pagamento: Mercado Pago
-- Imagens: Cloudinary
-- E-mail transacional: Gmail free no MVP
+### Banco de dados
+- PostgreSQL
 
-## Rotas principais
+### Ferramentas
+- npm Workspaces
+- ESLint
+- Prettier
+- Prisma Migrations
 
-- `/` - home da demo
-- `/catalogo` - catálogo público
-- `/produto/[slug]` - detalhe do produto
-- `/carrinho` - resumo do carrinho
-- `/checkout` - checkout visitante
-- `/pedido/[number]` - confirmação do pedido
-- `/admin` - painel administrativo
+---
 
-## Como rodar
+## 📌 Funcionalidades
 
-1. Instale dependências:
+O domínio da aplicação contempla:
 
-```bash
-npm install
-```
+- catálogo de produtos;
+- categorias;
+- variações de produtos;
+- gerenciamento de estoque;
+- clientes;
+- endereços;
+- carrinho de compras;
+- criação de pedidos;
+- itens do pedido;
+- controle de status dos pedidos;
+- pagamentos;
+- suporte a PIX e cartão.
 
-2. Suba a stack local:
+---
 
-```bash
-# Copie e ajuste os arquivos de ambiente de cada serviço na primeira execução.
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env
-mkdir -p deploy/postgres
-cp deploy/postgres/.env.example deploy/postgres/.env
+## 🛒 Fluxo principal
 
-docker compose up -d --build
-```
+A aplicação foi estruturada para suportar um fluxo tradicional de e-commerce:
 
-3. Inicie os apps:
-
-```bash
-npm run dev
-```
-
-Se preferir executar separado:
-
-```bash
-npm run dev:web
-npm run dev:api
-```
-
-## Documentação
-
-- [docs/README.md](docs/README.md)
-- [docs/demo-apresentacao.md](docs/demo-apresentacao.md)
-- [docs/prd-loja-virtual.md](docs/prd-loja-virtual.md)
-- [docs/ambiente.md](docs/ambiente.md)
-- [docs/implementacao-tasks.md](docs/implementacao-tasks.md)
-- [docs/checklist-prs.md](docs/checklist-prs.md)
-- [docs/pre-requisitos-implementacao.md](docs/pre-requisitos-implementacao.md)
-- [docs/plano-implementacao-v1.md](docs/plano-implementacao-v1.md)
-- [docs/backlog-tecnico-v1.md](docs/backlog-tecnico-v1.md)
-
-## Contexto do repositório
-
-O repositório também mantém a documentação de agentes e decisões técnicas que orientam as próximas etapas da v1.
-
-- [.agents/README.md](.agents/README.md)
-- [.agents/agent-router.md](.agents/agent-router.md)
-- [.agents/project-architecture.md](.agents/project-architecture.md)
+```text
+Catálogo
+   ↓
+Produto
+   ↓
+Carrinho
+   ↓
+Cliente / Endereço
+   ↓
+Pedido
+   ↓
+Pagamento
+   ↓
+Preparação
+   ↓
+Envio
+   ↓
+Entrega
