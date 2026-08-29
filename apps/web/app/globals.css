@@ -13,6 +13,12 @@
   --accent: #7c4f24;
   --accent-strong: #44260f;
   --accent-soft: rgba(124, 79, 36, 0.12);
+  --danger: #991b1b;
+  --danger-border: rgba(153, 27, 27, 0.28);
+  --danger-soft: rgba(254, 226, 226, 0.78);
+  --success: #166534;
+  --success-border: rgba(22, 101, 52, 0.28);
+  --success-soft: rgba(220, 252, 231, 0.78);
 }
 
 :root[data-theme="dark"] {
@@ -26,6 +32,12 @@
   --accent: #e2a2ff;
   --accent-strong: #f2c7ff;
   --accent-soft: rgba(226, 162, 255, 0.15);
+  --danger: #ffb4b4;
+  --danger-border: rgba(255, 180, 180, 0.34);
+  --danger-soft: rgba(153, 27, 27, 0.22);
+  --success: #a7f3d0;
+  --success-border: rgba(167, 243, 208, 0.34);
+  --success-soft: rgba(22, 101, 52, 0.24);
 }
 
 html,

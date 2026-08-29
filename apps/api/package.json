@@ -6,7 +6,9 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "lint": "eslint .",
-    "test": "node --require ts-node/register --test src/modules/inventory/domain/entities/stock.entity.spec.ts src/modules/orders/domain/entities/order.entity.spec.ts",
+    "test": "npm run test:unit",
+    "test:unit": "node --require ts-node/register --test src/modules/catalog/domain/entities/catalog.entities.spec.ts src/modules/cart/domain/entities/cart.entities.spec.ts src/modules/inventory/domain/entities/stock.entity.spec.ts src/modules/orders/domain/entities/order.entity.spec.ts src/modules/catalog/application/catalog.use-cases.spec.ts src/modules/orders/application/order.use-cases.spec.ts src/modules/payments/application/payment.use-cases.spec.ts",
+    "test:integration": "node --require ts-node/register --test test/repositories.integration.spec.ts",
     "db:seed": "node prisma/seed.js",
     "db:reset-demo": "node prisma/reset-demo-data.js",
     "prisma:generate": "prisma generate",
@@ -29,6 +31,7 @@
   "devDependencies": {
     "@nestjs/cli": "^11.0.23",
     "@nestjs/schematics": "^11.1.0",
+    "@testcontainers/postgresql": "^12.1.0",
     "@types/node": "^26.0.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0"

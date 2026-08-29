@@ -16,8 +16,11 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    image: vaguiiinho/store-api:1.0.1
     env_file:
       - ./apps/api/.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-store}:${POSTGRES_PASSWORD:-store}@postgres:5432/${POSTGRES_DB:-store}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -37,6 +40,7 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: /api
+    image: vaguiiinho/store-web:1.0.1
     env_file:
       - ./apps/web/.env
     depends_on:

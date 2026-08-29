@@ -8,10 +8,12 @@ import { ORDER_REPOSITORY } from "../orders.tokens";
 import { OrderRepository } from "../domain/repositories/order.repository";
 import { OrderStatus } from "../domain/entities/order.entity";
 
+export type DeleteOrderOutput = void;
+
 @Injectable()
 export class DeleteOrderUseCase {
   constructor(@Inject(ORDER_REPOSITORY) private readonly orders: OrderRepository, @Inject(STOCK_REPOSITORY) private readonly stock: StockRepository, private readonly prisma: PrismaService) {}
-  async execute(orderId: string) {
+  async execute(orderId: string): Promise<DeleteOrderOutput> {
     const order = await this.orders.findById(orderId);
     if (!order) throw new DomainError("Pedido nao encontrado.");
     await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {

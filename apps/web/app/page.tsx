@@ -12,11 +12,9 @@ export default async function HomePage() {
       eyebrow="Loja online"
       title="Uma vitrine de loja com presença visual, fluxo claro e checkout visitante."
       description="Encontre produtos, adicione ao carrinho e finalize sua compra em poucos passos."
-      primaryAction={{ href: "/catalogo", label: "Abrir catálogo" }}
-      secondaryAction={{ href: "/checkout", label: "Ir para checkout" }}
       showHighlights
     >
-      <div className="grid gap-6 lg:grid-cols-[1.16fr_0.84fr]">
+      <div className="space-y-8">
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
             {storefrontStats.map((stat) => (
@@ -37,7 +35,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <aside className="surface-strong rounded-[32px] border border-[color:var(--border)] p-6">
+        <section className="surface-strong rounded-[32px] border border-[color:var(--border)] p-6">
           <div className="space-y-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Produtos em destaque</p>
@@ -46,11 +44,11 @@ export default async function HomePage() {
               </h2>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {featuredProducts.map((product) => (
                 <article key={product.slug} className="overflow-hidden rounded-[28px] border border-[color:var(--border)] bg-white/75">
                   {product.images?.[0] ? (
-                    <div className="h-44 overflow-hidden">
+                    <div className="h-48 overflow-hidden">
                       <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
                     </div>
                   ) : null}
@@ -76,7 +74,7 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
-        </aside>
+        </section>
       </div>
     </PublicPage>
   );

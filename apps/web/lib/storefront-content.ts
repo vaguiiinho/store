@@ -48,7 +48,7 @@ export const featuredProducts: FeaturedProduct[] = [
       { slug: "cafe", name: "Café" }
     ],
     images: [
-      "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80"
+      "https://images.unsplash.com/photo-1608354580875-30bd4168b351?auto=format&fit=crop&w=1200&h=900&q=82"
     ],
     variants: [
       { name: "Cor", value: "Preto", sku: "CAF-ESS-PRETO" }
@@ -71,7 +71,7 @@ export const featuredProducts: FeaturedProduct[] = [
       { slug: "acessorios", name: "Acessórios" }
     ],
     images: [
-      "https://images.unsplash.com/photo-1517707711969-9fb2dd9c2f58?auto=format&fit=crop&w=1200&q=80"
+      "https://images.unsplash.com/photo-1780341219526-a1b2ff5bbfda?auto=format&fit=crop&w=1200&h=900&q=82"
     ],
     variants: [
       { name: "Acabamento", value: "Metal escovado", sku: "MPR-METAL" }
@@ -93,7 +93,7 @@ export const featuredProducts: FeaturedProduct[] = [
       { slug: "kits", name: "Kits" }
     ],
     images: [
-      "https://images.unsplash.com/photo-1511688878350-3d014d8f8a1f?auto=format&fit=crop&w=1200&q=80"
+      "https://images.unsplash.com/photo-1771508732063-24f21809d45d?auto=format&fit=crop&w=1200&h=900&q=82"
     ],
     variants: [
       { name: "Embalagem", value: "Presenteável", sku: "KIT-SERENA-PRES" }
@@ -116,7 +116,7 @@ export const featuredProducts: FeaturedProduct[] = [
       { slug: "presentes", name: "Presentes" }
     ],
     images: [
-      "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1200&q=80"
+      "https://images.unsplash.com/photo-1768674150936-1d2044ba32d6?auto=format&fit=crop&w=1200&h=900&q=82"
     ],
     variants: [
       { name: "Embalagem", value: "Caixa rígida", sku: "KIT-AROMA-BOX" }

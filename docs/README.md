@@ -19,6 +19,8 @@ Este diretorio organiza a documentacao da loja virtual.
 13. `docs/runbook.md` para operacao e suporte.
 14. `docs/deploy.md` para subir a stack com Docker e Nginx.
 15. `docs/demo-apresentacao.md` para o roteiro de gravação e apresentação.
+16. `docs/plano-melhoria-home-api.md` para o plano da melhoria visual e de robustez da API.
+17. `docs/checklist-melhoria-home-api.md` para acompanhar a implementacao e a validacao dessa melhoria.
 
 ## Subdiretorios
 

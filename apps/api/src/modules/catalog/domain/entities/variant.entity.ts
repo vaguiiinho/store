@@ -1,5 +1,8 @@
+import { EntityId } from "../../../shared/domain/value-objects/entity-id.value-object";
+import { RequiredText } from "../../../shared/domain/value-objects/required-text.value-object";
+
 export type VariantProps = {
-  id: string;
+  id?: string;
   productId: string;
   name: string;
   value: string;
@@ -19,11 +22,11 @@ export class Variant {
 
   static create(props: VariantProps) {
     return new Variant(
-      props.id,
-      props.productId,
-      props.name,
-      props.value,
-      props.sku ?? null,
+      EntityId.create(props.id, "ID da variacao").value,
+      EntityId.create(props.productId, "ID do produto da variacao").value,
+      RequiredText.create(props.name, "Nome da variacao").value,
+      RequiredText.create(props.value, "Valor da variacao").value,
+      props.sku?.trim() || null,
       props.active ?? true
     );
   }

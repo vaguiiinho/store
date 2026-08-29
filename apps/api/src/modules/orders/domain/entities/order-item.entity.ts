@@ -1,5 +1,10 @@
+import { DomainError } from "../../../shared/domain/errors/domain-error";
+import { EntityId } from "../../../shared/domain/value-objects/entity-id.value-object";
+import { Money } from "../../../shared/domain/value-objects/money.value-object";
+import { RequiredText } from "../../../shared/domain/value-objects/required-text.value-object";
+
 export type OrderItemProps = {
-  id: string;
+  id?: string;
   productId: string;
   productName: string;
   quantity: number;
@@ -22,16 +27,13 @@ export class OrderItem {
       throw new DomainError("Quantidade do item do pedido deve ser maior que zero.");
     }
 
-    if (!Number.isInteger(props.unitPriceCents) || props.unitPriceCents < 0) {
-      throw new DomainError("Preco do item do pedido invalido.");
-    }
     return new OrderItem(
-      props.id,
-      props.productId,
-      props.productName,
+      EntityId.create(props.id, "ID do item do pedido").value,
+      EntityId.create(props.productId, "ID do produto").value,
+      RequiredText.create(props.productName, "Nome do produto").value,
       props.quantity,
-      props.unitPriceCents,
-      props.variantId ?? null
+      Money.create(props.unitPriceCents, "Preco do item do pedido").cents,
+      props.variantId ? EntityId.create(props.variantId, "ID da variacao").value : null
     );
   }
 
@@ -39,4 +41,3 @@ export class OrderItem {
     return this.quantity * this.unitPriceCents;
   }
 }
-import { DomainError } from "../../../shared/domain/errors/domain-error";

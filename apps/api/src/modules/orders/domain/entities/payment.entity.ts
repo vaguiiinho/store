@@ -11,7 +11,7 @@ export enum PaymentStatus {
 }
 
 export type PaymentProps = {
-  id: string;
+  id?: string;
   orderId: string;
   method: PaymentMethod;
   amountCents: number;
@@ -44,11 +44,14 @@ export class Payment {
   ) {}
 
   static create(props: PaymentProps) {
+    if (!Object.values(PaymentMethod).includes(props.method)) throw new DomainError("Metodo de pagamento invalido.");
+    if (props.status && !Object.values(PaymentStatus).includes(props.status)) throw new DomainError("Status de pagamento invalido.");
+
     return new Payment(
-      props.id,
-      props.orderId,
+      EntityId.create(props.id, "ID do pagamento").value,
+      EntityId.create(props.orderId, "ID do pedido").value,
       props.method,
-      props.amountCents,
+      Money.create(props.amountCents, "Valor do pagamento").cents,
       props.status ?? PaymentStatus.PENDING,
       props.externalReference ?? null,
       props.gatewayReference ?? null,
@@ -56,7 +59,7 @@ export class Payment {
       props.checkoutUrl ?? null,
       props.qrCodeText ?? null,
       props.qrCodeBase64 ?? null,
-      props.instructions ?? [],
+      (props.instructions ?? []).map((instruction) => instruction.trim()).filter(Boolean),
       props.expiresAt ?? null
     );
   }
@@ -69,3 +72,6 @@ export class Payment {
     this.status = PaymentStatus.DECLINED;
   }
 }
+import { DomainError } from "../../../shared/domain/errors/domain-error";
+import { EntityId } from "../../../shared/domain/value-objects/entity-id.value-object";
+import { Money } from "../../../shared/domain/value-objects/money.value-object";

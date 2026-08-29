@@ -1,5 +1,9 @@
+import { DomainError } from "../../../shared/domain/errors/domain-error";
+import { EntityId } from "../../../shared/domain/value-objects/entity-id.value-object";
+import { Money } from "../../../shared/domain/value-objects/money.value-object";
+
 export type CartItemProps = {
-  id: string;
+  id?: string;
   productId: string;
   variantId?: string | null;
   quantity: number;
@@ -20,15 +24,12 @@ export class CartItem {
       throw new DomainError("Quantidade do item deve ser maior que zero.");
     }
 
-    if (!Number.isInteger(props.unitPriceCents) || props.unitPriceCents < 0) {
-      throw new DomainError("Preco unitario invalido.");
-    }
     return new CartItem(
-      props.id,
-      props.productId,
-      props.variantId ?? null,
+      EntityId.create(props.id, "ID do item do carrinho").value,
+      EntityId.create(props.productId, "ID do produto").value,
+      props.variantId ? EntityId.create(props.variantId, "ID da variacao").value : null,
       props.quantity,
-      props.unitPriceCents
+      Money.create(props.unitPriceCents, "Preco unitario").cents
     );
   }
 
@@ -44,4 +45,3 @@ export class CartItem {
     this.quantity = quantity;
   }
 }
-import { DomainError } from "../../../shared/domain/errors/domain-error";

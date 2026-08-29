@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { PRODUCT_REPOSITORY } from "../catalog.tokens";
 import { ProductRepository } from "../domain/repositories/product.repository";
+import { Product } from "../domain/entities/product.entity";
 
 export type UpdateProductInput = {
   productId: string;
@@ -17,6 +18,7 @@ export type UpdateProductInput = {
   availableQuantity?: number | null;
   reservedQuantity?: number | null;
 };
+export type UpdateProductOutput = Product;
 
 @Injectable()
 export class UpdateProductUseCase {
@@ -25,7 +27,7 @@ export class UpdateProductUseCase {
     private readonly productRepository: ProductRepository
   ) {}
 
-  async execute(input: UpdateProductInput) {
+  async execute(input: UpdateProductInput): Promise<UpdateProductOutput> {
     const product = await this.productRepository.findById(input.productId);
 
     if (!product) {

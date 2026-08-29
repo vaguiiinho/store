@@ -3,11 +3,13 @@ import { DomainError } from "../../shared/domain/errors/domain-error";
 import { ORDER_REPOSITORY } from "../orders.tokens";
 import { OrderRepository } from "../domain/repositories/order.repository";
 import { OrderStatus } from "../domain/entities/order.entity";
+import { Order } from "../domain/entities/order.entity";
 
 export type UpdateOrderStatusInput = {
   orderId: string;
   status: OrderStatus;
 };
+export type UpdateOrderStatusOutput = Order;
 
 @Injectable()
 export class UpdateOrderStatusUseCase {
@@ -16,7 +18,7 @@ export class UpdateOrderStatusUseCase {
     private readonly orderRepository: OrderRepository
   ) {}
 
-  async execute(input: UpdateOrderStatusInput) {
+  async execute(input: UpdateOrderStatusInput): Promise<UpdateOrderStatusOutput> {
     const order = await this.orderRepository.findById(input.orderId);
 
     if (!order) {

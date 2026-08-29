@@ -1,8 +1,9 @@
 import { DomainError } from "../../../shared/domain/errors/domain-error";
 import { NonNegativeQuantity } from "../../../shared/domain/value-objects/non-negative-quantity.value-object";
+import { EntityId } from "../../../shared/domain/value-objects/entity-id.value-object";
 
 export type StockProps = {
-  id: string;
+  id?: string;
   productId: string;
   variantId?: string | null;
   availableQuantity?: number;
@@ -23,9 +24,9 @@ export class Stock {
     const reservedQuantity = NonNegativeQuantity.create(props.reservedQuantity ?? 0, "Estoque reservado");
 
     return new Stock(
-      props.id,
-      props.productId,
-      props.variantId ?? null,
+      EntityId.create(props.id, "ID do estoque").value,
+      EntityId.create(props.productId, "ID do produto do estoque").value,
+      props.variantId ? EntityId.create(props.variantId, "ID da variacao do estoque").value : null,
       availableQuantity.value,
       reservedQuantity.value
     );

@@ -18,13 +18,16 @@
     "db:migrate:deploy": "npm run prisma:migrate:deploy --workspace api",
     "db:seed": "npm run db:seed --workspace api",
     "db:reset-demo": "npm run db:reset-demo --workspace api",
+    "db:up": "docker compose -f docker-compose.dev.yml up -d",
+    "db:down": "docker compose -f docker-compose.dev.yml down",
     "lint": "eslint .",
     "lint:web": "npm run lint --workspace web",
     "lint:api": "npm run lint --workspace api",
     "format": "prettier --write .",
     "test": "npm run test:web && npm run test:api",
     "test:web": "npm run test --workspace web",
-    "test:api": "npm run test --workspace api"
+    "test:api": "npm run test --workspace api",
+    "test:integration": "npm run test:integration --workspace api"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

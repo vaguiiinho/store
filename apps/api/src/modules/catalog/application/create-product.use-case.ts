@@ -22,6 +22,7 @@ export type CreateProductInput = {
   availableQuantity?: number | null;
   reservedQuantity?: number | null;
 };
+export type CreateProductOutput = Product;
 
 @Injectable()
 export class CreateProductUseCase {
@@ -32,7 +33,7 @@ export class CreateProductUseCase {
     private readonly categoryRepository: CategoryRepository
   ) {}
 
-  async execute(input: CreateProductInput) {
+  async execute(input: CreateProductInput): Promise<CreateProductOutput> {
     const slug = input.slug.trim();
     const existingProduct = await this.productRepository.findBySlug(slug);
 

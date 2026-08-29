@@ -253,13 +253,13 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
         </div>
 
         {error ? (
-          <div className="rounded-2xl border border-[color:rgba(153,27,27,0.24)] bg-[color:rgba(254,242,242,0.8)] p-4 text-sm text-[#7f1d1d]">
+          <div role="alert" className="rounded-2xl border border-[color:var(--danger-border)] bg-[color:var(--danger-soft)] p-4 text-sm text-[color:var(--danger)]">
             {error}
           </div>
         ) : null}
 
         {message ? (
-          <div className="rounded-2xl border border-[color:rgba(22,101,52,0.18)] bg-[color:rgba(240,253,244,0.85)] p-4 text-sm text-[#166534]">
+          <div role="status" className="rounded-2xl border border-[color:var(--success-border)] bg-[color:var(--success-soft)] p-4 text-sm text-[color:var(--success)]">
             {message}
           </div>
         ) : null}

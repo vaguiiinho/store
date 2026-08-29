@@ -1,7 +1,9 @@
 import { CartItem } from "./cart-item.entity";
+import { EntityId } from "../../../shared/domain/value-objects/entity-id.value-object";
+import { Money } from "../../../shared/domain/value-objects/money.value-object";
 
 export type CartProps = {
-  id: string;
+  id?: string;
   customerId?: string | null;
   items?: CartItem[];
   shippingCents?: number;
@@ -17,10 +19,10 @@ export class Cart {
 
   static create(props: CartProps) {
     return new Cart(
-      props.id,
-      props.customerId ?? null,
+      EntityId.create(props.id, "ID do carrinho").value,
+      props.customerId ? EntityId.create(props.customerId, "ID do cliente").value : null,
       props.items ?? [],
-      props.shippingCents ?? 0
+      Money.create(props.shippingCents ?? 0, "Frete").cents
     );
   }
 

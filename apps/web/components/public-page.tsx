@@ -34,8 +34,6 @@ export async function PublicPage({
   children
 }: PublicPageProps) {
   const session = await getAdminAuthMe((await cookies()).toString());
-  const quickLinks = routeLinks.filter((link) => link.href !== "/" && link.href !== "/carrinho");
-
   return (
     <CartProvider>
     <div className="min-h-screen overflow-hidden">
@@ -74,11 +72,11 @@ export async function PublicPage({
       <main className="page-shell pb-14 pt-8 sm:pb-20 sm:pt-12">
           <section className="surface overflow-hidden rounded-[36px] fade-in-up">
             <div className="grid-dots border-b border-[color:var(--border)] px-6 py-10 sm:px-10 sm:py-14">
-              <div className={showHighlights ? "grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-start" : "max-w-3xl"}>
+              <div className="max-w-3xl">
                 <div className="max-w-3xl space-y-6">
                   <div className="space-y-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">{eyebrow}</p>
-                    <h1 className="max-w-2xl text-4xl font-semibold tracking-[-0.06em] text-[#191310] sm:text-5xl lg:text-6xl">
+                    <h1 className={`max-w-2xl font-semibold tracking-[-0.06em] text-[#191310] ${showHighlights ? "text-3xl sm:text-4xl lg:text-5xl" : "text-4xl sm:text-5xl lg:text-6xl"}`}>
                       {title}
                     </h1>
                     <p className="max-w-2xl text-base leading-7 text-muted sm:text-lg">{description}</p>
@@ -121,30 +119,6 @@ export async function PublicPage({
                   </div> : null}
                 </div>
 
-                {showHighlights ? <aside className="surface-strong rounded-[30px] border border-[color:var(--border)] p-5 shadow-[0_12px_36px_rgba(50,31,14,0.08)] sm:p-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#896139]">Como comprar</p>
-                  <div className="mt-4 space-y-3">
-                    {quickLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        className="flex items-center justify-between rounded-2xl border border-[color:var(--border)] bg-white/80 px-4 py-3 text-sm font-semibold text-[#1e1713] transition hover:-translate-y-0.5 hover:bg-white"
-                      >
-                        <span>{link.label}</span>
-                        <span className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Abrir</span>
-                      </Link>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 rounded-[24px] border border-[color:var(--border)] bg-white/70 p-4">
-                    <p className="text-sm font-semibold text-[#1d1712]">Compra sem complicação</p>
-                    <ul className="mt-3 space-y-2 text-sm text-muted">
-                      <li>Adicione produtos ao carrinho.</li>
-                      <li>Confira o endereço e o frete.</li>
-                      <li>Finalize e acompanhe o pedido.</li>
-                    </ul>
-                  </div>
-                </aside> : null}
               </div>
             </div>
 

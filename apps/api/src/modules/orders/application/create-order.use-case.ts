@@ -47,6 +47,7 @@ export type CreateOrderInput = {
   paymentMethod: PaymentMethod;
   items: CreateOrderItemInput[];
 };
+export type CreateOrderOutput = Order;
 
 const shippingTable: Record<ShippingRegion, number> = {
   capital: 1500,
@@ -77,7 +78,7 @@ export class CreateOrderUseCase {
     private readonly prisma: PrismaService
   ) {}
 
-  async execute(input: CreateOrderInput) {
+  async execute(input: CreateOrderInput): Promise<CreateOrderOutput> {
     if (input.items.length === 0) {
       throw new DomainError("Adicione ao menos um item ao pedido.");
     }
@@ -109,10 +110,7 @@ export class CreateOrderUseCase {
         document: input.customer.document ?? null
       });
 
-    customer.name = input.customer.name;
-    customer.phone = input.customer.phone;
-    customer.email = input.customer.email ?? null;
-    customer.document = input.customer.document ?? null;
+    customer.updateProfile(input.customer);
 
     const order = Order.create({
       id: randomUUID(),

@@ -7,12 +7,14 @@ import { PaymentStatus } from "../../orders/domain/entities/payment.entity";
 import { STOCK_REPOSITORY } from "../../inventory/inventory.tokens";
 import { StockRepository } from "../../inventory/domain/repositories/stock.repository";
 import { PrismaService } from "../../../infrastructure/prisma/prisma.service";
+import { Order } from "../../orders/domain/entities/order.entity";
 
 export type HandlePaymentWebhookInput = {
   gatewayReference: string;
   externalReference: string | null;
   status: PaymentStatus;
 };
+export type HandlePaymentWebhookOutput = Order | null;
 
 @Injectable()
 export class HandlePaymentWebhookUseCase {
@@ -24,7 +26,7 @@ export class HandlePaymentWebhookUseCase {
     private readonly prisma: PrismaService
   ) {}
 
-  async execute(input: HandlePaymentWebhookInput) {
+  async execute(input: HandlePaymentWebhookInput): Promise<HandlePaymentWebhookOutput> {
     const order = await this.orderRepository.findByPaymentGatewayReference(input.gatewayReference);
 
     if (!order || !order.payment) {

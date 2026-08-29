@@ -351,14 +351,15 @@ export function CheckoutSection({ loggedEmail }: CheckoutSectionProps) {
                 <button
                   key={region.id}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setSelectedRegionId(region.id)}
                   className={`rounded-3xl border p-4 text-left transition ${
                     isSelected
-                      ? "border-[color:rgba(124,79,36,0.52)] bg-[color:rgba(255,250,242,0.9)]"
+                      ? "border-[color:var(--accent)] bg-[color:var(--accent-soft)] shadow-[inset_0_0_0_1px_var(--accent)]"
                       : "border-[color:var(--border)] bg-white/80 hover:bg-white"
                   }`}
                 >
-                  <div className="text-sm font-semibold text-[#1e1713]">{region.label}</div>
+                  <div className="text-sm font-semibold text-[color:var(--foreground)]">{region.label}</div>
                   <div className="mt-1 text-sm text-muted">{formatCurrencyBRL(region.shippingCents)}</div>
                   <p className="mt-3 text-xs leading-5 text-muted">{region.note}</p>
                 </button>
@@ -377,14 +378,15 @@ export function CheckoutSection({ loggedEmail }: CheckoutSectionProps) {
                 <button
                   key={method.id}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setSelectedPaymentMethod(method.id)}
                   className={`rounded-3xl border p-4 text-left transition ${
                     isSelected
-                      ? "border-[color:rgba(124,79,36,0.52)] bg-[color:rgba(255,250,242,0.9)]"
+                      ? "border-[color:var(--accent)] bg-[color:var(--accent-soft)] shadow-[inset_0_0_0_1px_var(--accent)]"
                       : "border-[color:var(--border)] bg-white/80 hover:bg-white"
                   }`}
                 >
-                  <div className="text-sm font-semibold text-[#1e1713]">{method.label}</div>
+                  <div className="text-sm font-semibold text-[color:var(--foreground)]">{method.label}</div>
                   <p className="mt-2 text-sm leading-6 text-muted">{method.description}</p>
                 </button>
               );
@@ -396,8 +398,8 @@ export function CheckoutSection({ loggedEmail }: CheckoutSectionProps) {
           <div
             className={`rounded-[28px] border p-5 text-sm ${
               feedback.kind === "success"
-                ? "border-[color:rgba(124,79,36,0.24)] bg-white/75 text-[#3a281c]"
-                : "border-[color:rgba(153,27,27,0.24)] bg-[color:rgba(254,242,242,0.8)] text-[#7f1d1d]"
+                ? "border-[color:var(--success-border)] bg-[color:var(--success-soft)] text-[color:var(--success)]"
+                : "border-[color:var(--danger-border)] bg-[color:var(--danger-soft)] text-[color:var(--danger)]"
             }`}
           >
             {feedback.message}

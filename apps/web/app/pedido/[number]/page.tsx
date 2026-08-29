@@ -60,11 +60,10 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
 
           <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
             <h2 className="text-lg font-semibold text-[#1d1712]">Linha do pedido</h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {[
                 { label: "Pedido criado", description: "Carrinho convertido em compra." },
-                { label: "Pagamento pendente", description: "Aguardando confirmação do gateway." },
-                { label: "Próximo passo", description: "Atualização automática via webhook." }
+                { label: "Pagamento pendente", description: "Aguardando confirmação do gateway." }
               ].map((step, index) => (
                 <div key={step.label} className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
                   <div className="flex items-center gap-3">
@@ -109,17 +108,17 @@ export default async function PedidoPage({ params }: PedidoPageProps) {
               </div>
               <p className="mt-2 text-muted">Provedor: {order.payment?.provider ?? "mock"}</p>
               {order.payment?.instructions?.length ? (
-                <ul className="mt-4 space-y-2 text-[#33251b]">
+                <ul className="mt-4 space-y-2 text-[color:var(--foreground)]">
                   {order.payment.instructions.map((instruction) => (
                     <li key={instruction} className="flex gap-3">
-                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#8b5a2b]" />
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--accent)]" />
                       <span>{instruction}</span>
                     </li>
                   ))}
                 </ul>
               ) : null}
               {order.payment?.qrCodeText ? (
-                <div className="mt-4 rounded-2xl border border-dashed border-[color:rgba(124,79,36,0.24)] bg-[color:rgba(255,250,242,0.8)] p-4 font-mono text-xs break-all text-[#33251b]">
+                <div className="mt-4 select-all rounded-2xl border border-dashed border-[color:var(--accent)] bg-[color:var(--accent-soft)] p-4 font-mono text-xs break-all text-[color:var(--foreground)]">
                   {order.payment.qrCodeText}
                 </div>
               ) : null}

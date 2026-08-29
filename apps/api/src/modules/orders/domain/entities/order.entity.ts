@@ -3,6 +3,9 @@ import { Customer } from "./customer.entity";
 import { OrderItem } from "./order-item.entity";
 import { Payment } from "./payment.entity";
 import { DomainError } from "../../../shared/domain/errors/domain-error";
+import { EntityId } from "../../../shared/domain/value-objects/entity-id.value-object";
+import { Money } from "../../../shared/domain/value-objects/money.value-object";
+import { RequiredText } from "../../../shared/domain/value-objects/required-text.value-object";
 
 export enum OrderStatus {
   CREATED = "CREATED",
@@ -15,7 +18,7 @@ export enum OrderStatus {
 }
 
 export type OrderProps = {
-  id: string;
+  id?: string;
   number: string;
   customerId?: string | null;
   shippingAddress: Address;
@@ -44,14 +47,16 @@ export class Order {
   ) {}
 
   static create(props: OrderProps) {
+    if (props.status && !Object.values(OrderStatus).includes(props.status)) throw new DomainError("Status do pedido invalido.");
+
     const order = new Order(
-      props.id,
-      props.number,
+      EntityId.create(props.id, "ID do pedido").value,
+      RequiredText.create(props.number, "Numero do pedido").value,
       props.shippingAddress,
-      props.customerId ?? null,
+      props.customerId ? EntityId.create(props.customerId, "ID do cliente").value : null,
       props.items ?? [],
-      props.subtotalCents ?? 0,
-      props.shippingCents ?? 0,
+      Money.create(props.subtotalCents ?? 0, "Subtotal do pedido").cents,
+      Money.create(props.shippingCents ?? 0, "Frete do pedido").cents,
       props.status ?? OrderStatus.CREATED,
       props.payment ?? null,
       props.customer ?? null,
