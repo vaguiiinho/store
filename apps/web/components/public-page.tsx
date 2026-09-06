@@ -46,7 +46,7 @@ export async function PublicPage({
               <p className="text-xs font-semibold uppercase tracking-[0.3em] accent-text">{eyebrow}</p>
             </div>
             <Link href="/" className="block text-lg font-semibold tracking-[-0.03em] text-[#1d1712]">
-              Loja Ritual
+              Loja Virtual
             </Link>
           </div>
 
