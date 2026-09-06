@@ -21,6 +21,7 @@ Este diretorio organiza a documentacao da loja virtual.
 15. `docs/demo-apresentacao.md` para o roteiro de gravação e apresentação.
 16. `docs/plano-melhoria-home-api.md` para o plano da melhoria visual e de robustez da API.
 17. `docs/checklist-melhoria-home-api.md` para acompanhar a implementacao e a validacao dessa melhoria.
+18. `docs/videos/README.md` para consultar e regenerar os vídeos de demonstração.
 
 ## Subdiretorios
 
