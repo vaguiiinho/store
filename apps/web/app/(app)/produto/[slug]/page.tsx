@@ -36,7 +36,7 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
           <section className="surface-strong space-y-4 rounded-[28px] border border-[color:var(--border)] p-6">
             <p className="text-3xl font-semibold tabular-nums">{formatCurrencyBRL(product.priceCents)}</p>
             <p className="text-sm text-muted">
-              {availableQuantity === null ? "Estoque sob consulta" : availableQuantity > 0 ? `${availableQuantity} em estoque` : "Sem estoque"}
+              {availableQuantity === null ? "Disponibilidade sob consulta" : availableQuantity > 0 ? "Disponível" : "Sem estoque"}
             </p>
             <AddToCartButton product={product} />
           </section>

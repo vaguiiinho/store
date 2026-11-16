@@ -125,7 +125,10 @@ export async function updateAdminProductStatusAction(id: string, active: boolean
 
 export async function adjustAdminProductStockAction(id: string, delta: number): Promise<ActionResult> {
   const response = await storefrontService.adjustAdminProductStock(id, delta, await cookieHeader());
-  if (response.ok) revalidatePath("/admin/produtos");
+  if (response.ok) {
+    revalidatePath("/admin/produtos");
+    revalidatePath("/admin/estoque");
+  }
   return response.ok ? { ok: true } : { ok: false, message: response.message };
 }
 
