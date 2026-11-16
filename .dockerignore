@@ -17,9 +17,10 @@ coverage
 *.tsbuildinfo
 README.md
 plan.md
-**/.agents
+**/.claude
 **/.codex
-AGENTS.md
+CLAUDE.md
+.serena
 **/test
 **/*.spec.ts
 tmp
