@@ -10,7 +10,7 @@ export default async function HomePage() {
   return (
     <PublicPage
       eyebrow="Loja online"
-      title="Uma vitrine de loja com presença visual, fluxo claro e checkout visitante."
+      title="Uma vitrine de loja com presença visual, fluxo claro e checkout rápido."
       description="Encontre produtos, adicione ao carrinho e finalize sua compra em poucos passos."
       showHighlights
     >

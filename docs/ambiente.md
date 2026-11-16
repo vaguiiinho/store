@@ -18,7 +18,8 @@ Cada serviço recebe apenas as variáveis de que precisa:
 
 - `apps/api/.env`: banco, autenticação do admin, pagamentos, e-mail, storage e URL pública da loja;
 - `apps/web/.env`: URLs usadas pelo frontend (interna e pública);
-- `deploy/postgres/.env`: credenciais de inicialização do PostgreSQL.
+- `.env` da raiz (opcional): credenciais do PostgreSQL local do `docker-compose.yml`;
+- `deploy/vps/.env`: `.env` de produção, mantido na sua máquina e enviado à VPS com `npm run deploy:env` (modelo em `deploy/vps/.env.example`; ver `docs/deploy.md`).
 
 Use os respectivos arquivos `.env.example` como ponto de partida. Os arquivos reais são ignorados pelo Git.
 
@@ -62,15 +63,29 @@ Este modo oferece hot reload do Next.js e do NestJS usando o Node instalado na m
 4. Execute `npm run dev` para iniciar web e API locais.
 5. Ao terminar, execute `npm run db:down`.
 
-O arquivo usado nesse modo e `docker-compose.dev.yml`. As credenciais padrao sao `store/store`, banco `store`; elas podem ser sobrescritas por `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` e `POSTGRES_PORT` no ambiente do Compose.
+O arquivo usado nesse modo e o `docker-compose.yml` da raiz (somente PostgreSQL). As credenciais padrao sao `store/store`, banco `store`; elas podem ser sobrescritas por `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` e `POSTGRES_PORT` no ambiente do Compose (modelo em `.env.example` da raiz).
 
-## Modo 2 — Stack completa em imagens Docker
+## Autenticacao e papeis
 
-1. Crie `deploy/postgres/.env`, `apps/api/.env` e `apps/web/.env` a partir dos exemplos.
-2. Execute `docker compose up -d --build`.
-3. Acesse a aplicacao em `http://localhost:82`.
+- Todo o site exige login; sem sessao, qualquer pagina redireciona para `/login`.
+- Papeis: `USER` (catalogo, carrinho, checkout e somente os proprios pedidos) e `ADMIN` (acesso total, inclusive `/admin/usuarios`).
+- Nao ha cadastro publico: somente admin cria usuarios (`/admin/usuarios` ou `POST /api/admin/users`).
+- Ao subir, a API cria/sincroniza o admin de `ADMIN_EMAIL`/`ADMIN_PASSWORD` (o `.env` e a fonte da verdade da senha e do papel) e, se definidos, o usuario demo de `DEMO_USER_EMAIL`/`DEMO_USER_PASSWORD`.
+- Credenciais locais do `.env.example`: admin `admin@store.local` / `admin123!`; demo `demo@store.local` / `demo12345`.
+- Minha conta (`/conta`, `PATCH /api/auth/password`): qualquer usuario troca somente a propria senha, confirmando a senha atual. As outras sessoes daquela conta sao encerradas.
+- Admin (`/admin/usuarios` com busca e filtros; detalhe em `/admin/usuarios/:id`): gerencia todas as contas.
+  - API: `GET/POST /api/admin/users`, `GET/PATCH/DELETE /api/admin/users/:id`, `PATCH /api/admin/users/:id/status`, `PATCH /api/admin/users/:id/password` e `GET /api/admin/users/:id/orders`.
+  - Edita nome, e-mail e papel (a mudanca de papel vale na hora), ativa/desativa, redefine senha, exclui e ve os pedidos da conta.
+  - Ninguem altera o proprio papel, nem desativa ou exclui a propria conta. Ao excluir uma conta, os pedidos dela sao mantidos, sem dono.
+  - O usuario demo (`DEMO_USER_*`) e recriado e ressincronizado (senha, papel `USER`, ativo) a cada inicializacao da API.
+- O admin principal (`ADMIN_EMAIL`) nao pode ser alterado pela UI: senha e status vem do ambiente.
+- Na API, o guard global exige sessao por padrao; rotas abertas usam `@Public()` (catalogo, health, webhook, login/logout/me) e rotas de admin usam `@AdminOnly()`.
 
-No compose completo, `DATABASE_URL` e sobrescrita para usar o hostname interno `postgres`; assim o mesmo `apps/api/.env` orientado ao Node local nao quebra a imagem da API.
+## Producao (VPS) e CI/CD
+
+- Workflow: `.github/workflows/deploy.yml`. Em PR roda lint, testes unitarios, testes de integracao e build; na `main` tambem publica `store-api`/`store-web` no Docker Hub e, com `DEPLOY_ENABLED=true`, faz deploy por SSH.
+- GitHub Secrets guardam so o acesso do CI/CD (Docker Hub e SSH). A config da aplicacao fica em `deploy/vps/.env` (local, fora do Git) e e enviada a VPS com `npm run deploy:env -- usuario@host`; o `deploy/vps/deploy.sh` valida as obrigatorias, faz backup do banco e sobe a versao. Detalhes em `docs/deploy.md`.
+- `POSTGRES_PASSWORD` deve ser seguro para URL (letras e numeros), pois compoe a `DATABASE_URL`.
 
 ## Testes
 

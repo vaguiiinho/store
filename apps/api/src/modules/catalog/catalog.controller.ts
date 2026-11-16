@@ -1,4 +1,5 @@
 import { Controller, Get, NotFoundException, Param } from "@nestjs/common";
+import { Public } from "../auth/presentation/decorators";
 import { GetProductBySlugUseCase } from "./application/get-product-by-slug.use-case";
 import { ListActiveProductsUseCase } from "./application/list-active-products.use-case";
 import { ListCategoriesUseCase } from "./application/list-categories.use-case";
@@ -79,6 +80,7 @@ function serializeProduct(product: {
   };
 }
 
+@Public()
 @Controller()
 export class CatalogController {
   constructor(

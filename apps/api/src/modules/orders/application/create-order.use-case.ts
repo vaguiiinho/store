@@ -27,6 +27,7 @@ export type CreateOrderItemInput = {
 };
 
 export type CreateOrderInput = {
+  userId?: string | null;
   customer: {
     name: string;
     email?: string | null;
@@ -116,6 +117,7 @@ export class CreateOrderUseCase {
       id: randomUUID(),
       number: generateOrderNumber(),
       customerId: customer.id,
+      userId: input.userId ?? null,
       customer,
       shippingAddress: Address.create({
         id: randomUUID(),

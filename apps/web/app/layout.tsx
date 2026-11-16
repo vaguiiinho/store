@@ -6,7 +6,7 @@ export const metadata = {
     default: "Loja Ritual",
     template: "%s | Loja Ritual"
   },
-  description: "Loja com catálogo, carrinho, checkout visitante e acompanhamento de pedidos."
+  description: "Loja com catálogo, carrinho, checkout e acompanhamento de pedidos."
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

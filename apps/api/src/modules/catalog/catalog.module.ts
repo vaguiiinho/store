@@ -17,10 +17,9 @@ import { InventoryModule } from "../inventory/inventory.module";
 import { PrismaCategoryRepository } from "./infrastructure/prisma/prisma-category.repository";
 import { PrismaProductRepository } from "./infrastructure/prisma/prisma-product.repository";
 import { AdminProductsController } from "./presentation/admin-products.controller";
-import { AdminAuthModule } from "../admin-auth/admin-auth.module";
 
 @Module({
-  imports: [PrismaModule, AdminAuthModule, InventoryModule],
+  imports: [PrismaModule, InventoryModule],
   controllers: [CatalogController, AdminProductsController],
   providers: [
     CatalogSeedService,

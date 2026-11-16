@@ -3,6 +3,9 @@ import { PAYMENT_GATEWAY } from "../payments.tokens";
 import { PaymentGateway } from "../domain/payment-gateway";
 import { HandlePaymentWebhookUseCase } from "../application/handle-payment-webhook.use-case";
 import { GetPaymentByGatewayReferenceUseCase } from "../application/get-payment-by-gateway-reference.use-case";
+import { CurrentUser, Public } from "../../auth/presentation/decorators";
+import { AuthenticatedUser } from "../../auth/domain/user";
+import { canAccessOrder } from "../../orders/application/order-access";
 
 @Controller()
 export class PaymentsController {
@@ -13,6 +16,7 @@ export class PaymentsController {
     private readonly getPaymentByGatewayReferenceUseCase: GetPaymentByGatewayReferenceUseCase
   ) {}
 
+  @Public()
   @Post("payments/webhook")
   @HttpCode(200)
   async webhook(@Body() body: unknown, @Headers() headers: Record<string, string | string[] | undefined>) {
@@ -39,9 +43,13 @@ export class PaymentsController {
   }
 
   @Get("payments/:gatewayReference")
-  async getByGatewayReference(@Param("gatewayReference") gatewayReference: string) {
+  async getByGatewayReference(@Param("gatewayReference") gatewayReference: string, @CurrentUser() user: AuthenticatedUser) {
     try {
       const result = await this.getPaymentByGatewayReferenceUseCase.execute(gatewayReference);
+
+      if (!canAccessOrder(user, result.order)) {
+        throw new NotFoundException("Pagamento nao encontrado.");
+      }
 
       return {
         orderNumber: result.order.number,

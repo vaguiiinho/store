@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Headers, Inject, NotFoundException, Param, Patch, Post, Query, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Inject, NotFoundException, Param, ParseUUIDPipe, Patch, Post } from "@nestjs/common";
 import { DeleteOrderUseCase } from "../application/delete-order.use-case";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { CreateOrderUseCase } from "../application/create-order.use-case";
@@ -7,7 +7,9 @@ import { ORDER_REPOSITORY } from "../orders.tokens";
 import { OrderRepository } from "../domain/repositories/order.repository";
 import { UpdateOrderStatusUseCase } from "../application/update-order-status.use-case";
 import { UpdateOrderStatusDto } from "./dto/update-order-status.dto";
-import { AdminAuthService } from "../../admin-auth/admin-auth.service";
+import { AdminOnly, CurrentUser } from "../../auth/presentation/decorators";
+import { AuthenticatedUser } from "../../auth/domain/user";
+import { canAccessOrder } from "../application/order-access";
 
 function serializeOrder(order: Awaited<ReturnType<CreateOrderUseCase["execute"]>>) {
   return {
@@ -72,7 +74,6 @@ export class OrdersController {
     private readonly createOrderUseCase: CreateOrderUseCase,
     private readonly updateOrderStatusUseCase: UpdateOrderStatusUseCase,
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
-    private readonly adminAuthService: AdminAuthService,
     @Inject(ORDER_REPOSITORY)
     private readonly orderRepository: OrderRepository
   ) {}
@@ -81,88 +82,76 @@ export class OrdersController {
     return serializeOrder(order);
   }
 
+  private rethrowDomainError(error: unknown): never {
+    if (error instanceof DomainError) {
+      throw new BadRequestException(error.message);
+    }
+
+    throw error;
+  }
+
   @Post("orders")
-  async create(@Body() body: CreateOrderDto) {
+  async create(@Body() body: CreateOrderDto, @CurrentUser() user: AuthenticatedUser) {
     try {
-      const order = await this.createOrderUseCase.execute(body);
+      const order = await this.createOrderUseCase.execute({ ...body, userId: user.id });
       return this.serialize(order);
     } catch (error) {
-      if (error instanceof DomainError) {
-        throw new BadRequestException(error.message);
-      }
-
-      throw error;
+      this.rethrowDomainError(error);
     }
   }
 
+  /** Pedidos do usuario autenticado. */
+  @Get("orders")
+  async listMyOrders(@CurrentUser() user: AuthenticatedUser) {
+    const orders = await this.orderRepository.findByUserId(user.id);
+    return orders.map((order) => this.serialize(order));
+  }
+
+  /** Dono do pedido ou admin. Para outros usuarios responde 404 para nao revelar a existencia do pedido. */
   @Get("orders/number/:number")
-  async getByNumber(@Param("number") number: string) {
+  async getByNumber(@Param("number") number: string, @CurrentUser() user: AuthenticatedUser) {
     const order = await this.orderRepository.findByNumber(number);
 
-    if (!order) {
+    if (!order || !canAccessOrder(user, order)) {
       throw new NotFoundException("Pedido nao encontrado.");
     }
 
     return this.serialize(order);
   }
 
-  @Get("orders")
-  async listVisitorOrders(@Query("email") email?: string, @Query("phone") phone?: string) {
-    if (!email?.trim() || !phone?.trim()) throw new BadRequestException("Informe e-mail e telefone para consultar pedidos.");
-    const orders = await this.orderRepository.findByCustomerContact(email, phone);
-    return orders.map((order) => this.serialize(order));
-  }
-
+  @AdminOnly()
   @Get("admin/orders")
-  async listAdminOrders(@Headers("cookie") cookieHeader?: string) {
-    const session = this.adminAuthService.verifyCookie(cookieHeader);
-
-    if (!session) {
-      throw new UnauthorizedException("Autenticacao de admin necessaria.");
-    }
-
+  async listAdminOrders() {
     const orders = await this.orderRepository.findAll(50);
-
     return orders.map((order) => this.serialize(order));
   }
 
+  @AdminOnly()
+  @Get("admin/users/:id/orders")
+  async listUserOrders(@Param("id", ParseUUIDPipe) id: string) {
+    const orders = await this.orderRepository.findByUserId(id);
+    return orders.map((order) => this.serialize(order));
+  }
+
+  @AdminOnly()
   @Patch("admin/orders/:id/status")
-  async updateAdminOrderStatus(
-    @Param("id") id: string,
-    @Body() body: UpdateOrderStatusDto,
-    @Headers("cookie") cookieHeader?: string
-  ) {
-    const session = this.adminAuthService.verifyCookie(cookieHeader);
-
-    if (!session) {
-      throw new UnauthorizedException("Autenticacao de admin necessaria.");
-    }
-
+  async updateAdminOrderStatus(@Param("id") id: string, @Body() body: UpdateOrderStatusDto) {
     try {
-      const order = await this.updateOrderStatusUseCase.execute({
-        orderId: id,
-        status: body.status
-      });
-
+      const order = await this.updateOrderStatusUseCase.execute({ orderId: id, status: body.status });
       return this.serialize(order);
     } catch (error) {
-      if (error instanceof DomainError) {
-        throw new BadRequestException(error.message);
-      }
-
-      throw error;
+      this.rethrowDomainError(error);
     }
   }
 
+  @AdminOnly()
   @Delete("admin/orders/:id")
-  async deleteAdminOrder(@Param("id") id: string, @Headers("cookie") cookieHeader?: string) {
-    if (!this.adminAuthService.verifyCookie(cookieHeader)) throw new UnauthorizedException("Autenticacao de admin necessaria.");
+  async deleteAdminOrder(@Param("id") id: string) {
     try {
       await this.deleteOrderUseCase.execute(id);
       return { deleted: true };
     } catch (error) {
-      if (error instanceof DomainError) throw new BadRequestException(error.message);
-      throw error;
+      this.rethrowDomainError(error);
     }
   }
 }

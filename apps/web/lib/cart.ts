@@ -8,7 +8,7 @@ export type CartState = {
   items: CartItem[];
 };
 
-const CART_STORAGE_KEY = "loja-ritual-cart";
+export const CART_STORAGE_KEY = "loja-ritual-cart";
 
 export function createCartItem(product: FeaturedProduct, quantity = 1): CartItem {
   return {

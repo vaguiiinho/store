@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PublicPage } from "../../../components/public-page";
 import { formatCurrencyBRL } from "../../../lib/format";
 import { getOrderByNumber } from "../../../lib/storefront-api";
+import { getCookieHeader } from "../../../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ type PedidoPageProps = {
 
 export default async function PedidoPage({ params }: PedidoPageProps) {
   const { number } = await params;
-  const order = await getOrderByNumber(number);
+  const order = await getOrderByNumber(number, await getCookieHeader());
 
   if (!order) {
     notFound();

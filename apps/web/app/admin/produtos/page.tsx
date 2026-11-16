@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { requireAdmin } from "../../../lib/session";
 import { AdminProductStatusControl } from "../../../components/admin-product-status-control";
-import { getAdminAuthMe, getAdminProducts } from "../../../lib/storefront-api";
+import { getAdminProducts } from "../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../lib/format";
 import { AdminProductInventoryControl } from "../../../components/admin-product-inventory-control";
 
@@ -12,11 +12,7 @@ function formatStock(available: number, reserved: number) {
 
 export default async function AdminProdutosPage() {
   const cookieHeader = (await cookies()).toString();
-  const session = await getAdminAuthMe(cookieHeader);
-
-  if (!session?.authenticated) {
-    redirect("/admin/login");
-  }
+  const session = await requireAdmin();
 
   const products = await getAdminProducts(cookieHeader);
   const activeProducts = products?.filter((product) => product.active).length ?? 0;

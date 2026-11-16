@@ -1,0 +1,93 @@
+# Compose de producao na VPS. Enviado pelo CD; le o .env da VPS (enviado por push-env.sh; ver .env.example).
+# APP_VERSION e DOCKER_HUB_USERNAME vem do .env; nunca use `down -v` (apaga o volume do banco).
+name: store
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: store-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - store_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - store_private
+
+  api:
+    image: ${DOCKER_HUB_USERNAME:?}/store-api:${APP_VERSION:?}
+    container_name: store-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      APP_URL: ${PUBLIC_ORIGIN}
+      AUTH_SECRET: ${AUTH_SECRET:?}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+      DEMO_USER_EMAIL: ${DEMO_USER_EMAIL:-}
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-}
+      DEMO_USER_NAME: ${DEMO_USER_NAME:-Usuario Demo}
+      PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-mock}
+      PAYMENT_PROVIDER_KEY: ${PAYMENT_PROVIDER_KEY:-}
+      PAYMENT_PROVIDER_SECRET: ${PAYMENT_PROVIDER_SECRET:-}
+      PAYMENT_PROVIDER_BASE_URL: ${PAYMENT_PROVIDER_BASE_URL:-https://api.mercadopago.com}
+      PAYMENT_PROVIDER_WEBHOOK_SECRET: ${PAYMENT_PROVIDER_WEBHOOK_SECRET:-}
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      store_private: {}
+      proxy:
+        aliases:
+          - store-api
+
+  web:
+    image: ${DOCKER_HUB_USERNAME:?}/store-web:${APP_VERSION:?}
+    container_name: store-web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_URL: http://store-api:3001/api
+      NEXT_PUBLIC_API_URL: /api
+      NEXT_PUBLIC_APP_URL: ${PUBLIC_ORIGIN}
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      proxy:
+        aliases:
+          - store-web
+
+networks:
+  store_private:
+    name: store-private
+  proxy:
+    external: true
+    name: projects-deploy-proxy
+
+volumes:
+  store_postgres_data:
+    name: store-postgres-data
