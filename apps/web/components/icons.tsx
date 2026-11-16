@@ -98,6 +98,14 @@ export function BoxIcon({ className }: IconProps) {
   );
 }
 
+export function StockIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M3 21V9l9-5 9 5v12M7 21v-8h10v8M7 17h10" />
+    </Svg>
+  );
+}
+
 export function ReceiptIcon({ className }: IconProps) {
   return (
     <Svg className={className}>

@@ -6,7 +6,6 @@ import type { FeaturedProduct } from "../lib/storefront-content";
 export function ProductCard({ product }: { product: FeaturedProduct }) {
   const available = product.stock?.availableQuantity ?? null;
   const soldOut = available !== null && available <= 0;
-  const lowStock = available !== null && available > 0 && available <= 5;
 
   return (
     <article className="surface group flex flex-col overflow-hidden rounded-[28px] transition hover:border-[color:rgba(124,79,36,0.34)]">
@@ -32,7 +31,6 @@ export function ProductCard({ product }: { product: FeaturedProduct }) {
         >
           {product.name}
         </Link>
-        {lowStock ? <p className="text-xs text-[color:var(--danger)]">Restam {available}</p> : null}
         <div className="mt-auto flex items-center justify-between gap-3">
           <div>
             <p className="text-lg font-semibold tabular-nums">{formatCurrencyBRL(product.priceCents)}</p>

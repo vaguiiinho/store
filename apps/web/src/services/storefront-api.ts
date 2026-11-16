@@ -21,7 +21,7 @@ const json = (body: unknown, cookie?: string): RequestInit => ({ method: "POST",
 const withCookie = (cookie?: string): RequestInit => cookie ? { headers: { cookie } } : {};
 
 function toFeaturedProduct(product: ApiProduct): FeaturedProduct {
-  return { slug: product.slug, name: product.name, description: product.description, priceCents: product.priceCents, badge: product.categories[0]?.name ?? "Em destaque", note: product.stock ? `${product.stock.availableQuantity} em estoque` : "Estoque sob consulta", categories: product.categories.map(({ slug, name }) => ({ slug, name })), details: [...product.categories.slice(0, 2).map((category) => category.name), ...product.variants.slice(0, 2).map((variant) => `${variant.name}: ${variant.value}`)], images: product.images, variants: product.variants.map(({ name, value, sku }) => ({ name, value, sku })), stock: product.stock };
+  return { slug: product.slug, name: product.name, description: product.description, priceCents: product.priceCents, badge: product.categories[0]?.name ?? "Em destaque", note: product.stock ? (product.stock.availableQuantity > 0 ? "Disponível" : "Sem estoque") : "Disponibilidade sob consulta", categories: product.categories.map(({ slug, name }) => ({ slug, name })), details: [...product.categories.slice(0, 2).map((category) => category.name), ...product.variants.slice(0, 2).map((variant) => `${variant.name}: ${variant.value}`)], images: product.images, variants: product.variants.map(({ name, value, sku }) => ({ name, value, sku })), stock: product.stock };
 }
 
 async function read<T>(path: string, cookie?: string) { const result = await apiClient.request<T>(path, withCookie(cookie)); return result.ok ? result.data : null; }

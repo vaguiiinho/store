@@ -3,20 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useCart } from "./cart-provider";
-import { BoxIcon, CartIcon, CloseIcon, DashboardIcon, MenuIcon, ReceiptIcon, StoreIcon, UsersIcon } from "./icons";
+import { BoxIcon, CloseIcon, DashboardIcon, MenuIcon, ReceiptIcon, StockIcon, StoreIcon, UsersIcon } from "./icons";
 import type { UserRole } from "../src/services/storefront-api";
 
-type NavItem = { href: string; label: string; icon: ReactNode; badge?: boolean };
+type NavItem = { href: string; label: string; icon: ReactNode };
 
 const mainItems: NavItem[] = [
   { href: "/", label: "Loja", icon: <StoreIcon /> },
-  { href: "/painel", label: "Painel", icon: <DashboardIcon /> },
-  { href: "/carrinho", label: "Carrinho", icon: <CartIcon />, badge: true }
+  { href: "/painel", label: "Painel", icon: <DashboardIcon /> }
 ];
 
 const adminItems: NavItem[] = [
   { href: "/admin/produtos", label: "Produtos", icon: <BoxIcon /> },
+  { href: "/admin/estoque", label: "Estoque", icon: <StockIcon /> },
   { href: "/admin/pedidos", label: "Pedidos", icon: <ReceiptIcon /> },
   { href: "/admin/usuarios", label: "Usuários", icon: <UsersIcon /> }
 ];
@@ -41,10 +40,8 @@ type AppSidebarProps = {
 export function AppSidebar({ role, topbarActions, footer, children }: AppSidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const { itemCount, hydrated } = useCart();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const count = hydrated ? itemCount : 0;
 
   useEffect(() => {
     setOpen(false);
@@ -83,11 +80,6 @@ export function AppSidebar({ role, topbarActions, footer, children }: AppSidebar
         >
           {item.icon}
           <span>{item.label}</span>
-          {item.badge && count > 0 ? (
-            <span className="ml-auto grid h-5 min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-[10px] font-bold text-[color:var(--background)]">
-              {count > 99 ? "99+" : count}
-            </span>
-          ) : null}
         </Link>
       </li>
     );
