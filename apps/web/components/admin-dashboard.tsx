@@ -88,7 +88,7 @@ export function AdminDashboard({ summary, products, users, recentOrders }: Admin
                 <li key={product.id}>
                   <Link href={`/admin/produtos/${product.id}`} className="flex items-center justify-between gap-3 py-3 text-sm hover:opacity-80">
                     <span className="truncate font-semibold">{product.name}</span>
-                    <span className="tabular-nums text-[color:var(--danger)]">{product.stock?.availableQuantity} un.</span>
+                    <span className="tabular-nums text-[color:var(--danger)]">{product.stock?.availableQuantity} {product.stock?.unit.abbreviation}</span>
                   </Link>
                 </li>
               ))}

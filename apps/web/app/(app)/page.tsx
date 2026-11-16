@@ -20,17 +20,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const selectedCategory = params.categoria?.trim() ?? "";
 
   const categories = Array.from(
-    new Map(products.flatMap((product) => product.categories.map((category) => [category.slug, category] as const))).values()
+    new Map(products.flatMap((product) => (product.category ? [[product.category.slug, product.category] as const] : []))).values()
   );
 
   const filtered = products.filter((product) => {
     const matchesQuery =
       query.length === 0 ||
-      [product.name, product.description, product.badge, ...product.details, ...product.categories.map((category) => category.name)]
+      [product.name, product.description, product.badge, ...product.details, ...(product.category ? [product.category.name] : [])]
         .join(" ")
         .toLowerCase()
         .includes(query);
-    const matchesCategory = selectedCategory.length === 0 || product.categories.some((category) => category.slug === selectedCategory);
+    const matchesCategory = selectedCategory.length === 0 || product.category?.slug === selectedCategory;
     return matchesQuery && matchesCategory;
   });
 

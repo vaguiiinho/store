@@ -5,11 +5,7 @@ export interface ProductRepository {
   findBySlug(slug: string): Promise<Product | null>;
   findAll(activeOnly?: boolean): Promise<Product[]>;
   save(product: Product): Promise<void>;
-  update(
-    product: Product,
-    categoryIds: string[],
-    variantInput: { name: string; value: string; sku: string | null } | null,
-    stockInput: { availableQuantity: number; reservedQuantity: number } | null
-  ): Promise<void>;
+  /** Grava so as colunas de Product + categoryId; nunca toca em Stock/Variant. */
+  update(product: Product): Promise<void>;
   delete(id: string): Promise<void>;
 }

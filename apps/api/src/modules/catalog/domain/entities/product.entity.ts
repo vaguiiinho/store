@@ -15,7 +15,7 @@ export type ProductProps = {
   priceCents: number;
   images?: string[];
   active?: boolean;
-  categories?: Category[];
+  category: Category;
   variants?: Variant[];
   stock?: Stock | null;
 };
@@ -29,7 +29,7 @@ export class Product {
     public priceCents: number,
     public images: string[] = [],
     public active = true,
-    public categories: Category[] = [],
+    public category: Category,
     public variants: Variant[] = [],
     public stock: Stock | null = null
   ) {}
@@ -48,18 +48,19 @@ export class Product {
       price.cents,
       Product.normalizeImages(props.images ?? []),
       props.active ?? true,
-      props.categories ?? [],
+      props.category,
       props.variants ?? [],
       props.stock ?? null
     );
   }
 
-  addCategory(category: Category) {
-    if (this.categories.some((current) => current.id === category.id)) {
+  changeCategory(category: Category) {
+    if (this.category.id === category.id) {
       return;
     }
 
-    this.categories.push(category);
+    category.ensureAssignable();
+    this.category = category;
   }
 
   addVariant(variant: Variant) {

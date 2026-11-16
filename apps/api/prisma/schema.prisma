@@ -57,6 +57,16 @@ model Category {
   updatedAt DateTime  @updatedAt
 }
 
+model MeasurementUnit {
+  id           String   @id @default(uuid())
+  name         String
+  abbreviation String   @unique
+  active       Boolean  @default(true)
+  stocks       Stock[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model Product {
   id          String      @id @default(uuid())
   name        String
@@ -65,13 +75,16 @@ model Product {
   priceCents  Int
   active      Boolean     @default(true)
   images      String[]
-  categories  Category[]
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   variants    Variant[]
   stock       Stock?
   cartItems   CartItem[]
   orderItems  OrderItem[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId])
 }
 
 model Variant {
@@ -90,17 +103,20 @@ model Variant {
 }
 
 model Stock {
-  id                String   @id @default(uuid())
-  productId         String   @unique
-  variantId         String?  @unique
-  product           Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  variant           Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
-  availableQuantity Int      @default(0)
-  reservedQuantity  Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                String          @id @default(uuid())
+  productId         String          @unique
+  variantId         String?         @unique
+  product           Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant           Variant?        @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  unitId            String
+  unit              MeasurementUnit @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  availableQuantity Int             @default(0)
+  reservedQuantity  Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   @@index([productId, variantId])
+  @@index([unitId])
 }
 
 model Customer {

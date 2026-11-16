@@ -15,4 +15,8 @@ export class EntityId {
 
     return new EntityId(normalized.toLowerCase());
   }
+
+  equals(other: EntityId) {
+    return this.value === other.value;
+  }
 }

@@ -12,4 +12,8 @@ export class RequiredText {
 
     return new RequiredText(normalized);
   }
+
+  equals(other: RequiredText) {
+    return this.value === other.value;
+  }
 }

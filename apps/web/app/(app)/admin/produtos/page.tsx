@@ -7,8 +7,8 @@ import { getAdminProducts } from "../../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../../lib/format";
 import { AdminProductInventoryControl } from "../../../../components/admin-product-inventory-control";
 
-function formatStock(available: number, reserved: number) {
-  return `${available} disponíveis, ${reserved} reservados`;
+function formatStock(available: number, reserved: number, unit: string) {
+  return `${available} ${unit} disponível, ${reserved} ${unit} reservado`;
 }
 
 export default async function AdminProdutosPage() {
@@ -53,19 +53,14 @@ export default async function AdminProdutosPage() {
                   <p className="mt-4 text-sm leading-6 text-muted">{product.description}</p>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {product.categories.map((category) => (
-                      <span
-                        key={category.id}
-                        className="rounded-full border border-[color:var(--border)] bg-white/70 px-3 py-1 text-xs font-medium text-[#3a281c]"
-                      >
-                        {category.name}
-                      </span>
-                    ))}
+                    <span className="rounded-full border border-[color:var(--border)] bg-white/70 px-3 py-1 text-xs font-medium text-[#3a281c]">
+                      {product.category.name}
+                    </span>
                   </div>
 
                   <div className="mt-4 text-sm leading-6 text-[#32251c]">
                     {product.stock
-                      ? formatStock(product.stock.availableQuantity, product.stock.reservedQuantity)
+                      ? formatStock(product.stock.availableQuantity, product.stock.reservedQuantity, product.stock.unit.abbreviation)
                       : "Sem estoque cadastrado"}
                   </div>
 

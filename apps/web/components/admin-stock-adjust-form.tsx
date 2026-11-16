@@ -9,10 +9,10 @@ const MAX_ADJUST = 10000;
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--background)]";
 
-type Props = { productId: string; productName: string; available: number };
+type Props = { productId: string; productName: string; available: number; unit: string };
 
 /** Entrada/saida de estoque com quantidade livre. A API (AdminOnly) valida o ajuste e o dominio impede estoque negativo. */
-export function AdminStockAdjustForm({ productId, productName, available }: Props) {
+export function AdminStockAdjustForm({ productId, productName, available, unit }: Props) {
   const router = useRouter();
   const [quantity, setQuantity] = useState("1");
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
@@ -26,13 +26,13 @@ export function AdminStockAdjustForm({ productId, productName, available }: Prop
       return;
     }
     if (direction === -1 && amount > available) {
-      setMessage({ text: `Só há ${available} disponível(is) para saída.`, error: true });
+      setMessage({ text: `Só há ${available} ${unit} disponível para saída.`, error: true });
       return;
     }
     startTransition(async () => {
       const result = await adjustAdminProductStockAction(productId, direction * amount);
       if (result.ok) {
-        setMessage({ text: direction === 1 ? `Entrada de ${amount} registrada.` : `Saída de ${amount} registrada.`, error: false });
+        setMessage({ text: direction === 1 ? `Entrada de ${amount} ${unit} registrada.` : `Saída de ${amount} ${unit} registrada.`, error: false });
         setQuantity("1");
         router.refresh();
       } else {
@@ -63,6 +63,7 @@ export function AdminStockAdjustForm({ productId, productName, available }: Prop
         disabled={pending}
         className={`w-20 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-sm tabular-nums ${focusRing}`}
       />
+      <span aria-hidden="true" className="text-sm text-muted">{unit}</span>
       <button
         type="submit"
         disabled={pending}

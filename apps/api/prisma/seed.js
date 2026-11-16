@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { PrismaClient } = require("@prisma/client");
-const { seedCategories, seedProducts } = require("./seed-data");
+const { seedUnits, seedCategories, seedProducts } = require("./seed-data");
 
 const prisma = new PrismaClient();
 
 async function seedCatalog() {
+  for (const unit of seedUnits) {
+    await prisma.measurementUnit.upsert({
+      where: { id: unit.id },
+      create: { id: unit.id, name: unit.name, abbreviation: unit.abbreviation, active: true },
+      update: { name: unit.name, abbreviation: unit.abbreviation, active: true }
+    });
+  }
+
   for (const category of seedCategories) {
     await prisma.category.upsert({
       where: { id: category.id },
@@ -33,9 +41,7 @@ async function seedCatalog() {
         priceCents: product.priceCents,
         active: true,
         images: [...product.images],
-        categories: {
-          connect: product.categorySlugs.map((slug) => ({ slug }))
-        }
+        category: { connect: { slug: product.categorySlug } }
       },
       update: {
         name: product.name,
@@ -44,44 +50,22 @@ async function seedCatalog() {
         priceCents: product.priceCents,
         active: true,
         images: [...product.images],
-        categories: {
-          set: [],
-          connect: product.categorySlugs.map((slug) => ({ slug }))
-        }
+        category: { connect: { slug: product.categorySlug } }
       }
     });
 
-    for (const variant of product.variants) {
-      await prisma.variant.upsert({
-        where: { id: variant.id },
-        create: {
-          id: variant.id,
-          productId: product.id,
-          name: variant.name,
-          value: variant.value,
-          sku: variant.sku,
-          active: true
-        },
-        update: {
-          productId: product.id,
-          name: variant.name,
-          value: variant.value,
-          sku: variant.sku,
-          active: true
-        }
-      });
-    }
-
+    // productId e UNIQUE: a migracao pode ter criado o Stock com outro id.
     await prisma.stock.upsert({
-      where: { id: product.stock.id },
+      where: { productId: product.id },
       create: {
         id: product.stock.id,
         productId: product.id,
+        unitId: product.stock.unitId,
         availableQuantity: product.stock.availableQuantity,
         reservedQuantity: product.stock.reservedQuantity
       },
       update: {
-        productId: product.id,
+        unitId: product.stock.unitId,
         availableQuantity: product.stock.availableQuantity,
         reservedQuantity: product.stock.reservedQuantity
       }

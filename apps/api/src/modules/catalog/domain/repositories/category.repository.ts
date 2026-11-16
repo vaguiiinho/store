@@ -5,4 +5,7 @@ export interface CategoryRepository {
   findBySlug(slug: string): Promise<Category | null>;
   findAll(activeOnly?: boolean): Promise<Category[]>;
   save(category: Category): Promise<void>;
+  delete(id: string): Promise<void>;
+  countProducts(id: string): Promise<number>;
+  countProductsByCategory(): Promise<Record<string, number>>;
 }
