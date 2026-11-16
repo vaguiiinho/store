@@ -111,4 +111,9 @@ test("repositorios de cliente e pedido persistem e reconstituem o pedido complet
   assert.equal(restored?.customer?.email, "maria@example.com");
   assert.equal(restored?.items[0].totalCents, 4000);
   assert.equal(restored?.payment?.amountCents, 5500);
+
+  const summary = await orders.summarize(new Date(Date.now() - 86_400_000));
+  assert.deepEqual(summary.byStatus, [{ status: "CREATED", count: 1, totalCents: 5500 }]);
+  assert.equal(summary.createdSince, 1);
+  assert.equal((await orders.summarize(new Date(Date.now() + 86_400_000))).createdSince, 0);
 });

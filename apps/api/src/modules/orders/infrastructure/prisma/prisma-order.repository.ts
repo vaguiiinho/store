@@ -6,7 +6,7 @@ import { Customer } from "../../domain/entities/customer.entity";
 import { Order, OrderStatus } from "../../domain/entities/order.entity";
 import { OrderItem } from "../../domain/entities/order-item.entity";
 import { Payment, PaymentMethod, PaymentStatus } from "../../domain/entities/payment.entity";
-import { OrderRepository } from "../../domain/repositories/order.repository";
+import { OrderRepository, OrderSummarySnapshot } from "../../domain/repositories/order.repository";
 
 type PrismaOrderRecord = {
   id: string;
@@ -337,5 +337,25 @@ export class PrismaOrderRepository implements OrderRepository {
 
   async delete(id: string, tx?: Prisma.TransactionClient) {
     await (tx ?? this.prisma).order.delete({ where: { id } });
+  }
+
+  async summarize(since: Date): Promise<OrderSummarySnapshot> {
+    const [groups, createdSince] = await Promise.all([
+      this.prisma.order.groupBy({
+        by: ["status"],
+        _count: { _all: true },
+        _sum: { totalCents: true }
+      }),
+      this.prisma.order.count({ where: { createdAt: { gte: since } } })
+    ]);
+
+    return {
+      byStatus: groups.map((group) => ({
+        status: group.status as OrderStatus,
+        count: group._count._all,
+        totalCents: group._sum.totalCents ?? 0
+      })),
+      createdSince
+    };
   }
 }
