@@ -12,6 +12,8 @@ import { InventoryModule } from "../inventory/inventory.module";
 import { UpdateOrderStatusUseCase } from "./application/update-order-status.use-case";
 import { ExpireStockReservationsService } from "./application/expire-stock-reservations.service";
 import { DeleteOrderUseCase } from "./application/delete-order.use-case";
+import { GetAdminOrderSummaryUseCase } from "./application/use-cases/get-admin-order-summary.use-case";
+import { OrderRepository } from "./domain/repositories/order.repository";
 import { DailyDataCleanupService } from "./application/daily-data-cleanup.service";
 
 @Module({
@@ -23,6 +25,11 @@ import { DailyDataCleanupService } from "./application/daily-data-cleanup.servic
     ExpireStockReservationsService,
     DeleteOrderUseCase,
     DailyDataCleanupService,
+    {
+      provide: GetAdminOrderSummaryUseCase,
+      useFactory: (orderRepository: OrderRepository) => new GetAdminOrderSummaryUseCase(orderRepository, () => new Date()),
+      inject: [ORDER_REPOSITORY]
+    },
     {
       provide: ORDER_REPOSITORY,
       useClass: PrismaOrderRepository

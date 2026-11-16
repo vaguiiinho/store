@@ -57,7 +57,7 @@ export class MockPaymentGateway extends PaymentGateway {
     const checkoutUrl = input.paymentMethod === PaymentMethod.CARD ? `https://mock-pay.local/checkout/${gatewayReference}` : null;
     const qrCodeText =
       input.paymentMethod === PaymentMethod.PIX
-        ? `00020126580014BR.GOV.BCB.PIX0136${gatewayReference}5204000053039865802BR5920LOJA RITUAL6009SAO PAULO62070503***6304MOCK`
+        ? `00020126580014BR.GOV.BCB.PIX0136${gatewayReference}5204000053039865802BR5912LOJA VIRTUAL6009SAO PAULO62070503***6304MOCK`
         : null;
 
     return {

@@ -17,13 +17,21 @@ function result<T>(response: { ok: boolean; data?: T; message?: string }): Actio
 
 export async function createOrderAction(input: CreateOrderInput): Promise<ActionResult<ApiOrder>> {
   const response = await storefrontService.createOrder(input, await cookieHeader());
-  if (response.ok) revalidatePath("/catalogo");
+  if (response.ok) revalidatePath("/");
   return result(response);
+}
+
+function hasControlChar(value: string) {
+  return [...value].some((char) => char.charCodeAt(0) < 0x20 || char.charCodeAt(0) === 0x7f);
 }
 
 /** Destino seguro apos login: somente caminhos internos (evita open redirect). */
 function safeNextPath(next: string | null | undefined) {
-  return next && /^\/(?![/\\])/.test(next) && !next.includes("\\") && !next.startsWith("/login") ? next : "/";
+  if (!next || !/^\/(?![/\\])/.test(next) || next.includes("\\") || hasControlChar(next)) return "/";
+  const origin = "http://internal.invalid";
+  const url = new URL(next, origin);
+  if (url.origin !== origin || url.pathname.startsWith("/login")) return "/";
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 export async function loginAction(email: string, password: string, next?: string | null): Promise<ActionResult<{ user: SessionUser; redirectTo: string }>> {
@@ -96,7 +104,10 @@ export async function createUserAction(input: CreateUserInput): Promise<ActionRe
 
 export async function saveAdminProductAction(id: string | null, input: AdminProductInput): Promise<ActionResult<{ id: string }>> {
   const response = id ? await storefrontService.updateAdminProduct(id, input, await cookieHeader()) : await storefrontService.createAdminProduct(input, await cookieHeader());
-  if (response.ok) revalidatePath("/admin");
+  if (response.ok) {
+    revalidatePath("/admin/produtos");
+    revalidatePath("/");
+  }
   return result(response);
 }
 

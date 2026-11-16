@@ -6,6 +6,8 @@ export type ApiVariant = { id: string; name: string; value: string; sku: string 
 export type ApiStock = { id: string; availableQuantity: number; reservedQuantity: number } | null;
 export type ApiProduct = { id: string; name: string; slug: string; description: string; priceCents: number; images: string[]; active: boolean; categories: ApiCategory[]; variants: ApiVariant[]; stock: ApiStock };
 export type ApiOrder = { id: string; number: string; status: "CREATED" | "AWAITING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPED" | "DELIVERED" | "CANCELLED"; createdAt: string; subtotalCents: number; shippingCents: number; totalCents: number; customer: { id: string; name: string; email: string | null; phone: string; document: string | null } | null; shippingAddress: { id: string; cep: string; street: string; number: string; complement: string | null; district: string; city: string; state: string; reference: string | null }; items: Array<{ id: string; productId: string; productName: string; quantity: number; unitPriceCents: number; variantId: string | null; totalCents: number }>; payment: { id: string; method: "PIX" | "CARD"; status: "PENDING" | "PAID" | "DECLINED" | "CANCELLED"; amountCents: number; externalReference: string | null; gatewayReference: string | null; provider: string | null; checkoutUrl: string | null; qrCodeText: string | null; qrCodeBase64: string | null; instructions: string[]; expiresAt: string | null } | null };
+/** Espelha GetAdminOrderSummaryOutput de GET /admin/orders/summary (periodDays fixo em 30). */
+export type AdminOrderSummary = { totalOrders: number; awaitingPayment: number; inProgress: number; delivered: number; cancelled: number; revenueCents: number; periodDays: number; periodStart: string; ordersInPeriod: number };
 export type UserRole = "USER" | "ADMIN";
 export type SessionUser = { id: string; name: string; email: string; role: UserRole };
 export type AuthMe = { authenticated: boolean; user?: SessionUser & { primaryAdmin?: boolean } };
@@ -40,6 +42,8 @@ export const storefrontService = {
   setAdminUserPassword: (id: string, newPassword: string, cookie: string) => apiClient.request<ApiUser>(`/admin/users/${encodeURIComponent(id)}/password`, { ...json({ newPassword }, cookie), method: "PATCH" }),
   changeOwnPassword: (currentPassword: string, newPassword: string, cookie: string) => apiClient.request<{ changed: boolean }>("/auth/password", { ...json({ currentPassword, newPassword }, cookie), method: "PATCH" }),
   getAdminOrders: (cookie?: string) => read<ApiOrder[]>("/admin/orders", cookie),
+  /** Devolve o resultado cru para o chamador distinguir 403 (papel rebaixado) de falha de rede. */
+  getAdminOrderSummary: (cookie?: string) => apiClient.request<AdminOrderSummary>("/admin/orders/summary", withCookie(cookie)),
   getAdminProducts: (cookie?: string) => read<ApiProduct[]>("/admin/products", cookie),
   async getAdminProduct(id: string, cookie?: string) { return read<{ product: ApiProduct; categories: ApiCategory[] }>(`/admin/products/${id}`, cookie); },
   getCategories: () => read<ApiCategory[]>("/categories"),

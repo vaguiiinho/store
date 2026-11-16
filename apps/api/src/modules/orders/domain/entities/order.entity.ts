@@ -17,6 +17,15 @@ export enum OrderStatus {
   CANCELLED = "CANCELLED"
 }
 
+export const PENDING_PAYMENT_ORDER_STATUSES: readonly OrderStatus[] = Object.freeze([OrderStatus.CREATED, OrderStatus.AWAITING_PAYMENT]);
+export const IN_PROGRESS_ORDER_STATUSES: readonly OrderStatus[] = Object.freeze([OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.SHIPPED]);
+export const REVENUE_ORDER_STATUSES: readonly OrderStatus[] = Object.freeze([
+  OrderStatus.PAID,
+  OrderStatus.PREPARING,
+  OrderStatus.SHIPPED,
+  OrderStatus.DELIVERED
+]);
+
 export type OrderProps = {
   id?: string;
   number: string;

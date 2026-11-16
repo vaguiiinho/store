@@ -31,7 +31,7 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} aria-describedby={error ? "login-error" : undefined} className="space-y-4">
       <label className="block space-y-2">
         <span className="text-sm font-semibold text-[color:var(--foreground)]">E-mail</span>
         <input
@@ -39,7 +39,7 @@ export function LoginForm() {
           name="email"
           required
           autoComplete="username"
-          placeholder="voce@email.com"
+          autoFocus
           className="w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-3 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--accent)]"
         />
       </label>
@@ -51,20 +51,15 @@ export function LoginForm() {
           name="password"
           required
           autoComplete="current-password"
-          placeholder="••••••••"
           className="w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-3 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--accent)]"
         />
       </label>
 
       {error ? (
-        <div role="alert" className="rounded-2xl border border-[color:var(--danger-border)] bg-[color:var(--danger-soft)] p-4 text-sm text-[color:var(--danger)]">
+        <div id="login-error" role="alert" className="rounded-2xl border border-[color:var(--danger-border)] bg-[color:var(--danger-soft)] p-4 text-sm text-[color:var(--danger)]">
           {error}
         </div>
       ) : null}
-
-      <div className="rounded-[24px] border border-[color:var(--accent)] bg-[color:var(--accent-soft)] p-4 text-sm leading-6 text-[color:var(--foreground)]">
-        Sessão protegida por cookie httpOnly. Novas contas são criadas por um administrador.
-      </div>
 
       <button
         type="submit"

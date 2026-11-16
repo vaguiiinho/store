@@ -1,0 +1,141 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { PageHeader } from "../../../../components/page-header";
+import { formatCurrencyBRL } from "../../../../lib/format";
+import { getOrderByNumber } from "../../../../lib/storefront-api";
+import { getCookieHeader } from "../../../../lib/session";
+
+export const dynamic = "force-dynamic";
+
+type PedidoPageProps = {
+  params: Promise<{
+    number: string;
+  }>;
+  searchParams: Promise<{ criado?: string }>;
+};
+
+export default async function PedidoPage({ params, searchParams }: PedidoPageProps) {
+  const { number } = await params;
+  const { criado } = await searchParams;
+  const order = await getOrderByNumber(number, await getCookieHeader());
+
+  if (!order) {
+    notFound();
+  }
+
+  return (
+    <>
+      <PageHeader title={`Pedido ${order.number}`} />
+      {criado === "1" ? (
+        <div role="status" className="mb-6 rounded-2xl border border-[color:var(--success-border)] bg-[color:var(--success-soft)] p-4 text-sm text-[color:var(--success)]">
+          Pedido {order.number} criado
+        </div>
+      ) : null}
+      <div className="grid gap-6 lg:grid-cols-[1fr_0.72fr]">
+        <section className="space-y-4">
+          <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">Resumo</h2>
+              <span className="rounded-full border border-[color:rgba(124,79,36,0.18)] bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#6e4a29]">
+                {order.status}
+              </span>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Subtotal</div>
+                <div className="mt-2 text-sm font-semibold text-[#1d1712]">{formatCurrencyBRL(order.subtotalCents)}</div>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Frete</div>
+                <div className="mt-2 text-sm font-semibold text-[#1d1712]">{formatCurrencyBRL(order.shippingCents)}</div>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Total</div>
+                <div className="mt-2 text-sm font-semibold text-[#1d1712]">{formatCurrencyBRL(order.totalCents)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
+            <h2 className="text-lg font-semibold text-[#1d1712]">Itens</h2>
+            <div className="mt-4 space-y-3">
+              {order.items.map((item) => (
+                <article key={item.id} className="rounded-3xl border border-[color:var(--border)] bg-white/80 p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-sm font-semibold text-[#1d1712]">{item.productName}</h3>
+                      <p className="mt-1 text-sm text-muted">{item.quantity} unidade(s)</p>
+                    </div>
+                    <span className="text-sm font-semibold text-[#1d1712]">{formatCurrencyBRL(item.totalCents)}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <aside className="space-y-4">
+          <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
+            <h2 className="text-lg font-semibold text-[#1d1712]">Pagamento</h2>
+            <div className="mt-4 rounded-3xl border border-[color:var(--border)] bg-white/80 p-4 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-semibold text-[#1d1712]">{order.payment?.method === "PIX" ? "Pix" : "Cartão"}</p>
+                <span className="rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] accent-text">
+                  {order.payment?.status ?? "PENDING"}
+                </span>
+              </div>
+              <p className="mt-2 text-muted">Provedor: {order.payment?.provider ?? "mock"}</p>
+              {order.payment?.instructions?.length ? (
+                <ul className="mt-4 space-y-2 text-[color:var(--foreground)]">
+                  {order.payment.instructions.map((instruction) => (
+                    <li key={instruction} className="flex gap-3">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--accent)]" />
+                      <span>{instruction}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {order.payment?.qrCodeText ? (
+                <div className="mt-4 select-all rounded-2xl border border-dashed border-[color:var(--accent)] bg-[color:var(--accent-soft)] p-4 font-mono text-xs break-all text-[color:var(--foreground)]">
+                  {order.payment.qrCodeText}
+                </div>
+              ) : null}
+              {order.payment?.checkoutUrl ? (
+                <a
+                  href={order.payment.checkoutUrl}
+                  className="mt-4 inline-flex rounded-full bg-[#1d1712] px-4 py-2 text-sm font-semibold text-[#fffaf2]"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Abrir checkout do cartão
+                </a>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="surface-strong rounded-[28px] border border-[color:var(--border)] p-6">
+            <h2 className="text-lg font-semibold text-[#1d1712]">Entrega</h2>
+            <p className="mt-3 text-sm leading-6 text-muted">
+              {order.shippingAddress.street}, {order.shippingAddress.number}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              {order.shippingAddress.district} - {order.shippingAddress.city}/{order.shippingAddress.state}
+            </p>
+            <p className="mt-2 text-sm text-muted">CEP {order.shippingAddress.cep}</p>
+            <div className="mt-4 rounded-3xl border border-[color:var(--border)] bg-white/80 p-4 text-sm">
+              <p className="font-semibold text-[#1d1712]">Frete</p>
+              <p className="mt-2 text-muted">{formatCurrencyBRL(order.shippingCents)}</p>
+            </div>
+          </div>
+
+          <Link
+            href="/"
+            className="surface-strong inline-flex items-center justify-center rounded-full border border-[color:var(--border)] bg-white/75 px-5 py-3 text-sm font-semibold text-[#3a281c] transition hover:bg-white"
+          >
+            Continuar comprando
+          </Link>
+        </aside>
+      </div>
+    </>
+  );
+}

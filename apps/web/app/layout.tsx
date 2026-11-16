@@ -3,10 +3,10 @@ import "./globals.css";
 
 export const metadata = {
   title: {
-    default: "Loja Ritual",
-    template: "%s | Loja Ritual"
+    default: "Loja Virtual",
+    template: "%s | Loja Virtual"
   },
-  description: "Loja com catálogo, carrinho, checkout e acompanhamento de pedidos."
+  description: "Loja com catálogo, carrinho e acompanhamento de pedidos."
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

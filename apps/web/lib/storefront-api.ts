@@ -14,3 +14,4 @@ export const getAdminOrders = storefrontService.getAdminOrders;
 export const getAdminProducts = storefrontService.getAdminProducts;
 export const getAdminProduct = storefrontService.getAdminProduct;
 export const getCategories = storefrontService.getCategories;
+export const getAdminOrderSummary = storefrontService.getAdminOrderSummary;

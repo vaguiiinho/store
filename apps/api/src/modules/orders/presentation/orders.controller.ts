@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Delete, Get, Inject, NotFoundExc
 import { DeleteOrderUseCase } from "../application/delete-order.use-case";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { CreateOrderUseCase } from "../application/create-order.use-case";
+import { GetAdminOrderSummaryUseCase } from "../application/use-cases/get-admin-order-summary.use-case";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { ORDER_REPOSITORY } from "../orders.tokens";
 import { OrderRepository } from "../domain/repositories/order.repository";
@@ -74,6 +75,7 @@ export class OrdersController {
     private readonly createOrderUseCase: CreateOrderUseCase,
     private readonly updateOrderStatusUseCase: UpdateOrderStatusUseCase,
     private readonly deleteOrderUseCase: DeleteOrderUseCase,
+    private readonly getAdminOrderSummaryUseCase: GetAdminOrderSummaryUseCase,
     @Inject(ORDER_REPOSITORY)
     private readonly orderRepository: OrderRepository
   ) {}
@@ -124,6 +126,16 @@ export class OrdersController {
   async listAdminOrders() {
     const orders = await this.orderRepository.findAll(50);
     return orders.map((order) => this.serialize(order));
+  }
+
+  @AdminOnly()
+  @Get("admin/orders/summary")
+  async getAdminOrderSummary() {
+    try {
+      return await this.getAdminOrderSummaryUseCase.execute({ periodDays: 30 });
+    } catch (error) {
+      this.rethrowDomainError(error);
+    }
   }
 
   @AdminOnly()
