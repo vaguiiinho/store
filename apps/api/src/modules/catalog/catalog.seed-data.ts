@@ -1,3 +1,13 @@
+export const DEFAULT_UNIT_ID = "00000000-0000-4000-8000-000000000101";
+
+export const seedUnits = [
+  {
+    id: DEFAULT_UNIT_ID,
+    name: "Unidade",
+    abbreviation: "un"
+  }
+] as const;
+
 export const seedCategories = [
   {
     id: "00000000-0000-4000-8000-000000000001",
@@ -32,20 +42,13 @@ export const seedProducts = [
     images: [
       "https://images.unsplash.com/photo-1608354580875-30bd4168b351?auto=format&fit=crop&w=1200&h=900&q=82"
     ],
-    categorySlugs: ["cafe"],
+    categorySlug: "cafe",
     stock: {
       id: "20000000-0000-4000-8000-000000000001",
       availableQuantity: 24,
-      reservedQuantity: 0
-    },
-    variants: [
-      {
-        id: "30000000-0000-4000-8000-000000000001",
-        name: "Cor",
-        value: "Preto",
-        sku: "CAF-ESS-PRETO"
-      }
-    ]
+      reservedQuantity: 0,
+      unitId: DEFAULT_UNIT_ID
+    }
   },
   {
     id: "10000000-0000-4000-8000-000000000002",
@@ -57,20 +60,13 @@ export const seedProducts = [
     images: [
       "https://images.unsplash.com/photo-1780341219526-a1b2ff5bbfda?auto=format&fit=crop&w=1200&h=900&q=82"
     ],
-    categorySlugs: ["cafe", "acessorios"],
+    categorySlug: "cafe",
     stock: {
       id: "20000000-0000-4000-8000-000000000002",
       availableQuantity: 18,
-      reservedQuantity: 0
-    },
-    variants: [
-      {
-        id: "30000000-0000-4000-8000-000000000002",
-        name: "Acabamento",
-        value: "Metal escovado",
-        sku: "MPR-METAL"
-      }
-    ]
+      reservedQuantity: 0,
+      unitId: DEFAULT_UNIT_ID
+    }
   },
   {
     id: "10000000-0000-4000-8000-000000000003",
@@ -82,20 +78,13 @@ export const seedProducts = [
     images: [
       "https://images.unsplash.com/photo-1771508732063-24f21809d45d?auto=format&fit=crop&w=1200&h=900&q=82"
     ],
-    categorySlugs: ["kits"],
+    categorySlug: "kits",
     stock: {
       id: "20000000-0000-4000-8000-000000000003",
       availableQuantity: 31,
-      reservedQuantity: 0
-    },
-    variants: [
-      {
-        id: "30000000-0000-4000-8000-000000000003",
-        name: "Embalagem",
-        value: "Presenteável",
-        sku: "KIT-SERENA-PRES"
-      }
-    ]
+      reservedQuantity: 0,
+      unitId: DEFAULT_UNIT_ID
+    }
   },
   {
     id: "10000000-0000-4000-8000-000000000004",
@@ -107,19 +96,12 @@ export const seedProducts = [
     images: [
       "https://images.unsplash.com/photo-1768674150936-1d2044ba32d6?auto=format&fit=crop&w=1200&h=900&q=82"
     ],
-    categorySlugs: ["kits", "presentes"],
+    categorySlug: "kits",
     stock: {
       id: "20000000-0000-4000-8000-000000000004",
       availableQuantity: 19,
-      reservedQuantity: 0
-    },
-    variants: [
-      {
-        id: "30000000-0000-4000-8000-000000000004",
-        name: "Embalagem",
-        value: "Caixa rígida",
-        sku: "KIT-AROMA-BOX"
-      }
-    ]
+      reservedQuantity: 0,
+      unitId: DEFAULT_UNIT_ID
+    }
   }
 ] as const;

@@ -138,3 +138,43 @@ export function ChevronIcon({ className }: IconProps) {
     </Svg>
   );
 }
+
+export function TagIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M3 12V4h8l9 9-8 8-9-9ZM7.5 8.5h.01" />
+    </Svg>
+  );
+}
+
+export function RulerIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="m3 16 13-13 5 5L8 21l-5-5ZM7 12l2 2M10 9l2 2M13 6l2 2" />
+    </Svg>
+  );
+}
+
+export function PlusIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 5v14M5 12h14" />
+    </Svg>
+  );
+}
+
+export function PencilIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="m4 20 1-4L16 5l3 3L8 19l-4 1ZM14 7l3 3" />
+    </Svg>
+  );
+}
+
+export function TrashIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+    </Svg>
+  );
+}

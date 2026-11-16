@@ -14,4 +14,8 @@ export class Slug {
 
     return new Slug(normalized);
   }
+
+  equals(other: Slug) {
+    return this.value === other.value;
+  }
 }

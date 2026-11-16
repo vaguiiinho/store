@@ -3,8 +3,13 @@ import type { FeaturedProduct } from "../../lib/storefront-content";
 
 export type ApiCategory = { id: string; name: string; slug: string; active?: boolean };
 export type ApiVariant = { id: string; name: string; value: string; sku: string | null; active: boolean };
-export type ApiStock = { id: string; availableQuantity: number; reservedQuantity: number } | null;
-export type ApiProduct = { id: string; name: string; slug: string; description: string; priceCents: number; images: string[]; active: boolean; categories: ApiCategory[]; variants: ApiVariant[]; stock: ApiStock };
+export type ApiUnit = { id: string; name: string; abbreviation: string; active?: boolean };
+export type ApiStock = { id: string; availableQuantity: number; reservedQuantity: number; unit: ApiUnit } | null;
+export type AdminCategory = { id: string; name: string; slug: string; active: boolean; productCount: number };
+export type AdminUnit = { id: string; name: string; abbreviation: string; active: boolean; stockCount: number };
+export type AdminCategoryInput = { name: string; slug: string; active?: boolean };
+export type AdminUnitInput = { name: string; abbreviation: string; active?: boolean };
+export type ApiProduct = { id: string; name: string; slug: string; description: string; priceCents: number; images: string[]; active: boolean; category: ApiCategory; variants: ApiVariant[]; stock: ApiStock };
 export type ApiOrder = { id: string; number: string; status: "CREATED" | "AWAITING_PAYMENT" | "PAID" | "PREPARING" | "SHIPPED" | "DELIVERED" | "CANCELLED"; createdAt: string; subtotalCents: number; shippingCents: number; totalCents: number; customer: { id: string; name: string; email: string | null; phone: string; document: string | null } | null; shippingAddress: { id: string; cep: string; street: string; number: string; complement: string | null; district: string; city: string; state: string; reference: string | null }; items: Array<{ id: string; productId: string; productName: string; quantity: number; unitPriceCents: number; variantId: string | null; totalCents: number }>; payment: { id: string; method: "PIX" | "CARD"; status: "PENDING" | "PAID" | "DECLINED" | "CANCELLED"; amountCents: number; externalReference: string | null; gatewayReference: string | null; provider: string | null; checkoutUrl: string | null; qrCodeText: string | null; qrCodeBase64: string | null; instructions: string[]; expiresAt: string | null } | null };
 /** Espelha GetAdminOrderSummaryOutput de GET /admin/orders/summary (periodDays fixo em 30). */
 export type AdminOrderSummary = { totalOrders: number; awaitingPayment: number; inProgress: number; delivered: number; cancelled: number; revenueCents: number; periodDays: number; periodStart: string; ordersInPeriod: number };
@@ -14,14 +19,14 @@ export type AuthMe = { authenticated: boolean; user?: SessionUser & { primaryAdm
 export type ApiUser = SessionUser & { active: boolean; primaryAdmin: boolean; createdAt: string };
 export type CreateUserInput = { name: string; email: string; password: string; role: UserRole };
 export type UpdateUserInput = { name?: string; email?: string; role?: UserRole };
-export type AdminProductInput = { name: string; slug: string; description: string; priceCents: number; images: string[]; categoryIds: string[]; variantName?: string; variantValue?: string; variantSku?: string; availableQuantity?: number; reservedQuantity?: number };
+export type AdminProductInput = { name: string; slug: string; description: string; priceCents: number; images: string[]; categoryId: string; unitId?: string };
 export type CreateOrderInput = { customer: { name: string; email?: string | null; phone: string; document?: string | null }; shippingAddress: { cep: string; street: string; number: string; complement?: string | null; district: string; city: string; state: string; reference?: string | null }; shippingRegion: "capital" | "interior" | "litoral"; paymentMethod: "PIX" | "CARD"; items: Array<{ productSlug: string; quantity: number; variantId?: string | null }> };
 
 const json = (body: unknown, cookie?: string): RequestInit => ({ method: "POST", headers: { "Content-Type": "application/json", ...(cookie ? { cookie } : {}) }, body: JSON.stringify(body) });
 const withCookie = (cookie?: string): RequestInit => cookie ? { headers: { cookie } } : {};
 
 function toFeaturedProduct(product: ApiProduct): FeaturedProduct {
-  return { slug: product.slug, name: product.name, description: product.description, priceCents: product.priceCents, badge: product.categories[0]?.name ?? "Em destaque", note: product.stock ? (product.stock.availableQuantity > 0 ? "Disponível" : "Sem estoque") : "Disponibilidade sob consulta", categories: product.categories.map(({ slug, name }) => ({ slug, name })), details: [...product.categories.slice(0, 2).map((category) => category.name), ...product.variants.slice(0, 2).map((variant) => `${variant.name}: ${variant.value}`)], images: product.images, variants: product.variants.map(({ name, value, sku }) => ({ name, value, sku })), stock: product.stock };
+  return { slug: product.slug, name: product.name, description: product.description, priceCents: product.priceCents, badge: product.category?.name ?? "Em destaque", note: product.stock ? (product.stock.availableQuantity > 0 ? "Disponível" : "Sem estoque") : "Disponibilidade sob consulta", category: product.category ? { slug: product.category.slug, name: product.category.name } : null, details: [...(product.category ? [product.category.name] : []), ...product.variants.slice(0, 2).map((variant) => `${variant.name}: ${variant.value}`)], images: product.images, variants: product.variants.map(({ name, value, sku }) => ({ name, value, sku })), stock: product.stock };
 }
 
 async function read<T>(path: string, cookie?: string) { const result = await apiClient.request<T>(path, withCookie(cookie)); return result.ok ? result.data : null; }
@@ -46,10 +51,19 @@ export const storefrontService = {
   getAdminOrderSummary: (cookie?: string) => apiClient.request<AdminOrderSummary>("/admin/orders/summary", withCookie(cookie)),
   getAdminProducts: (cookie?: string) => read<ApiProduct[]>("/admin/products", cookie),
   async getAdminProduct(id: string, cookie?: string) { return read<{ product: ApiProduct; categories: ApiCategory[] }>(`/admin/products/${id}`, cookie); },
+  getAdminCategories: (cookie?: string) => read<AdminCategory[]>("/admin/categories", cookie),
+  createAdminCategory: (input: AdminCategoryInput, cookie: string) => apiClient.request<AdminCategory>("/admin/categories", json({ name: input.name, slug: input.slug }, cookie)),
+  updateAdminCategory: (id: string, input: AdminCategoryInput, cookie: string) => apiClient.request<AdminCategory>(`/admin/categories/${encodeURIComponent(id)}`, { ...json({ name: input.name, slug: input.slug, active: input.active }, cookie), method: "PATCH" }),
+  deleteAdminCategory: (id: string, cookie: string) => apiClient.request<{ deleted: boolean }>(`/admin/categories/${encodeURIComponent(id)}`, { method: "DELETE", headers: { cookie } }),
+  getAdminUnits: (cookie?: string) => read<AdminUnit[]>("/admin/measurement-units", cookie),
+  createAdminUnit: (input: AdminUnitInput, cookie: string) => apiClient.request<AdminUnit>("/admin/measurement-units", json({ name: input.name, abbreviation: input.abbreviation }, cookie)),
+  updateAdminUnit: (id: string, input: AdminUnitInput, cookie: string) => apiClient.request<AdminUnit>(`/admin/measurement-units/${encodeURIComponent(id)}`, { ...json({ name: input.name, abbreviation: input.abbreviation, active: input.active }, cookie), method: "PATCH" }),
+  deleteAdminUnit: (id: string, cookie: string) => apiClient.request<{ deleted: boolean }>(`/admin/measurement-units/${encodeURIComponent(id)}`, { method: "DELETE", headers: { cookie } }),
+  changeAdminStockUnit: (productId: string, unitId: string, cookie: string) => apiClient.request<{ productId: string; stockId: string; unit: ApiUnit }>(`/admin/products/${encodeURIComponent(productId)}/stock/unit`, { ...json({ unitId }, cookie), method: "PATCH" }),
   getCategories: () => read<ApiCategory[]>("/categories"),
   createOrder: (input: CreateOrderInput, cookie: string) => apiClient.request<ApiOrder>("/orders", json(input, cookie)),
   createAdminProduct: (input: AdminProductInput, cookie: string) => apiClient.request<ApiProduct>("/admin/products", json(input, cookie)),
-  updateAdminProduct: (id: string, input: AdminProductInput, cookie: string) => apiClient.request<ApiProduct>(`/admin/products/${id}`, { ...json(input, cookie), method: "PATCH" }),
+  updateAdminProduct: (id: string, input: AdminProductInput, cookie: string) => apiClient.request<ApiProduct>(`/admin/products/${encodeURIComponent(id)}`, { ...json(input, cookie), method: "PATCH" }),
   updateAdminOrderStatus: (id: string, status: ApiOrder["status"], cookie: string) => apiClient.request<ApiOrder>(`/admin/orders/${id}/status`, { ...json({ status }, cookie), method: "PATCH" }),
   updateAdminProductStatus: (id: string, active: boolean, cookie: string) => apiClient.request<ApiProduct>(`/admin/products/${id}/status`, { ...json({ active }, cookie), method: "PATCH" }),
   adjustAdminProductStock: (id: string, delta: number, cookie: string) => apiClient.request<ApiProduct>(`/admin/products/${id}/stock`, { ...json({ delta }, cookie), method: "PATCH" }),

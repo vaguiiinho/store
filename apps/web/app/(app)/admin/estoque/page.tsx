@@ -4,7 +4,8 @@ import { PageHeader } from "../../../../components/page-header";
 import { StatCard, StatError } from "../../../../components/stat-card";
 import { AdminStockAdjustForm } from "../../../../components/admin-stock-adjust-form";
 import { requireAdmin } from "../../../../lib/session";
-import { getAdminProducts } from "../../../../lib/storefront-api";
+import { AdminStockUnitSelect } from "../../../../components/admin-stock-unit-select";
+import { getAdminProducts, getAdminUnits } from "../../../../lib/storefront-api";
 
 export const dynamic = "force-dynamic";
 
@@ -33,12 +34,24 @@ const levelClass: Record<StockLevel, string> = {
   none: "border-[color:var(--border)] text-muted"
 };
 
+function unitLabel(unit?: { name: string; abbreviation: string }) {
+  if (!unit) return null;
+  return (
+    <>
+      {" "}
+      <abbr title={unit.name} className="text-sm font-normal text-muted no-underline">
+        {unit.abbreviation}
+      </abbr>
+    </>
+  );
+}
+
 export default async function AdminEstoquePage() {
   await requireAdmin();
   const cookieHeader = (await cookies()).toString();
-  const products = await getAdminProducts(cookieHeader);
+  const [products, units] = await Promise.all([getAdminProducts(cookieHeader), getAdminUnits(cookieHeader)]);
 
-  if (!products) {
+  if (!products || !units) {
     return (
       <>
         <PageHeader title="Estoque" />
@@ -55,8 +68,9 @@ export default async function AdminEstoquePage() {
     })
     .sort((a, b) => (a.available ?? Number.MAX_SAFE_INTEGER) - (b.available ?? Number.MAX_SAFE_INTEGER) || a.product.name.localeCompare(b.product.name, "pt-BR"));
 
-  const totalAvailable = rows.reduce((sum, row) => sum + (row.available ?? 0), 0);
-  const totalReserved = rows.reduce((sum, row) => sum + row.reserved, 0);
+  // Nao somamos quantidades: unidades diferentes (kg, un...) nao sao comparaveis.
+  const withStockCount = rows.filter((row) => (row.available ?? 0) > 0).length;
+  const withReservationCount = rows.filter((row) => row.reserved > 0).length;
   const lowCount = rows.filter((row) => row.level === "low").length;
   const outCount = rows.filter((row) => row.level === "out").length;
 
@@ -65,9 +79,9 @@ export default async function AdminEstoquePage() {
       <PageHeader title="Estoque" />
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard label="Unidades disponíveis" value={totalAvailable} />
-          <StatCard label="Unidades reservadas" value={totalReserved} hint="Em pedidos aguardando pagamento" />
-          <StatCard label="Estoque baixo" value={lowCount} hint={`Até ${LOW_STOCK_THRESHOLD} unidades`} />
+          <StatCard label="Produtos com estoque" value={withStockCount} />
+          <StatCard label="Produtos com reserva" value={withReservationCount} hint="Em pedidos aguardando pagamento" />
+          <StatCard label="Estoque baixo" value={lowCount} hint={`Até ${LOW_STOCK_THRESHOLD}`} />
           <StatCard label="Esgotados" value={outCount} />
         </div>
 
@@ -86,19 +100,28 @@ export default async function AdminEstoquePage() {
                   <Link href={`/admin/produtos/${product.id}`} className="font-semibold hover:underline">
                     {product.name}
                   </Link>
-                  <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
                     <span className={`rounded-full border px-2 py-0.5 font-semibold ${levelClass[level]}`}>{levelLabel[level]}</span>
                     {product.active ? null : <span>Inativo</span>}
-                  </p>
+                    {product.stock ? (
+                      <AdminStockUnitSelect
+                        productId={product.id}
+                        productName={product.name}
+                        currentUnitId={product.stock.unit.id}
+                        units={units}
+                        hasBalance={product.stock.availableQuantity + product.stock.reservedQuantity > 0}
+                      />
+                    ) : null}
+                  </div>
                 </div>
                 <dl className="flex gap-6 text-sm">
                   <div>
                     <dt className="text-xs text-muted">Disponível</dt>
-                    <dd className="text-lg font-semibold tabular-nums">{available ?? "—"}</dd>
+                    <dd className="text-lg font-semibold tabular-nums">{available ?? "—"}{unitLabel(product.stock?.unit)}</dd>
                   </div>
                   <div>
                     <dt className="text-xs text-muted">Reservado</dt>
-                    <dd className="text-lg font-semibold tabular-nums">{reserved}</dd>
+                    <dd className="text-lg font-semibold tabular-nums">{reserved}{unitLabel(product.stock?.unit)}</dd>
                   </div>
                 </dl>
                 {available === null ? (
@@ -106,7 +129,7 @@ export default async function AdminEstoquePage() {
                     Cadastrar estoque no produto
                   </Link>
                 ) : (
-                  <AdminStockAdjustForm productId={product.id} productName={product.name} available={available} />
+                  <AdminStockAdjustForm productId={product.id} productName={product.name} available={available} unit={product.stock?.unit.abbreviation ?? ""} />
                 )}
               </li>
             ))}

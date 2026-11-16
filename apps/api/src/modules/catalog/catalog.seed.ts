@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { PrismaService } from "../../infrastructure/prisma/prisma.service";
-import { seedCategories, seedProducts } from "./catalog.seed-data";
+import { seedCategories, seedProducts, seedUnits } from "./catalog.seed-data";
 
 @Injectable()
 export class CatalogSeedService implements OnModuleInit {
@@ -11,6 +11,14 @@ export class CatalogSeedService implements OnModuleInit {
 
     if (productCount > 0) {
       return;
+    }
+
+    for (const unit of seedUnits) {
+      await this.prisma.measurementUnit.upsert({
+        where: { id: unit.id },
+        create: { id: unit.id, name: unit.name, abbreviation: unit.abbreviation, active: true },
+        update: {}
+      });
     }
 
     for (const category of seedCategories) {
@@ -34,21 +42,11 @@ export class CatalogSeedService implements OnModuleInit {
           priceCents: product.priceCents,
           active: true,
           images: [...product.images],
-          categories: {
-            connect: product.categorySlugs.map((slug) => ({ slug }))
-          },
-          variants: {
-            create: product.variants.map((variant) => ({
-              id: variant.id,
-              name: variant.name,
-              value: variant.value,
-              sku: variant.sku,
-              active: true
-            }))
-          },
+          category: { connect: { slug: product.categorySlug } },
           stock: {
             create: {
               id: product.stock.id,
+              unit: { connect: { id: product.stock.unitId } },
               availableQuantity: product.stock.availableQuantity,
               reservedQuantity: product.stock.reservedQuantity
             }

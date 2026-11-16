@@ -41,7 +41,7 @@ export default async function AdminProdutoPage({ params }: PageProps) {
           </div>
 
           <div className="rounded-[28px] border border-[color:var(--border)] bg-white/80 p-6">
-            <AdminProductForm mode="edit" product={productResponse.product} categories={productResponse.categories} />
+            <AdminProductForm mode="edit" product={productResponse.product} categories={productResponse.categories.filter((category) => category.active !== false || category.id === productResponse.product.category.id)} />
           </div>
     </>
   );

@@ -6,10 +6,10 @@ export type FeaturedProduct = {
   badge: string;
   note: string;
   details: string[];
-  categories: Array<{
+  category: {
     slug: string;
     name: string;
-  }>;
+  } | null;
   images?: string[];
   variants?: Array<{
     name: string;
@@ -19,5 +19,6 @@ export type FeaturedProduct = {
   stock?: {
     availableQuantity: number;
     reservedQuantity: number;
+    unit?: { id: string; name: string; abbreviation: string };
   } | null;
 };

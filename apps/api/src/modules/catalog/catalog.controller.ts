@@ -32,6 +32,7 @@ function serializeStock(stock: {
   id: string;
   available: number;
   reserved: number;
+  unit: { id: string; name: string; abbreviation: string };
 } | null) {
   if (!stock) {
     return null;
@@ -40,7 +41,8 @@ function serializeStock(stock: {
   return {
     id: stock.id,
     availableQuantity: stock.available,
-    reservedQuantity: stock.reserved
+    reservedQuantity: stock.reserved,
+    unit: { id: stock.unit.id, name: stock.unit.name, abbreviation: stock.unit.abbreviation }
   };
 }
 
@@ -52,7 +54,7 @@ function serializeProduct(product: {
   priceCents: number;
   images: string[];
   active: boolean;
-  categories: Array<{ id: string; name: string; slug: string }>;
+  category: { id: string; name: string; slug: string };
   variants: Array<{
     id: string;
     name: string;
@@ -64,6 +66,7 @@ function serializeProduct(product: {
     id: string;
     available: number;
     reserved: number;
+    unit: { id: string; name: string; abbreviation: string };
   } | null;
 }) {
   return {
@@ -74,7 +77,7 @@ function serializeProduct(product: {
     priceCents: product.priceCents,
     images: product.images,
     active: product.active,
-    categories: product.categories.map(serializeCategory),
+    category: serializeCategory(product.category),
     variants: product.variants.map(serializeVariant),
     stock: serializeStock(product.stock)
   };

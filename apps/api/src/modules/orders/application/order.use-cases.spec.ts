@@ -4,6 +4,8 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../../infrastructure/prisma/prisma.service";
 import { Product } from "../../catalog/domain/entities/product.entity";
 import { ProductRepository } from "../../catalog/domain/repositories/product.repository";
+import { Category } from "../../catalog/domain/entities/category.entity";
+import { MeasurementUnit } from "../../inventory/domain/entities/measurement-unit.entity";
 import { Stock } from "../../inventory/domain/entities/stock.entity";
 import { StockRepository } from "../../inventory/domain/repositories/stock.repository";
 import { PaymentGateway } from "../../payments/domain/payment-gateway";
@@ -19,9 +21,9 @@ const PRODUCT_ID = "10000000-0000-4000-8000-000000000001";
 const STOCK_ID = "20000000-0000-4000-8000-000000000001";
 
 test("create order usa mocks, calcula total e reserva estoque", async () => {
-  const product = Product.create({ id: PRODUCT_ID, name: "Cafeteira", slug: "cafeteira", description: "Compacta", priceCents: 2000 });
+  const product = Product.create({ id: PRODUCT_ID, name: "Cafeteira", slug: "cafeteira", description: "Compacta", priceCents: 2000, category: Category.create({ name: "Cafe", slug: "cafe" }) });
   const products = { findBySlug: async () => product } as unknown as ProductRepository;
-  const stock = Stock.create({ id: STOCK_ID, productId: PRODUCT_ID, availableQuantity: 5 });
+  const stock = Stock.create({ id: STOCK_ID, productId: PRODUCT_ID, availableQuantity: 5, unit: MeasurementUnit.create({ name: "Unidade", abbreviation: "un" }) });
   let reserved = 0;
   const stocks = { reserve: async (_productId: string, _variantId: string | null, quantity: number) => { reserved += quantity; return stock; } } as StockRepository;
   const gateway = {

@@ -1,5 +1,6 @@
 import { DomainError } from "../../../shared/domain/errors/domain-error";
 import { NonNegativeQuantity } from "../../../shared/domain/value-objects/non-negative-quantity.value-object";
+import { MeasurementUnit } from "./measurement-unit.entity";
 import { EntityId } from "../../../shared/domain/value-objects/entity-id.value-object";
 
 export type StockProps = {
@@ -8,6 +9,7 @@ export type StockProps = {
   variantId?: string | null;
   availableQuantity?: number;
   reservedQuantity?: number;
+  unit: MeasurementUnit;
 };
 
 export class Stock {
@@ -16,7 +18,8 @@ export class Stock {
     public readonly productId: string,
     public readonly variantId: string | null = null,
     private availableQuantity = 0,
-    private reservedQuantity = 0
+    private reservedQuantity = 0,
+    public unit: MeasurementUnit
   ) {}
 
   static create(props: StockProps) {
@@ -28,8 +31,24 @@ export class Stock {
       EntityId.create(props.productId, "ID do produto do estoque").value,
       props.variantId ? EntityId.create(props.variantId, "ID da variacao do estoque").value : null,
       availableQuantity.value,
-      reservedQuantity.value
+      reservedQuantity.value,
+      props.unit
     );
+  }
+
+  /** Estoque novo (0/0): a unidade precisa estar ativa. */
+  static open(props: { id?: string; productId: string; unit: MeasurementUnit }) {
+    props.unit.ensureAssignable();
+    return Stock.create({ id: props.id, productId: props.productId, unit: props.unit });
+  }
+
+  changeUnit(unit: MeasurementUnit) {
+    if (unit.id === this.unit.id) {
+      return;
+    }
+
+    unit.ensureAssignable();
+    this.unit = unit;
   }
 
   get available() {

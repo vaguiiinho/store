@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
+import { IsArray, IsInt, IsNotEmpty, IsString, IsUUID, Min } from "class-validator";
 
 export class UpdateProductDto {
   @IsString()
@@ -21,30 +21,6 @@ export class UpdateProductDto {
   @IsString({ each: true })
   images!: string[];
 
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  categoryIds!: string[];
-
-  @IsOptional()
-  @IsString()
-  variantName?: string;
-
-  @IsOptional()
-  @IsString()
-  variantValue?: string;
-
-  @IsOptional()
-  @IsString()
-  variantSku?: string;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  availableQuantity?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  reservedQuantity?: number;
+  @IsUUID("4")
+  categoryId!: string;
 }

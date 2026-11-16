@@ -1,25 +1,32 @@
+import { cookies } from "next/headers";
 import { PageHeader } from "../../../../../components/page-header";
 import { requireAdmin } from "../../../../../lib/session";
 import { AdminProductForm } from "../../../../../components/admin-product-form";
-import { getCategories } from "../../../../../lib/storefront-api";
+import { StatError } from "../../../../../components/stat-card";
+import { getAdminCategories, getAdminUnits } from "../../../../../lib/storefront-api";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminNovoProdutoPage() {
   await requireAdmin();
+  const cookieHeader = (await cookies()).toString();
+  const [categories, units] = await Promise.all([getAdminCategories(cookieHeader), getAdminUnits(cookieHeader)]);
 
-  const categories = await getCategories();
+  if (!categories || !units) {
+    return (
+      <>
+        <PageHeader title="Criar produto" />
+        <StatError label="categorias e unidades" />
+      </>
+    );
+  }
 
   return (
     <>
       <PageHeader title="Criar produto" />
-          {categories && categories.length > 0 ? (
-            <div className="rounded-[28px] border border-[color:var(--border)] bg-white/80 p-6">
-              <AdminProductForm mode="create" categories={categories} />
-            </div>
-          ) : (
-            <div className="rounded-[28px] border border-[color:var(--border)] bg-white/70 p-6 text-sm text-muted">
-              Nenhuma categoria ativa disponível para criar produto.
-            </div>
-          )}
+      <div className="surface rounded-[28px] p-6">
+        <AdminProductForm mode="create" categories={categories.filter((category) => category.active)} units={units.filter((unit) => unit.active)} />
+      </div>
     </>
   );
 }

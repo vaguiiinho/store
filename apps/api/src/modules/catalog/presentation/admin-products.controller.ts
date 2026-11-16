@@ -11,10 +11,12 @@ import {
 } from "@nestjs/common";
 import { AdminOnly } from "../../auth/presentation/decorators";
 import { DomainError } from "../../shared/domain/errors/domain-error";
-import { CreateProductUseCase } from "../application/create-product.use-case";
+import { CreateProductUseCase } from "../application/use-cases/create-product.use-case";
 import { GetAdminProductUseCase } from "../application/get-admin-product.use-case";
 import { ListAdminProductsUseCase } from "../application/list-admin-products.use-case";
-import { UpdateProductUseCase } from "../application/update-product.use-case";
+import { UpdateProductUseCase } from "../application/use-cases/update-product.use-case";
+import { toAdminProductOutput } from "../application/admin-product.output";
+import { toCategoryOutput } from "../application/category.output";
 import { UpdateProductStatusUseCase } from "../application/update-product-status.use-case";
 import { DeleteProductUseCase } from "../application/delete-product.use-case";
 import { ListCategoriesUseCase } from "../application/list-categories.use-case";
@@ -23,82 +25,6 @@ import { UpdateProductDto } from "./dto/update-product.dto";
 import { UpdateProductStatusDto } from "./dto/update-product-status.dto";
 import { AdjustStockDto } from "./dto/adjust-stock.dto";
 import { AdjustProductStockUseCase } from "../application/adjust-product-stock.use-case";
-
-function serializeCategory(category: { id: string; name: string; slug: string }) {
-  return {
-    id: category.id,
-    name: category.name,
-    slug: category.slug
-  };
-}
-
-function serializeVariant(variant: {
-  id: string;
-  name: string;
-  value: string;
-  sku: string | null;
-  active: boolean;
-}) {
-  return {
-    id: variant.id,
-    name: variant.name,
-    value: variant.value,
-    sku: variant.sku,
-    active: variant.active
-  };
-}
-
-function serializeStock(stock: {
-  id: string;
-  available: number;
-  reserved: number;
-} | null) {
-  if (!stock) {
-    return null;
-  }
-
-  return {
-    id: stock.id,
-    availableQuantity: stock.available,
-    reservedQuantity: stock.reserved
-  };
-}
-
-function serializeProduct(product: {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  priceCents: number;
-  images: string[];
-  active: boolean;
-  categories: Array<{ id: string; name: string; slug: string }>;
-  variants: Array<{
-    id: string;
-    name: string;
-    value: string;
-    sku: string | null;
-    active: boolean;
-  }>;
-  stock: {
-    id: string;
-    available: number;
-    reserved: number;
-  } | null;
-}) {
-  return {
-    id: product.id,
-    name: product.name,
-    slug: product.slug,
-    description: product.description,
-    priceCents: product.priceCents,
-    images: product.images,
-    active: product.active,
-    categories: product.categories.map(serializeCategory),
-    variants: product.variants.map(serializeVariant),
-    stock: serializeStock(product.stock)
-  };
-}
 
 @AdminOnly()
 @Controller()
@@ -118,7 +44,7 @@ export class AdminProductsController {
   async listAdminProducts() {
     const products = await this.listAdminProductsUseCase.execute();
 
-    return products.map(serializeProduct);
+    return products.map(toAdminProductOutput);
   }
 
   @Post("admin/products")
@@ -132,15 +58,11 @@ export class AdminProductsController {
         description: body.description,
         priceCents: body.priceCents,
         images: body.images,
-        categoryIds: body.categoryIds,
-        variantName: body.variantName ?? null,
-        variantValue: body.variantValue ?? null,
-        variantSku: body.variantSku ?? null,
-        availableQuantity: body.availableQuantity ?? 0,
-        reservedQuantity: body.reservedQuantity ?? 0
+        categoryId: body.categoryId,
+        unitId: body.unitId
       });
 
-      return serializeProduct(product);
+      return product;
     } catch (error) {
       if (error instanceof DomainError) {
         throw new BadRequestException(error.message);
@@ -161,8 +83,8 @@ export class AdminProductsController {
     const categories = await this.listCategoriesUseCase.execute(false);
 
     return {
-      product: serializeProduct(product),
-      categories: categories.map(serializeCategory)
+      product: toAdminProductOutput(product),
+      categories: categories.map(toCategoryOutput)
     };
   }
 
@@ -177,7 +99,7 @@ export class AdminProductsController {
         active: body.active
       });
 
-      return serializeProduct(product);
+      return toAdminProductOutput(product);
     } catch (error) {
       if (error instanceof DomainError) {
         throw new BadRequestException(error.message);
@@ -200,15 +122,10 @@ export class AdminProductsController {
         description: body.description,
         priceCents: body.priceCents,
         images: body.images,
-        categoryIds: body.categoryIds,
-        variantName: body.variantName ?? null,
-        variantValue: body.variantValue ?? null,
-        variantSku: body.variantSku ?? null,
-        availableQuantity: body.availableQuantity ?? 0,
-        reservedQuantity: body.reservedQuantity ?? 0
+        categoryId: body.categoryId
       });
 
-      return serializeProduct(product);
+      return product;
     } catch (error) {
       if (error instanceof DomainError) {
         throw new BadRequestException(error.message);
@@ -234,7 +151,7 @@ export class AdminProductsController {
     try {
       const product = await this.adjustProductStockUseCase.execute(id, body.delta);
       if (!product) throw new NotFoundException("Produto nao encontrado.");
-      return serializeProduct(product);
+      return toAdminProductOutput(product);
     } catch (error) {
       if (error instanceof DomainError) throw new BadRequestException(error.message);
       throw error;

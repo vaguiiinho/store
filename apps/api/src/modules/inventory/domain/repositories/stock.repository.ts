@@ -20,5 +20,7 @@ export interface StockRepository {
     tx?: Prisma.TransactionClient
   ): Promise<Stock>;
   save(stock: Stock, tx?: Prisma.TransactionClient): Promise<void>;
+  /** Atualiza somente `unitId` (evita lost update das quantidades). */
+  changeUnit(stockId: string, unitId: string): Promise<void>;
   adjustAvailable(productId: string, variantId: string | null, delta: number): Promise<Stock>;
 }

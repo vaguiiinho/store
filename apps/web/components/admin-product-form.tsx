@@ -1,9 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { formatCurrencyBRL } from "../lib/format";
 import { saveAdminProductAction } from "../app/actions/storefront-actions";
+
+type FormCategory = { id: string; name: string; slug: string; active?: boolean };
+type FormUnit = { id: string; name: string; abbreviation: string };
 
 type AdminProductFormProps = {
   mode: "create" | "edit";
@@ -14,29 +18,26 @@ type AdminProductFormProps = {
     description: string;
     priceCents: number;
     images: string[];
-    categories: Array<{ id: string; name: string; slug: string }>;
-    active?: boolean;
-    variants?: Array<{
-      id: string;
-      name: string;
-      value: string;
-      sku: string | null;
-      active: boolean;
-    }>;
+    category: FormCategory;
     stock?: {
       id: string;
       availableQuantity: number;
       reservedQuantity: number;
+      unit: FormUnit;
     } | null;
   };
-  categories: Array<{
-    id: string;
-    name: string;
-    slug: string;
-  }>;
+  /** Categorias selecionaveis (ativas + a atual no modo edit). */
+  categories: FormCategory[];
+  /** Unidades ativas, usadas apenas no modo create. */
+  units?: FormUnit[];
 };
 
-export function AdminProductForm({ mode, product, categories }: AdminProductFormProps) {
+const inputClass =
+  "w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-3 text-sm text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--accent)] aria-[invalid=true]:border-[color:var(--danger-border)]";
+const linkClass =
+  "font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--background)]";
+
+export function AdminProductForm({ mode, product, categories, units = [] }: AdminProductFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -50,7 +51,6 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
       .split("\n")
       .map((image) => image.trim())
       .filter(Boolean);
-    const nextCategoryIds = formData.getAll("categoryIds").map((value) => String(value));
 
     try {
       setIsSubmitting(true);
@@ -63,12 +63,8 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
         description: String(formData.get("description") ?? "").trim(),
         priceCents: Number(formData.get("priceCents") ?? 0),
         images: nextImages,
-        categoryIds: nextCategoryIds,
-        variantName: String(formData.get("variantName") ?? "").trim(),
-        variantValue: String(formData.get("variantValue") ?? "").trim(),
-        variantSku: String(formData.get("variantSku") ?? "").trim(),
-        availableQuantity: Number(formData.get("availableQuantity") ?? 0),
-        reservedQuantity: Number(formData.get("reservedQuantity") ?? 0)
+        categoryId: String(formData.get("categoryId") ?? ""),
+        ...(isCreate ? { unitId: String(formData.get("unitId") ?? "") } : {})
       };
 
       const response = await saveAdminProductAction(isCreate ? null : product?.id ?? null, payload);
@@ -89,10 +85,33 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
     }
   }
 
-  const selectedCategoryIds = new Set(product?.categories.map((category) => category.id) ?? []);
-  const primaryVariant = product?.variants?.[0] ?? null;
-  const currentAvailableQuantity = product?.stock?.availableQuantity ?? 0;
-  const currentReservedQuantity = product?.stock?.reservedQuantity ?? 0;
+  const defaultUnitId = units.find((unit) => unit.abbreviation.toLowerCase() === "un")?.id ?? "";
+  const unit = product?.stock?.unit ?? null;
+  const missingRequirements = isCreate && (categories.length === 0 || units.length === 0);
+
+  if (missingRequirements) {
+    return (
+      <div className="surface rounded-[24px] p-6 text-sm">
+        <p>Para criar um produto, é preciso ter ao menos uma categoria ativa e uma unidade de medida ativa.</p>
+        <ul className="mt-3 list-disc space-y-1 pl-5">
+          {categories.length === 0 ? (
+            <li>
+              <Link href="/admin/categorias" className={linkClass}>
+                Criar categoria
+              </Link>
+            </li>
+          ) : null}
+          {units.length === 0 ? (
+            <li>
+              <Link href="/admin/unidades" className={linkClass}>
+                Criar unidade
+              </Link>
+            </li>
+          ) : null}
+        </ul>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -141,72 +160,6 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
           />
           <p className="text-xs text-muted">O painel grava as URLs em linhas separadas como array de imagens.</p>
         </label>
-
-        <div className="rounded-[28px] border border-[color:var(--border)] bg-white/80 p-5">
-          <p className="text-sm font-semibold text-[#1d1712]">Variante principal</p>
-          <p className="mt-1 text-xs text-muted">Os produtos da v1 usam uma variante principal e uma linha de estoque.</p>
-
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-[#1d1712]">Nome da variante</span>
-              <input
-                type="text"
-                name="variantName"
-                defaultValue={primaryVariant?.name ?? ""}
-                placeholder="Cor, tamanho, acabamento..."
-                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
-              />
-            </label>
-
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-[#1d1712]">Valor da variante</span>
-              <input
-                type="text"
-                name="variantValue"
-                defaultValue={primaryVariant?.value ?? ""}
-                placeholder="Preto, M, premium..."
-                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
-              />
-            </label>
-          </div>
-
-          <label className="mt-4 block space-y-2">
-            <span className="text-sm font-semibold text-[#1d1712]">SKU</span>
-            <input
-              type="text"
-              name="variantSku"
-              defaultValue={primaryVariant?.sku ?? ""}
-              placeholder="Opcional"
-              className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
-            />
-          </label>
-
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-[#1d1712]">Disponível</span>
-              <input
-                type="number"
-                min={0}
-                step={1}
-                name="availableQuantity"
-                defaultValue={currentAvailableQuantity}
-                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
-              />
-            </label>
-
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-[#1d1712]">Reservado</span>
-              <input
-                type="number"
-                min={0}
-                step={1}
-                name="reservedQuantity"
-                defaultValue={currentReservedQuantity}
-                className="w-full rounded-2xl border border-[color:var(--border)] bg-white px-4 py-3 text-sm text-[#1d1712] outline-none transition placeholder:text-[#8b6f5b] focus:border-[color:rgba(124,79,36,0.45)]"
-              />
-            </label>
-          </div>
-        </div>
       </div>
 
       <div className="space-y-4">
@@ -227,29 +180,75 @@ export function AdminProductForm({ mode, product, categories }: AdminProductForm
             </div>
           </div>
 
-          <div className="mt-5 space-y-3">
-            <p className="text-sm font-semibold text-[#1d1712]">Categorias</p>
-            <div className="grid gap-3 sm:grid-cols-2">
+          <div className="mt-5 space-y-2">
+            <label htmlFor="product-category" className="text-sm font-semibold text-[#1d1712]">
+              Categoria
+            </label>
+            <select
+              id="product-category"
+              name="categoryId"
+              required
+              defaultValue={product?.category.id ?? ""}
+              aria-describedby="product-category-help"
+              className={inputClass}
+            >
+              {isCreate ? (
+                <option value="" disabled>
+                  Selecione...
+                </option>
+              ) : null}
               {categories.map((category) => (
-                <label
-                  key={category.id}
-                  className="flex items-start gap-3 rounded-2xl border border-[color:var(--border)] bg-white px-3 py-3 text-sm text-[#2d2119]"
-                >
-                  <input
-                    type="checkbox"
-                    name="categoryIds"
-                    value={category.id}
-                    defaultChecked={selectedCategoryIds.has(category.id)}
-                    className="mt-1 h-4 w-4 rounded border-[color:var(--border)] text-[#1d1712] focus:ring-[color:rgba(124,79,36,0.25)]"
-                  />
-                  <span>
-                    <span className="block font-semibold text-[#1d1712]">{category.name}</span>
-                    <span className="block text-xs text-muted">{category.slug}</span>
-                  </span>
-                </label>
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                  {category.active === false ? " (inativa)" : ""}
+                </option>
               ))}
-            </div>
+            </select>
+            <p id="product-category-help" className="text-xs text-muted">
+              Cada produto tem uma categoria.{" "}
+              <Link href="/admin/categorias" className={linkClass}>
+                Gerenciar categorias
+              </Link>
+            </p>
           </div>
+
+          {isCreate ? (
+            <div className="mt-5 space-y-2">
+              <label htmlFor="product-unit" className="text-sm font-semibold text-[#1d1712]">
+                Unidade
+              </label>
+              <select id="product-unit" name="unitId" required defaultValue={defaultUnitId} aria-describedby="product-unit-help" className={inputClass}>
+                <option value="" disabled>
+                  Selecione...
+                </option>
+                {units.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name} ({option.abbreviation})
+                  </option>
+                ))}
+              </select>
+              <p id="product-unit-help" className="text-xs text-muted">
+                Depois de criar, a unidade só muda em Estoque.
+              </p>
+            </div>
+          ) : unit ? (
+            <div className="mt-5 space-y-1">
+              <p className="text-sm font-semibold text-[#1d1712]">Unidade</p>
+              <p className="text-sm font-semibold">
+                {unit.name} ({unit.abbreviation})
+              </p>
+              <p>
+                <Link href="/admin/estoque" className={`text-sm ${linkClass}`}>
+                  Alterar em Estoque
+                </Link>
+              </p>
+              {product?.stock ? (
+                <p className="text-xs text-muted">
+                  Estoque: {product.stock.availableQuantity} {unit.abbreviation} disponível / {product.stock.reservedQuantity} {unit.abbreviation} reservado
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         {error ? (

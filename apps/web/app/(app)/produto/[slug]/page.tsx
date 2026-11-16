@@ -45,11 +45,11 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
             <h2 className="text-lg font-semibold">Descrição</h2>
             <p className="mt-3 text-sm leading-7 text-muted">{product.description}</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              {product.categories.map((category) => (
-                <span key={category.slug} className="rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold">
-                  {category.name}
+              {product.category ? (
+                <span className="rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold">
+                  {product.category.name}
                 </span>
-              ))}
+              ) : null}
             </div>
           </section>
 
