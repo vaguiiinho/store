@@ -34,8 +34,8 @@ As decisoes abaixo foram fechadas para a v1:
 
 - Gateway de pagamento: Mercado Pago.
 - Regra de frete: frete fixo por regiao, configurado manualmente no admin.
-- Estrategia de conta de cliente: checkout como visitante na v1, com conta opcional no futuro.
-- Autenticacao do admin: email e senha com sessao segura em cookie httpOnly e papel `admin`.
+- Estrategia de conta de cliente: login obrigatorio em todo o site; contas criadas somente por admin (sem cadastro publico).
+- Autenticacao: email e senha (hash scrypt) com sessao segura em cookie httpOnly e papeis `USER` e `ADMIN`.
 - Estrutura de estoque: reserva no momento da criacao do pedido, com expiracao para liberar quantidade.
 - E-mail transacional: Gmail free via SMTP com app password.
 - E-mail futuro recomendado: Resend.

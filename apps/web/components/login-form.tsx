@@ -1,11 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { loginAdminAction } from "../app/actions/storefront-actions";
+import { loginAction } from "../app/actions/storefront-actions";
 
-export function AdminLoginForm() {
+export function LoginForm() {
   const router = useRouter();
+  const next = useSearchParams().get("next");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -17,10 +18,10 @@ export function AdminLoginForm() {
       setIsSubmitting(true);
       setError(null);
 
-      const response = await loginAdminAction(String(formData.get("email") ?? "").trim(), String(formData.get("password") ?? ""));
+      const response = await loginAction(String(formData.get("email") ?? "").trim(), String(formData.get("password") ?? ""), next);
       if (!response.ok) throw new Error(response.message);
 
-      router.push("/");
+      router.replace(response.data?.redirectTo ?? "/");
       router.refresh();
     } catch (error) {
       setError(error instanceof Error ? error.message : "Falha ao autenticar.");
@@ -37,7 +38,8 @@ export function AdminLoginForm() {
           type="email"
           name="email"
           required
-          placeholder="admin@store.com"
+          autoComplete="username"
+          placeholder="voce@email.com"
           className="w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-3 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--accent)]"
         />
       </label>
@@ -48,6 +50,7 @@ export function AdminLoginForm() {
           type="password"
           name="password"
           required
+          autoComplete="current-password"
           placeholder="••••••••"
           className="w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-3 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--accent)]"
         />
@@ -60,7 +63,7 @@ export function AdminLoginForm() {
       ) : null}
 
       <div className="rounded-[24px] border border-[color:var(--accent)] bg-[color:var(--accent-soft)] p-4 text-sm leading-6 text-[color:var(--foreground)]">
-        Acesse produtos, estoque e pedidos com sessão protegida.
+        Sessão protegida por cookie httpOnly. Novas contas são criadas por um administrador.
       </div>
 
       <button

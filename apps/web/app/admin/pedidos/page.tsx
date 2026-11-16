@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { getAdminAuthMe, getAdminOrders } from "../../../lib/storefront-api";
+import { requireAdmin } from "../../../lib/session";
+import { getAdminOrders } from "../../../lib/storefront-api";
 import { formatCurrencyBRL } from "../../../lib/format";
 import { AdminOrderStatusControl } from "../../../components/admin-order-status-control";
 import { AdminOrderDeleteControl } from "../../../components/admin-order-delete-control";
@@ -20,11 +20,7 @@ function formatDateTime(value: string | null | undefined) {
 
 export default async function AdminPedidosPage() {
   const cookieHeader = (await cookies()).toString();
-  const session = await getAdminAuthMe(cookieHeader);
-
-  if (!session?.authenticated) {
-    redirect("/admin/login");
-  }
+  const session = await requireAdmin();
 
   const orders = await getAdminOrders(cookieHeader);
   const pendingOrders = orders?.filter((order) => order.status === "AWAITING_PAYMENT").length ?? 0;

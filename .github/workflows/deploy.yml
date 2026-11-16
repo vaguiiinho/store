@@ -1,0 +1,166 @@
+name: CI/CD Store
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  # Versão incrementada automaticamente a cada execução (1.0.<nº da execução>)
+  VERSION: 1.0.${{ github.run_number }}
+  API_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/store-api
+  WEB_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/store-web
+
+jobs:
+  # ==========================================
+  # CI: lint, testes e build (PRs e main)
+  # ==========================================
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      # O build/teste da API não conecta no banco; o valor só satisfaz o Prisma.
+      DATABASE_URL: postgresql://store:store@localhost:5432/store?schema=public
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Integration tests (Testcontainers)
+        run: npm run test:integration
+
+      - name: Build
+        run: npm run build
+
+  # ==========================================
+  # Build e push das imagens (só na main)
+  # ==========================================
+  build-and-push:
+    needs: ci
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # Os Dockerfiles são do monorepo: o contexto é a raiz (package-lock e workspaces).
+      - name: Build and push API (NestJS)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+          tags: |
+            ${{ env.API_IMAGE }}:${{ env.VERSION }}
+            ${{ env.API_IMAGE }}:latest
+
+      - name: Build and push Web (Next.js)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=/api
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+          tags: |
+            ${{ env.WEB_IMAGE }}:${{ env.VERSION }}
+            ${{ env.WEB_IMAGE }}:latest
+
+  # ==========================================
+  # CD: deploy na VPS por SSH
+  # ==========================================
+  # GitHub Secrets (Settings > Secrets and variables > Actions > Secrets) — só acesso de CI/CD:
+  #   DOCKER_HUB_USERNAME, DOCKER_HUB_ACCESS_TOKEN
+  #   VPS_HOST, VPS_USER, VPS_SSH_KEY (chave PRIVADA), VPS_KNOWN_HOSTS (saída de `ssh-keyscan -p <porta> <host>`)
+  # Config da aplicação (banco, AUTH_SECRET, admin, pagamento) fica em deploy/vps/.env (local, fora do Git)
+  # e é enviada à VPS com `npm run deploy:env -- usuario@host`; o CD não a sobrescreve.
+  # Variables (aba Variables): DEPLOY_ENABLED=true liga este job;
+  #   opcionais: VPS_PORT (padrão 22), VPS_PATH (padrão /root/projects/store).
+  deploy:
+    needs: build-and-push
+    if: github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_PORT: ${{ vars.VPS_PORT || '22' }}
+      VPS_PATH: ${{ vars.VPS_PATH || '/root/projects/store' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: deploy/vps
+
+      - name: Configurar SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host vps
+            HostName $VPS_HOST
+            User $VPS_USER
+            Port $VPS_PORT
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+          EOF
+
+      # O compose vai como .new: o deploy.sh valida antes de substituir (e guarda o anterior em .bak).
+      - name: Enviar compose e script
+        run: |
+          ssh vps "mkdir -p '$VPS_PATH'"
+          scp deploy/vps/docker-compose.yml "vps:$VPS_PATH/docker-compose.yml.new"
+          scp deploy/vps/deploy.sh "vps:$VPS_PATH/deploy.sh"
+
+      - name: Deploy ${{ env.VERSION }}
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: ssh vps "bash '$VPS_PATH/deploy.sh' '$VERSION' '$DOCKER_HUB_USERNAME'"
+
+      - name: Limpar credenciais locais
+        if: always()
+        run: rm -f ~/.ssh/deploy_key

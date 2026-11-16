@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { requireAdmin } from "../../../../lib/session";
+import { notFound } from "next/navigation";
 import { AdminProductForm } from "../../../../components/admin-product-form";
-import { getAdminAuthMe, getAdminProduct } from "../../../../lib/storefront-api";
+import { getAdminProduct } from "../../../../lib/storefront-api";
 
 export const dynamic = "force-dynamic";
 
@@ -15,11 +16,7 @@ type PageProps = {
 export default async function AdminProdutoPage({ params }: PageProps) {
   const { id } = await params;
   const cookieHeader = (await cookies()).toString();
-  const session = await getAdminAuthMe(cookieHeader);
-
-  if (!session?.authenticated) {
-    redirect("/admin/login");
-  }
+  const session = await requireAdmin();
 
   const productResponse = await getAdminProduct(id, cookieHeader);
 

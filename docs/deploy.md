@@ -1,63 +1,81 @@
-# Deploy com Docker e Nginx
+# Deploy na VPS (Docker + CI/CD)
 
 ## Objetivo
 
-Subir a loja virtual em ambiente de produção com:
-
-- PostgreSQL;
-- API NestJS;
-- frontend Next.js;
-- Nginx como reverse proxy.
+Subir a loja em produção com PostgreSQL, API NestJS e frontend Next.js, publicados pelo CI/CD
+(`.github/workflows/deploy.yml`) atrás do Nginx compartilhado da VPS (rede `projects-deploy-proxy`).
 
 ## Arquivos
 
-- `docker-compose.yml`
-- `apps/api/Dockerfile`
-- `apps/web/Dockerfile`
-- `deploy/nginx/default.conf`
+- `.github/workflows/deploy.yml`: CI (lint, testes, build), push das imagens e deploy por SSH.
+- `deploy/vps/docker-compose.yml`: stack de produção (postgres, api, web).
+- `deploy/vps/deploy.sh`: valida, baixa imagens, faz backup do banco e sobe a versão.
+- `deploy/vps/.env.example`: modelo do `.env` de produção.
+- `deploy/vps/.env`: o `.env` de produção real, **só na sua máquina** (ignorado pelo Git).
+- `deploy/vps/push-env.sh` (`npm run deploy:env`): envia o `deploy/vps/.env` para a VPS.
+- `apps/api/Dockerfile`, `apps/web/Dockerfile`.
 
-## Variaveis de ambiente
+## Onde fica cada segredo
 
-Crie os arquivos a partir de seus exemplos e preencha os valores de produção:
+**GitHub Secrets** (só acesso do CI/CD):
+
+| Secret | Uso |
+| --- | --- |
+| `DOCKER_HUB_USERNAME` | namespace das imagens `store-api`/`store-web` |
+| `DOCKER_HUB_ACCESS_TOKEN` | push no Docker Hub |
+| `VPS_HOST`, `VPS_USER` | destino do SSH |
+| `VPS_SSH_KEY` | chave privada do deploy |
+| `VPS_KNOWN_HOSTS` | saída de `ssh-keyscan -p <porta> <host>` |
+
+**GitHub Variables**: `DEPLOY_ENABLED=true` liga o deploy; opcionais `VPS_PORT` (22) e `VPS_PATH` (`/root/projects/store`).
+
+**`deploy/vps/.env`** (local): banco, `PUBLIC_ORIGIN`, `AUTH_SECRET`, admin, usuário demo e pagamento.
+É a fonte da verdade; a VPS recebe uma cópia em `$VPS_PATH/.env`. O CD nunca sobrescreve esse arquivo,
+só grava nele `APP_VERSION` e `DOCKER_HUB_USERNAME`.
+
+## Primeiro deploy
+
+1. Na sua máquina, crie e preencha o `.env` de produção:
+
+   ```bash
+   cp deploy/vps/.env.example deploy/vps/.env && chmod 600 deploy/vps/.env
+   ```
+
+   Obrigatórios: `POSTGRES_PASSWORD` (só letras e números: `openssl rand -hex 24`), `PUBLIC_ORIGIN`,
+   `AUTH_SECRET` (`openssl rand -base64 48`), `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+2. Envie para a VPS:
+
+   ```bash
+   npm run deploy:env -- root@SEU_HOST          # VPS_PORT e VPS_PATH opcionais no ambiente
+   ```
+
+3. Cadastre as 6 secrets e a variável `DEPLOY_ENABLED=true` no GitHub.
+4. Faça push na `main`. Sem `.env` na VPS ou com obrigatória vazia, o `deploy.sh` para antes de mexer em qualquer container.
+
+## Mudar um segredo depois
+
+Edite `deploy/vps/.env` e rode `npm run deploy:env -- root@SEU_HOST --restart` (aplica na hora;
+sem `--restart`, vale no próximo deploy). O `.env` anterior fica em `.env.bak` na VPS.
+
+O script recusa mudar `POSTGRES_USER`/`POSTGRES_PASSWORD` quando o banco já existe: o volume
+guarda a senha antiga. Para trocar, altere a senha dentro do Postgres primeiro.
+
+Guarde uma cópia do `deploy/vps/.env` num gerenciador de senhas: ele não está no Git.
+
+## Comandos na VPS
 
 ```bash
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env
-mkdir -p deploy/postgres
-cp deploy/postgres/.env.example deploy/postgres/.env
+bash deploy.sh 1.0.42          # redeploy/rollback para uma versão já publicada
+docker compose ps
+docker compose logs -f api web
 ```
 
-- `apps/api/.env` contém `DATABASE_URL`, `APP_URL`, `AUTH_SECRET`, credenciais do admin e integrações externas;
-- `apps/web/.env` contém `API_URL`, `NEXT_PUBLIC_API_URL` e `NEXT_PUBLIC_APP_URL`;
-- `deploy/postgres/.env` contém `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_DB`.
-
-## Comandos
-
-Subir a stack:
-
-```bash
-docker compose up -d --build
-```
-
-Ver logs:
-
-```bash
-docker compose logs -f
-```
-
-Descer a stack:
-
-```bash
-docker compose down
-```
+Nunca use `docker compose down -v`: apaga o volume do banco (`store-postgres-data`).
+Backups automáticos ficam em `backups/` (últimos 10).
 
 ## Roteamento
 
-- `http://SEU_HOST/` -> frontend Next.js
-- `http://SEU_HOST/api/*` -> backend NestJS
+- `https://SEU_HOST/` -> `store-web:3000`
+- `https://SEU_HOST/api/*` -> `store-api:3001`
 
-## Observacoes
-
-- O frontend consome a API via `/api` no browser.
-- O backend consome `DATABASE_URL` apontando para o container PostgreSQL.
-- O Nginx é a unica porta publica na stack.
+O Nginx fica no projeto de infra da VPS (`/root/projects/infra`); o `deploy.sh` o reinicia ao final.

@@ -12,6 +12,7 @@ type PrismaOrderRecord = {
   id: string;
   number: string;
   customerId: string | null;
+  userId: string | null;
   shippingAddressId: string;
   subtotalCents: number;
   shippingCents: number;
@@ -67,6 +68,7 @@ function mapOrder(record: PrismaOrderRecord) {
     id: record.id,
     number: record.number,
     customerId: record.customerId,
+    userId: record.userId,
     customer: record.customer
       ? Customer.create({
           id: record.customer.id,
@@ -211,9 +213,9 @@ export class PrismaOrderRepository implements OrderRepository {
     return orders.map((order) => mapOrder(order as PrismaOrderRecord));
   }
 
-  async findByCustomerContact(email: string, phone: string, limit = 20) {
+  async findByUserId(userId: string, limit = 50) {
     const orders = (await this.prisma.order.findMany({
-      where: { customer: { is: { email: email.trim().toLowerCase(), phone: phone.trim() } } },
+      where: { userId },
       include: { customer: true, shippingAddress: true, items: true, payment: true },
       orderBy: [{ createdAt: "desc" }], take: limit
     })) as PrismaOrderRecord[];
@@ -228,6 +230,7 @@ export class PrismaOrderRepository implements OrderRepository {
       create: {
         id: order.id,
         number: order.number,
+        user: order.userId ? { connect: { id: order.userId } } : undefined,
         customer: order.customer
           ? {
               connectOrCreate: {

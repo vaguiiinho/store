@@ -21,6 +21,7 @@ export type OrderProps = {
   id?: string;
   number: string;
   customerId?: string | null;
+  userId?: string | null;
   shippingAddress: Address;
   items?: OrderItem[];
   subtotalCents?: number;
@@ -43,7 +44,8 @@ export class Order {
     public status: OrderStatus = OrderStatus.CREATED,
     public payment: Payment | null = null,
     public customer: Customer | null = null,
-    public readonly createdAt: Date = new Date()
+    public readonly createdAt: Date = new Date(),
+    public readonly userId: string | null = null
   ) {}
 
   static create(props: OrderProps) {
@@ -60,7 +62,8 @@ export class Order {
       props.status ?? OrderStatus.CREATED,
       props.payment ?? null,
       props.customer ?? null,
-      props.createdAt ?? new Date()
+      props.createdAt ?? new Date(),
+      props.userId ? EntityId.create(props.userId, "ID do usuario").value : null
     );
 
     order.recalculateTotals();

@@ -22,8 +22,8 @@ Decisoes ja fechadas para a v1:
 - ORM Prisma;
 - pagamento via Mercado Pago;
 - frete fixo por regiao;
-- checkout como visitante;
-- admin com email, senha, cookie httpOnly e papel `admin`;
+- login obrigatorio em todo o site (sem checkout visitante);
+- usuarios com email, senha, cookie httpOnly e papeis `USER` e `ADMIN`; somente admin cria usuarios;
 - imagens no Cloudinary;
 - comandos oficiais com `npm`;
 - PostgreSQL em container Docker;

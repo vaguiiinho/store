@@ -1,15 +1,8 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { getAdminAuthMe } from "../../lib/storefront-api";
+import { requireAdmin } from "../../lib/session";
 
 export default async function AdminHomePage() {
-  const cookieHeader = (await cookies()).toString();
-  const session = await getAdminAuthMe(cookieHeader);
-
-  if (!session?.authenticated) {
-    redirect("/admin/login");
-  }
+  const session = await requireAdmin();
 
   return (
     <main className="page-shell min-h-screen px-6 py-8 sm:py-12">
@@ -41,6 +34,12 @@ export default async function AdminHomePage() {
                   Ver produtos
                 </Link>
                 <Link
+                  href="/admin/usuarios"
+                  className="inline-flex rounded-full border border-[color:rgba(124,79,36,0.24)] bg-white/70 px-5 py-3 text-sm font-semibold text-[#392a1e] transition hover:bg-white"
+                >
+                  Usuários
+                </Link>
+                <Link
                   href="/"
                   className="inline-flex rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-5 py-3 text-sm font-semibold transition hover:bg-white/10"
                 >
@@ -55,7 +54,7 @@ export default async function AdminHomePage() {
               <div className="rounded-[28px] border border-[color:var(--border)] bg-white/80 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#896139]">Pedidos</p>
                 <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#1d1712]">Operação</p>
-                <p className="mt-2 text-sm leading-6 text-muted">Acompanhe o status e a confirmação do checkout visitante.</p>
+                <p className="mt-2 text-sm leading-6 text-muted">Acompanhe o status e a confirmação dos pedidos de todos os clientes.</p>
               </div>
               <div className="rounded-[28px] border border-[color:var(--border)] bg-white/80 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#896139]">Produtos</p>

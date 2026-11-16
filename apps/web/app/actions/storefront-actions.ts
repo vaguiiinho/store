@@ -2,7 +2,8 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { storefrontService, type AdminProductInput, type ApiOrder, type CreateOrderInput } from "../../src/services/storefront-api";
+import { storefrontService, type AdminProductInput, type ApiOrder, type ApiUser, type CreateOrderInput, type CreateUserInput, type SessionUser, type UpdateUserInput } from "../../src/services/storefront-api";
+import { SESSION_COOKIE_NAME, SESSION_MAX_AGE_SECONDS } from "../../lib/session";
 
 type ActionResult<T = void> = { ok: true; data?: T } | { ok: false; message: string };
 
@@ -15,30 +16,82 @@ function result<T>(response: { ok: boolean; data?: T; message?: string }): Actio
 }
 
 export async function createOrderAction(input: CreateOrderInput): Promise<ActionResult<ApiOrder>> {
-  const response = await storefrontService.createOrder(input);
+  const response = await storefrontService.createOrder(input, await cookieHeader());
   if (response.ok) revalidatePath("/catalogo");
   return result(response);
 }
 
-export async function loginAdminAction(email: string, password: string): Promise<ActionResult> {
-  const response = await storefrontService.login(email, password);
-  if (!response.ok || !response.data.authenticated) return { ok: false, message: response.ok ? "Credenciais invalidas." : response.message };
+/** Destino seguro apos login: somente caminhos internos (evita open redirect). */
+function safeNextPath(next: string | null | undefined) {
+  return next && /^\/(?![/\\])/.test(next) && !next.includes("\\") && !next.startsWith("/login") ? next : "/";
+}
 
-  const setCookie = response.headers.get("set-cookie");
-  if (!setCookie) return { ok: false, message: "A sessao nao foi criada." };
-  const [nameValue] = setCookie.split(";");
+export async function loginAction(email: string, password: string, next?: string | null): Promise<ActionResult<{ user: SessionUser; redirectTo: string }>> {
+  const response = await storefrontService.login(email, password);
+  if (!response.ok) return { ok: false, message: response.status === 401 ? "E-mail ou senha invalidos." : response.message };
+
+  if (!(await storeSessionCookie(response.headers))) return { ok: false, message: "A sessao nao foi criada." };
+  return { ok: true, data: { user: response.data.user, redirectTo: safeNextPath(next) } };
+}
+
+/** Copia o cookie de sessao emitido pela API para o dominio da web. */
+async function storeSessionCookie(headers: Headers) {
+  const nameValue = headers.get("set-cookie")?.split(";")[0] ?? "";
   const separator = nameValue.indexOf("=");
-  if (separator <= 0) return { ok: false, message: "Cookie de sessao invalido." };
-  (await cookies()).set(nameValue.slice(0, separator), nameValue.slice(separator + 1), { httpOnly: true, sameSite: "lax", path: "/" });
+  if (separator <= 0 || nameValue.slice(0, separator) !== SESSION_COOKIE_NAME) return false;
+
+  (await cookies()).set(SESSION_COOKIE_NAME, nameValue.slice(separator + 1), {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    secure: (process.env.NEXT_PUBLIC_APP_URL ?? "").startsWith("https://")
+  });
+  return true;
+}
+
+export async function changeOwnPasswordAction(currentPassword: string, newPassword: string): Promise<ActionResult> {
+  const response = await storefrontService.changeOwnPassword(currentPassword, newPassword, await cookieHeader());
+  if (!response.ok) return { ok: false, message: response.message };
+  // A API invalida as sessoes antigas e devolve um cookie novo para esta sessao.
+  await storeSessionCookie(response.headers);
   return { ok: true };
 }
 
-export async function logoutAdminAction(): Promise<ActionResult> {
-  const response = await storefrontService.logout(await cookieHeader());
-  if (!response.ok) return { ok: false, message: response.message };
-  (await cookies()).delete("store_admin_session");
-  revalidatePath("/");
+export async function updateUserAction(id: string, input: UpdateUserInput): Promise<ActionResult<ApiUser>> {
+  const response = await storefrontService.updateAdminUser(id, input, await cookieHeader());
+  if (response.ok) revalidatePath("/admin/usuarios", "layout");
+  return result(response);
+}
+
+export async function deleteUserAction(id: string): Promise<ActionResult> {
+  const response = await storefrontService.deleteAdminUser(id, await cookieHeader());
+  if (response.ok) revalidatePath("/admin/usuarios", "layout");
+  return response.ok ? { ok: true } : { ok: false, message: response.message };
+}
+
+export async function setUserActiveAction(id: string, active: boolean): Promise<ActionResult> {
+  const response = await storefrontService.setAdminUserActive(id, active, await cookieHeader());
+  if (response.ok) revalidatePath("/admin/usuarios", "layout");
+  return response.ok ? { ok: true } : { ok: false, message: response.message };
+}
+
+export async function adminSetUserPasswordAction(id: string, newPassword: string): Promise<ActionResult> {
+  const response = await storefrontService.setAdminUserPassword(id, newPassword, await cookieHeader());
+  return response.ok ? { ok: true } : { ok: false, message: response.message };
+}
+
+export async function logoutAction(): Promise<ActionResult> {
+  await storefrontService.logout(await cookieHeader());
+  (await cookies()).delete(SESSION_COOKIE_NAME);
+  revalidatePath("/", "layout");
   return { ok: true };
+}
+
+export async function createUserAction(input: CreateUserInput): Promise<ActionResult<ApiUser>> {
+  const response = await storefrontService.createAdminUser(input, await cookieHeader());
+  if (response.ok) revalidatePath("/admin/usuarios");
+  return result(response);
 }
 
 export async function saveAdminProductAction(id: string | null, input: AdminProductInput): Promise<ActionResult<{ id: string }>> {

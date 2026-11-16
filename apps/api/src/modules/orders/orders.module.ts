@@ -10,13 +10,12 @@ import { PrismaProductRepository } from "../catalog/infrastructure/prisma/prisma
 import { PaymentsModule } from "../payments/payments.module";
 import { InventoryModule } from "../inventory/inventory.module";
 import { UpdateOrderStatusUseCase } from "./application/update-order-status.use-case";
-import { AdminAuthModule } from "../admin-auth/admin-auth.module";
 import { ExpireStockReservationsService } from "./application/expire-stock-reservations.service";
 import { DeleteOrderUseCase } from "./application/delete-order.use-case";
 import { DailyDataCleanupService } from "./application/daily-data-cleanup.service";
 
 @Module({
-  imports: [PrismaModule, PaymentsModule, InventoryModule, AdminAuthModule],
+  imports: [PrismaModule, PaymentsModule, InventoryModule],
   controllers: [OrdersController],
   providers: [
     CreateOrderUseCase,

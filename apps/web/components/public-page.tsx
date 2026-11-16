@@ -5,8 +5,7 @@ import { CartNavLink } from "./cart-nav-link";
 import { routeLinks } from "../lib/storefront-content";
 import { AuthNav } from "./auth-nav";
 import { ThemeToggle } from "./theme-toggle";
-import { getAdminAuthMe } from "../lib/storefront-api";
-import { cookies } from "next/headers";
+import { requireSession } from "../lib/session";
 
 type PublicPageProps = {
   eyebrow: string;
@@ -33,7 +32,7 @@ export async function PublicPage({
   showHighlights = false,
   children
 }: PublicPageProps) {
-  const session = await getAdminAuthMe((await cookies()).toString());
+  const user = await requireSession();
   return (
     <CartProvider>
     <div className="min-h-screen overflow-hidden">
@@ -62,7 +61,7 @@ export async function PublicPage({
                 </Link>
               ))}
               <CartNavLink />
-              <AuthNav email={session?.authenticated ? session.email : undefined} />
+              <AuthNav user={user} />
               <ThemeToggle />
             </nav>
           </div>

@@ -1,16 +1,10 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { requireAdmin } from "../../../../lib/session";
 import { AdminProductForm } from "../../../../components/admin-product-form";
-import { getAdminAuthMe, getCategories } from "../../../../lib/storefront-api";
+import { getCategories } from "../../../../lib/storefront-api";
 
 export default async function AdminNovoProdutoPage() {
-  const cookieHeader = (await cookies()).toString();
-  const session = await getAdminAuthMe(cookieHeader);
-
-  if (!session?.authenticated) {
-    redirect("/admin/login");
-  }
+  const session = await requireAdmin();
 
   const categories = await getCategories();
 

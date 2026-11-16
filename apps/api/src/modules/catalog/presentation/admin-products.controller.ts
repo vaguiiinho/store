@@ -3,15 +3,13 @@ import {
   Body,
   Controller,
   Get,
-  Headers,
   Param,
   Post,
   Patch,
   Delete,
-  NotFoundException,
-  UnauthorizedException
+  NotFoundException
 } from "@nestjs/common";
-import { AdminAuthService } from "../../admin-auth/admin-auth.service";
+import { AdminOnly } from "../../auth/presentation/decorators";
 import { DomainError } from "../../shared/domain/errors/domain-error";
 import { CreateProductUseCase } from "../application/create-product.use-case";
 import { GetAdminProductUseCase } from "../application/get-admin-product.use-case";
@@ -102,6 +100,7 @@ function serializeProduct(product: {
   };
 }
 
+@AdminOnly()
 @Controller()
 export class AdminProductsController {
   constructor(
@@ -112,18 +111,11 @@ export class AdminProductsController {
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly updateProductStatusUseCase: UpdateProductStatusUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
-    private readonly adjustProductStockUseCase: AdjustProductStockUseCase,
-    private readonly adminAuthService: AdminAuthService
+    private readonly adjustProductStockUseCase: AdjustProductStockUseCase
   ) {}
 
   @Get("admin/products")
-  async listAdminProducts(@Headers("cookie") cookieHeader?: string) {
-    const session = this.adminAuthService.verifyCookie(cookieHeader);
-
-    if (!session) {
-      throw new UnauthorizedException("Autenticacao de admin necessaria.");
-    }
-
+  async listAdminProducts() {
     const products = await this.listAdminProductsUseCase.execute();
 
     return products.map(serializeProduct);
@@ -131,15 +123,8 @@ export class AdminProductsController {
 
   @Post("admin/products")
   async createProduct(
-    @Body() body: CreateProductDto,
-    @Headers("cookie") cookieHeader?: string
+    @Body() body: CreateProductDto
   ) {
-    const session = this.adminAuthService.verifyCookie(cookieHeader);
-
-    if (!session) {
-      throw new UnauthorizedException("Autenticacao de admin necessaria.");
-    }
-
     try {
       const product = await this.createProductUseCase.execute({
         name: body.name,
@@ -166,13 +151,7 @@ export class AdminProductsController {
   }
 
   @Get("admin/products/:id")
-  async getAdminProduct(@Param("id") id: string, @Headers("cookie") cookieHeader?: string) {
-    const session = this.adminAuthService.verifyCookie(cookieHeader);
-
-    if (!session) {
-      throw new UnauthorizedException("Autenticacao de admin necessaria.");
-    }
-
+  async getAdminProduct(@Param("id") id: string) {
     const product = await this.getAdminProductUseCase.execute(id);
 
     if (!product) {
@@ -190,15 +169,8 @@ export class AdminProductsController {
   @Patch("admin/products/:id/status")
   async updateProductStatus(
     @Param("id") id: string,
-    @Body() body: UpdateProductStatusDto,
-    @Headers("cookie") cookieHeader?: string
+    @Body() body: UpdateProductStatusDto
   ) {
-    const session = this.adminAuthService.verifyCookie(cookieHeader);
-
-    if (!session) {
-      throw new UnauthorizedException("Autenticacao de admin necessaria.");
-    }
-
     try {
       const product = await this.updateProductStatusUseCase.execute({
         productId: id,
@@ -218,15 +190,8 @@ export class AdminProductsController {
   @Patch("admin/products/:id")
   async updateProduct(
     @Param("id") id: string,
-    @Body() body: UpdateProductDto,
-    @Headers("cookie") cookieHeader?: string
+    @Body() body: UpdateProductDto
   ) {
-    const session = this.adminAuthService.verifyCookie(cookieHeader);
-
-    if (!session) {
-      throw new UnauthorizedException("Autenticacao de admin necessaria.");
-    }
-
     try {
       const product = await this.updateProductUseCase.execute({
         productId: id,
@@ -254,8 +219,7 @@ export class AdminProductsController {
   }
 
   @Delete("admin/products/:id")
-  async deleteProduct(@Param("id") id: string, @Headers("cookie") cookieHeader?: string) {
-    if (!this.adminAuthService.verifyCookie(cookieHeader)) throw new UnauthorizedException("Autenticacao de admin necessaria.");
+  async deleteProduct(@Param("id") id: string) {
     try {
       await this.deleteProductUseCase.execute(id);
       return { deleted: true };
@@ -266,8 +230,7 @@ export class AdminProductsController {
   }
 
   @Patch("admin/products/:id/stock")
-  async adjustStock(@Param("id") id: string, @Body() body: AdjustStockDto, @Headers("cookie") cookieHeader?: string) {
-    if (!this.adminAuthService.verifyCookie(cookieHeader)) throw new UnauthorizedException("Autenticacao de admin necessaria.");
+  async adjustStock(@Param("id") id: string, @Body() body: AdjustStockDto) {
     try {
       const product = await this.adjustProductStockUseCase.execute(id, body.delta);
       if (!product) throw new NotFoundException("Produto nao encontrado.");
